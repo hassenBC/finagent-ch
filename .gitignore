@@ -1,0 +1,18 @@
+docs/*
+
+# secrets
+.env
+
+# data (public reports, not ours to redistribute)
+data/raw/
+data/parsed/
+
+# caches and local state
+.cache/
+.vast/
+remote_out/
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
