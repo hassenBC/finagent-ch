@@ -1,0 +1,22 @@
+# Defaults shared by every experiment. Experiment YAMLs override these.
+
+llm:
+  default: deepseek_flash
+  judge: deepseek_pro            # keep fixed across all compared runs
+  cache_dir: .cache/llm
+
+  # OpenAI-compatible endpoints. api_key_env names a variable in .env.
+  providers:
+    deepseek: {base_url: "https://api.deepseek.com", api_key_env: DEEPSEEK_API_KEY}
+    # Phase 9: vLLM on a vast.ai GPU, reached via `make vast-tunnel`
+    vllm: {base_url: "http://localhost:8000/v1", api_key_env: VLLM_API_KEY}
+
+  # Prices in USD per million tokens (uncached input / output).
+  # DeepSeek: peak-hour rates, i.e. an upper bound. Verify on
+  # https://api-docs.deepseek.com/quick_start/pricing and model ids with `make llm-models`.
+  models:
+    deepseek_flash: {provider: deepseek, model: deepseek-chat, price_in: 0.30, price_out: 1.20}
+    deepseek_pro: {provider: deepseek, model: deepseek-reasoner, price_in: 1.32, price_out: 3.96}
+
+db:
+  url_env: DATABASE_URL
