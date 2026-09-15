@@ -13,10 +13,10 @@ llm:
 
   # Prices in USD per million tokens (uncached input / output).
   # DeepSeek: peak-hour rates, i.e. an upper bound. Verify on
-  # https://api-docs.deepseek.com/quick_start/pricing and model ids with `make llm-models`.
+  # https://api-docs.deepseek.com/quick_start/pricing; model ids checked with `make llm-models` (2026-11-06).
   models:
-    deepseek_flash: {provider: deepseek, model: deepseek-chat, price_in: 0.30, price_out: 1.20}
-    deepseek_pro: {provider: deepseek, model: deepseek-reasoner, price_in: 1.32, price_out: 3.96}
+    deepseek_flash: {provider: deepseek, model: deepseek-flash, price_in: 0.30, price_out: 1.20}
+    deepseek_pro: {provider: deepseek, model: deepseek-v4-pro, price_in: 1.32, price_out: 3.96}
 
 db:
   url_env: DATABASE_URL
