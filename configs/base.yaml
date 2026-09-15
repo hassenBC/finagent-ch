@@ -8,8 +8,8 @@ llm:
   # OpenAI-compatible endpoints. api_key_env names a variable in .env.
   providers:
     deepseek: {base_url: "https://api.deepseek.com", api_key_env: DEEPSEEK_API_KEY}
-    # Phase 9: vLLM on a vast.ai GPU, reached via `make vast-tunnel`
-    vllm: {base_url: "http://localhost:8000/v1", api_key_env: VLLM_API_KEY}
+    # Phase 9: self-hosted models served by Ollama on this laptop
+    ollama: {base_url: "http://localhost:11434/v1", api_key_env: OLLAMA_API_KEY}
 
   # Prices in USD per million tokens (uncached input / output).
   # DeepSeek: peak-hour rates, i.e. an upper bound. Verify on

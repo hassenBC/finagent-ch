@@ -1,6 +1,6 @@
 """The only place the code talks to an LLM.
 
-One client for every OpenAI-compatible endpoint (DeepSeek, vLLM on vast.ai, ...), with a
+One client for every OpenAI-compatible endpoint (DeepSeek, local Ollama, ...), with a
 disk cache, retries, structured-output validation and per-call cost accounting.
 """
 

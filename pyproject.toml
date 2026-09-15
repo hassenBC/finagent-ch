@@ -26,11 +26,11 @@ dependencies = [
 ]
 
 # Heavy ML stack. Pick exactly one:
-#   laptop / CI:  uv sync --extra cpu
-#   vast.ai GPU:  uv sync --extra gpu
+#   CPU only:     uv sync --extra cpu
+#   laptop GPU:   uv sync --extra gpu   (CUDA 12.9 wheels, driver >= 525)
 [project.optional-dependencies]
-cpu = ["torch>=2.14,<2.15", "torchvision>=0.29,<0.30", "sentence-transformers>=3", "docling>=2"]
-gpu = ["torch>=2.14,<2.15", "torchvision>=0.29,<0.30", "sentence-transformers>=3", "docling>=2"]
+cpu = ["torch>=2.13,<2.14", "torchvision>=0.28,<0.29", "sentence-transformers>=3", "docling>=2"]
+gpu = ["torch>=2.13,<2.14", "torchvision>=0.28,<0.29", "sentence-transformers>=3", "docling>=2"]
 
 [dependency-groups]
 dev = ["pytest>=8", "pytest-xdist>=3", "ruff>=0.6"]
@@ -48,11 +48,11 @@ conflicts = [[{ extra = "cpu" }, { extra = "gpu" }]]
 [tool.uv.sources]
 torch = [
     { index = "pytorch-cpu", extra = "cpu" },
-    { index = "pytorch-cu130", extra = "gpu" },
+    { index = "pytorch-cu129", extra = "gpu" },
 ]
 torchvision = [
     { index = "pytorch-cpu", extra = "cpu" },
-    { index = "pytorch-cu130", extra = "gpu" },
+    { index = "pytorch-cu129", extra = "gpu" },
 ]
 
 [[tool.uv.index]]
@@ -61,8 +61,8 @@ url = "https://download.pytorch.org/whl/cpu"
 explicit = true
 
 [[tool.uv.index]]
-name = "pytorch-cu130"
-url = "https://download.pytorch.org/whl/cu130"
+name = "pytorch-cu129"
+url = "https://download.pytorch.org/whl/cu129"
 explicit = true
 
 [tool.ruff]

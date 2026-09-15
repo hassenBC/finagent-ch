@@ -13,4 +13,5 @@ make test
 make llm-smoke         # run twice: second call is cached and free
 ```
 
-GPU work (embeddings, reranking, self-hosted models) runs on a rented vast.ai instance: see `scripts/vast/vast.sh`.
+Embeddings, reranking and parsing run on a local CUDA GPU (`uv sync --extra gpu`, check with `make gpu-smoke`);
+without one, use `uv sync --extra cpu`.
