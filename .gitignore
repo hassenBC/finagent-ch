@@ -9,8 +9,6 @@ data/parsed/
 
 # caches and local state
 .cache/
-.vast/
-remote_out/
 .venv/
 __pycache__/
 *.pyc
