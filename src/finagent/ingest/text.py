@@ -19,3 +19,13 @@ def normalise_numbers(text: str) -> str:
     text = _SPACE_GROUPS.sub(lambda m: m.group(1) + re.sub(r"\D", "", m.group(2)), text)
     text = _COMMA_GROUPS.sub(lambda m: m.group(1) + m.group(2).replace(",", ""), text)
     return _DECIMAL_COMMA.sub(".", text)
+
+
+BANK_NAMES = {
+    "juliusbaer": "Julius Baer",
+    "vontobel": "Vontobel",
+    "efg": "EFG International",
+    "swissquote": "Swissquote",
+    "bcv": "BCV",
+    "bcge": "BCGE",
+}
