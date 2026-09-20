@@ -1,4 +1,4 @@
-.PHONY: setup db-up db-down migrate test test-unit lint fmt llm-smoke llm-models gpu-smoke
+.PHONY: setup db-up db-down migrate test test-unit lint fmt llm-smoke llm-models gpu-smoke download ingest embed-small
 
 UV  ?= uv
 RUN := $(UV) run
@@ -39,3 +39,12 @@ llm-models:       ## list model ids served by the default provider
 
 gpu-smoke:        ## embed 3 sentences on CUDA
 	$(RUN) python scripts/gpu_smoke.py
+
+download:         ## fetch the PDFs in data/sources.csv (records sha256)
+	$(RUN) python -m finagent.ingest.download
+
+ingest:           ## parse, chunk and load every document (idempotent)
+	$(RUN) python -m finagent.ingest.run
+
+embed-small:      ## embed all chunkers with multilingual-e5-small
+	$(RUN) python -m finagent.ingest.embed e5_small
