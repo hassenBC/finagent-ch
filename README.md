@@ -15,3 +15,26 @@ make llm-smoke         # run twice: second call is cached and free
 
 Embeddings, reranking and parsing run on a local CUDA GPU (`uv sync --extra gpu`, check with `make gpu-smoke`);
 without one, use `uv sync --extra cpu`.
+
+## Evaluation dataset
+
+`eval/datasets/qa_dev.jsonl` (100 questions, tuned on) and `qa_test.jsonl` (50 questions, run once per final
+configuration). `sha256(qa_test.jsonl) = d67c600f3df740eec6437a888f163a1be2101747a5959879e5d8d2759d89b987`.
+
+**How the dataset was built.** Pages were sampled with a fixed seed, round-robin over the 12 reports (6 banks x
+FY2024/FY2025) so every document contributes. An LLM (`deepseek-flash`) proposed one question per page for a requested
+type and wording style (literal or paraphrased); `eval/build_candidates.py` then machine-checks each proposal: the evidence
+words and numbers must occur on the gold page, and numeric answers and calculations must be consistent with the page.
+`eval/assemble.py` filters ambiguous items (questions that name only a different fiscal year than the gold document,
+that leak the numbers they ask for, or comparisons with a "no difference" answer), balances banks and years, uses each gold
+page at most once, and splits stratified by type and language. Gold labels are **pages**, not chunks, so the dataset is
+independent of the chunker. About 58 % of items are paraphrased (question/evidence word overlap below 0.2).
+
+**Limits you should know about.**
+
+- The questions are model-proposed and machine-checked, not written by hand. Answers were not independently re-derived
+  from the PDFs; the check is that the evidence and the numbers occur on the gold page. A manual spot check of 20 items is
+  still to do.
+- "Unanswerable" items were screened by looking at the nearest passages in the same bank's reports, not by an exhaustive search,
+  and most ask about 2026 forecasts.
+- Random page sampling yields many detail questions (governance, notes) and few headline KPIs.

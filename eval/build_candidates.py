@@ -36,7 +36,10 @@ TARGETS = {
     "unanswerable": 15,
 }
 OVERSAMPLE = 1.7
-OVERSAMPLE_BY_TYPE = {"comparison": 5.0}  # most page pairs share no comparable metric
+OVERSAMPLE_BY_TYPE = {
+    "comparison": 5.0,
+    "unanswerable": 2.6,
+}  # most page pairs share no comparable metric
 
 
 class Proposal(BaseModel):
