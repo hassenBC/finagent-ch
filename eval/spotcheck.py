@@ -19,7 +19,11 @@ SEED = 7
 
 
 def items() -> list[dict]:
-    rows = [json.loads(ln) for n in ("dev", "test") for ln in open(DS / f"qa_{n}.jsonl")]
+    rows = [
+        json.loads(ln)
+        for n in ("dev", "test")
+        for ln in (DS / f"qa_{n}.jsonl").read_text().splitlines()
+    ]
     rows.sort(key=lambda r: r["id"])
     return random.Random(SEED).sample(rows, 20)
 
