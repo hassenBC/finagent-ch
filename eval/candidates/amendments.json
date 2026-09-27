@@ -1,0 +1,106 @@
+{
+  "006c494c": {
+    "question": "Après avoir lu les autres informations du rapport annuel 2024 de la BCGE (hors états financiers audités), quelle remarque l’organe de révision a-t-il à formuler ?",
+    "notes": "Reworded after the blind spot check: the original wording could also ask whether the other information is audited (it is not covered by the opinion)."
+  },
+  "1f934334": {
+    "extra_alt": [
+      [
+        "bcv",
+        2025,
+        123
+      ]
+    ],
+    "notes": "Extra alternate pages found by the blind spot check; verified to contain the fact."
+  },
+  "49ac6022": {
+    "extra_alt": [
+      [
+        "vontobel",
+        2024,
+        235
+      ]
+    ],
+    "notes": "Extra alternate pages found by the blind spot check; verified to contain the fact."
+  },
+  "86bad42a": {
+    "extra_alt": [
+      [
+        "bcv",
+        2025,
+        3
+      ]
+    ],
+    "notes": "Extra alternate pages found by the blind spot check; verified to contain the fact."
+  },
+  "23451196": {
+    "extra_alt": [
+      [
+        "juliusbaer",
+        2024,
+        191
+      ]
+    ],
+    "notes": "Extra alternate pages found by the blind spot check; verified to contain the fact."
+  },
+  "2fc3130a": {
+    "extra_alt": [
+      [
+        "swissquote",
+        2024,
+        97
+      ],
+      [
+        "swissquote",
+        2024,
+        73
+      ]
+    ],
+    "notes": "Extra alternate pages found by the blind spot check; verified to contain the fact."
+  },
+  "33a37550": {
+    "extra_alt": [
+      [
+        "bcge",
+        2024,
+        31
+      ]
+    ],
+    "notes": "Extra alternate pages found by the blind spot check; verified to contain the fact."
+  },
+  "d9416eed": {
+    "extra_alt": [
+      [
+        "efg",
+        2024,
+        195
+      ]
+    ],
+    "notes": "Extra alternate pages found by the blind spot check; verified to contain the fact."
+  },
+  "c7767ed8": {
+    "extra_alt": [
+      [
+        "swissquote",
+        2024,
+        16
+      ],
+      [
+        "swissquote",
+        2024,
+        21
+      ],
+      [
+        "swissquote",
+        2024,
+        26
+      ],
+      [
+        "swissquote",
+        2024,
+        242
+      ]
+    ],
+    "notes": "Extra alternate pages found by the blind spot check; verified to contain the fact."
+  }
+}

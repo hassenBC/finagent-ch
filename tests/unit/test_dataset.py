@@ -47,6 +47,8 @@ def test_schema_and_answerability(items):
             assert i["type"] == "unanswerable" and not i["gold_pages"]
         if i["type"] == "comparison":
             assert len({(p["sha256"], p["page"]) for p in i["gold_pages"]}) == 2
+        assert isinstance(i["alt_pages"], list)
+        assert not i["alt_pages"] or i["answerable"]
         if i["answer_numeric"]:
             assert i["answer_numeric"]["tolerance"] > 0
 
@@ -84,3 +86,7 @@ def test_gold_pages_exist_and_contain_evidence(items):
             texts.append(pages[(g["sha256"], g["page"])])
         if i["answerable"]:
             assert evidence_on_pages(i["evidence"], texts), (i["id"], i["evidence"][:80])
+        gold = {(g["sha256"], g["page"]) for g in i["gold_pages"]}
+        for a in i["alt_pages"]:
+            assert (a["sha256"], a["page"]) in pages, (i["id"], a)
+            assert (a["sha256"], a["page"]) not in gold, (i["id"], a)
