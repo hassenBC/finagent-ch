@@ -35,6 +35,32 @@ def _insert_document(conn: psycopg.Connection, row: dict[str, str], n_pages: int
     ).fetchone()[0]
 
 
+def insert_chunks(conn: psycopg.Connection, doc_id: int, chunks: list, ts: str, tok) -> None:
+    with conn.cursor() as cur:
+        cur.executemany(
+            """INSERT INTO chunks (doc_id, chunker, page_start, page_end, section_path,
+                                   kind, content, n_tokens, ts_config, tsv)
+               VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s::regconfig,
+                       to_tsvector(%s::regconfig, %s))""",
+            [
+                (
+                    doc_id,
+                    c.chunker,
+                    c.page_start,
+                    c.page_end,
+                    c.section_path,
+                    c.kind,
+                    c.content,
+                    len(tok.encode(c.content)),
+                    ts,
+                    ts,
+                    normalise_numbers(c.content),
+                )
+                for c in chunks
+            ],
+        )
+
+
 def ingest_document(row: dict[str, str], tok) -> bool:
     """Ingest one PDF; return False if it was already present."""
     with pool().connection() as conn:
@@ -56,30 +82,7 @@ def ingest_document(row: dict[str, str], tok) -> bool:
                 + chunk_structure(blocks, tok)
                 + chunk_table_aware(blocks, meta, tok)
             )
-            ts = TS_CONFIG[row["lang"]]
-            with conn.cursor() as cur:
-                cur.executemany(
-                    """INSERT INTO chunks (doc_id, chunker, page_start, page_end, section_path,
-                                           kind, content, n_tokens, ts_config, tsv)
-                       VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s::regconfig,
-                               to_tsvector(%s::regconfig, %s))""",
-                    [
-                        (
-                            doc_id,
-                            c.chunker,
-                            c.page_start,
-                            c.page_end,
-                            c.section_path,
-                            c.kind,
-                            c.content,
-                            len(tok.encode(c.content)),
-                            ts,
-                            ts,
-                            normalise_numbers(c.content),
-                        )
-                        for c in chunks
-                    ],
-                )
+            insert_chunks(conn, doc_id, chunks, TS_CONFIG[row["lang"]], tok)
     return True
 
 

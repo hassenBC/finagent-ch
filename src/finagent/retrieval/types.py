@@ -39,7 +39,7 @@ class Rerank(BaseModel):
 
 class RetrievalConfig(BaseModel):
     name: str
-    chunker: Literal["fixed512", "structure", "table_aware"] = "table_aware"
+    chunker: str = "table_aware"
     embedding_model: Literal["e5_small", "e5_large", "bge_m3"] = "e5_small"
     retrieval: Literal["fts", "vector", "hybrid"] = "hybrid"
     fusion: Fusion = Field(default_factory=Fusion)

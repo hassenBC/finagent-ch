@@ -317,3 +317,23 @@ def chunk_table_aware(
     packer.flush()
     out += packer.out
     return out
+
+
+# ------------------------------------------------------- ablation variants
+
+
+def with_context_header(chunks: list[Chunk], doc_meta: dict, name: str) -> list[Chunk]:
+    """Prefix chunks with the `Bank | Year | Section` header and rename the chunker."""
+    out = []
+    for c in chunks:
+        header = _context(doc_meta, c.section_path.split(" > ") if c.section_path else [])
+        out.append(c.model_copy(update={"chunker": name, "content": f"{header}\n{c.content}"}))
+    return out
+
+
+def without_context_header(chunks: list[Chunk], name: str) -> list[Chunk]:
+    """Drop the first line (the context header) of table_aware chunks and rename the chunker."""
+    return [
+        c.model_copy(update={"chunker": name, "content": c.content.split("\n", 1)[1]})
+        for c in chunks
+    ]
