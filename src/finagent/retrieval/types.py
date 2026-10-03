@@ -1,0 +1,55 @@
+"""Shared retrieval types: Hit, Filters and the experiment config."""
+
+from __future__ import annotations
+
+from typing import Literal
+
+import yaml
+from pydantic import BaseModel, Field
+
+from finagent.config import ROOT
+
+
+class Hit(BaseModel):
+    chunk_id: int
+    doc_id: int
+    page_start: int
+    page_end: int
+    content: str
+    score: float
+    source: str  # 'fts' | 'vector' | 'fused' | 'rerank'
+
+
+class Filters(BaseModel):
+    banks: list[str] | None = None
+    years: list[int] | None = None
+
+
+class Fusion(BaseModel):
+    k: int = 60
+    fts_candidates: int = 50
+    vector_candidates: int = 50
+
+
+class Rerank(BaseModel):
+    enabled: bool = False
+    model: str = "BAAI/bge-reranker-v2-m3"
+    candidates: int = 50
+
+
+class RetrievalConfig(BaseModel):
+    name: str
+    chunker: Literal["fixed512", "structure", "table_aware"] = "table_aware"
+    embedding_model: Literal["e5_small", "e5_large", "bge_m3"] = "e5_small"
+    retrieval: Literal["fts", "vector", "hybrid"] = "hybrid"
+    fusion: Fusion = Field(default_factory=Fusion)
+    use_metadata_filters: bool = False
+    rerank: Rerank = Field(default_factory=Rerank)
+    ann: bool = True  # False = exact vector search (no HNSW), for measuring approximation loss
+    top_k: int = 10
+    dataset: str = "eval/datasets/qa_dev.jsonl"
+
+    @classmethod
+    def from_yaml(cls, path: str) -> RetrievalConfig:
+        with open(ROOT / path if not path.startswith("/") else path) as f:
+            return cls.model_validate(yaml.safe_load(f))
