@@ -26,7 +26,7 @@ def retrieve(query: str, cfg: RetrievalConfig, filters: Filters | None = None) -
     for q in queries:
         if cfg.retrieval in ("fts", "hybrid"):
             n = fusion.fts_candidates if cfg.retrieval == "hybrid" else max(pool_size, cfg.top_k)
-            lists.append(fts_search(q, cfg.chunker, n, detect_ts_config(q), filters))
+            lists.append(fts_search(q, cfg.chunker, n, detect_ts_config(q), filters, cfg.fts))
         if cfg.retrieval in ("vector", "hybrid"):
             n = fusion.vector_candidates if cfg.retrieval == "hybrid" else max(pool_size, cfg.top_k)
             lists.append(
