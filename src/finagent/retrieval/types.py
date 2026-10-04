@@ -37,6 +37,12 @@ class Rerank(BaseModel):
     candidates: int = 50
 
 
+class Expansion(BaseModel):
+    enabled: bool = False
+    n: int = 3
+    model: str = "deepseek_flash"
+
+
 class RetrievalConfig(BaseModel):
     name: str
     chunker: str = "table_aware"
@@ -45,6 +51,7 @@ class RetrievalConfig(BaseModel):
     fusion: Fusion = Field(default_factory=Fusion)
     use_metadata_filters: bool = False
     rerank: Rerank = Field(default_factory=Rerank)
+    expansion: Expansion = Field(default_factory=Expansion)
     ann: bool = True  # False = exact vector search (no HNSW), for measuring approximation loss
     top_k: int = 10
     dataset: str = "eval/datasets/qa_dev.jsonl"
