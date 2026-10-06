@@ -31,6 +31,12 @@ class Fusion(BaseModel):
     vector_candidates: int = 50
 
 
+class FTSOptions(BaseModel):
+    rank: Literal["cd", "plain"] = "cd"  # ts_rank_cd (cover density) or ts_rank
+    normalization: int = 0  # Postgres rank normalisation flags, e.g. 1 = divide by 1+log(length)
+    max_df: float | None = None  # drop query terms found in more than this share of chunks
+
+
 class Rerank(BaseModel):
     enabled: bool = False
     model: str = "BAAI/bge-reranker-v2-m3"
@@ -49,6 +55,7 @@ class RetrievalConfig(BaseModel):
     embedding_model: Literal["e5_small", "e5_large", "bge_m3"] = "e5_small"
     retrieval: Literal["fts", "vector", "hybrid"] = "hybrid"
     fusion: Fusion = Field(default_factory=Fusion)
+    fts: FTSOptions = Field(default_factory=FTSOptions)
     use_metadata_filters: bool = False
     rerank: Rerank = Field(default_factory=Rerank)
     expansion: Expansion = Field(default_factory=Expansion)
