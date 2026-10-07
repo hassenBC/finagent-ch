@@ -1,0 +1,4 @@
+config,n,recall@1,recall@3,recall@5,recall@5_lo,recall@5_hi,recall@10,mrr@10,mrr@10_lo,mrr@10_hi,ndcg@10,latency_p50_ms,latency_p95_ms
+A_fixed512_vector,45,0.1778,0.3111,0.4444,0.2889,0.5778,0.5333,0.2697,0.1711,0.3868,0.1897,13.9,24.9
+C_bge_m3_hybrid_filters_translate_tsrank,45,0.6667,0.7556,0.8,0.6667,0.9111,0.9111,0.7384,0.6141,0.8445,0.4865,53.5,2247.1
+C_bge_m3_vector_filters,45,0.6222,0.8,0.8,0.6667,0.9111,0.8222,0.7111,0.5852,0.8222,0.4413,25.2,56.5
