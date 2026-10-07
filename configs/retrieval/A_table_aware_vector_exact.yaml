@@ -1,0 +1,14 @@
+name: A_table_aware_vector_exact
+chunker: table_aware
+embedding_model: e5_small
+retrieval: vector
+fusion:
+  k: 60
+  fts_candidates: 50
+  vector_candidates: 50
+use_metadata_filters: false
+rerank:
+  enabled: false
+top_k: 10
+dataset: eval/datasets/qa_dev.jsonl
+ann: false

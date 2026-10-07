@@ -102,5 +102,23 @@
       ]
     ],
     "notes": "Extra alternate pages found by the blind spot check; verified to contain the fact."
+  },
+  "25d10389": {
+    "gold_pages": [
+      {
+        "sha256": "0890feff42585f234f0ef6a23151b72c636ca3f5316e723ee8436a4d5ca4f04a",
+        "page": 187
+      },
+      {
+        "sha256": "add37d0411c79f141a0893e21e291518c68578e66af94f3e0f823853cb408b87",
+        "page": 31
+      }
+    ],
+    "evidence": "| Total assets | 7,832.6 | 32,766.9 | 40,599.5 | || Total assets | 13,290,010,856 | 9,959,788,693",
+    "answer": "EFG International: CHF 40,599.5 million versus Swissquote's CHF 13,290.0 million (consolidated), a difference of CHF 27,309.5 million.",
+    "answer_value": 27309.5,
+    "answer_unit": "CHF_m",
+    "notes": "Corrected in Phase 3 error analysis: the original gold used Swissquote Group Holding's standalone balance sheet (CHF 351m) instead of the consolidated one (p31).",
+    "calculation": null
   }
 }
