@@ -59,6 +59,9 @@ class RetrievalConfig(BaseModel):
     use_metadata_filters: bool = False
     rerank: Rerank = Field(default_factory=Rerank)
     expansion: Expansion = Field(default_factory=Expansion)
+    translate_cross_lingual: bool = (
+        False  # add a translation when question and report languages differ
+    )
     ann: bool = True  # False = exact vector search (no HNSW), for measuring approximation loss
     top_k: int = 10
     dataset: str = "eval/datasets/qa_dev.jsonl"
