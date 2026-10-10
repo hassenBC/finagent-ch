@@ -19,7 +19,7 @@ without one, use `uv sync --extra cpu`.
 ## Evaluation dataset
 
 `eval/datasets/qa_dev.jsonl` (100 questions, tuned on) and `qa_test.jsonl` (50 questions, run once per final
-configuration). `sha256(qa_test.jsonl) = eb5a4e109de93d86fcb0748373924242476a5d3c06146a99ff048634c43ace04`.
+configuration). `sha256(qa_test.jsonl) = 7ee5209fcd11fa9846fd0c761766f1db040d24db8b79f474ad9c45dc195bc339`.
 
 **How the dataset was built.** Pages were sampled with a fixed seed, round-robin over the 12 reports (6 banks x
 FY2024/FY2025) so every document contributes. An LLM (`deepseek-flash`) proposed one question per page for a requested
@@ -29,6 +29,11 @@ words and numbers must occur on the gold page, and numeric answers and calculati
 that leak the numbers they ask for, or comparisons with a "no difference" answer), balances banks and years, uses each gold
 page at most once, and splits stratified by type and language. Gold labels are **pages**, not chunks, so the dataset is
 independent of the chunker. About 58 % of items are paraphrased (question/evidence word overlap below 0.2).
+
+**Changes after the split (before any test-set run).** Numeric tolerances are now half a unit of the answer's last digit
+with a 0.1 % relative floor (they were derived from unit-converted calculations and were far too tight). One dev item
+(q128) was corrected during the retrieval error analysis: its gold used Swissquote's standalone holding-company balance
+sheet instead of the consolidated one.
 
 **Limits you should know about.**
 

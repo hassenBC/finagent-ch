@@ -1,0 +1,17 @@
+name: B_table_aware_bge_m3_hybrid_tsrank
+chunker: table_aware
+embedding_model: bge_m3
+retrieval: hybrid
+fusion:
+  k: 60
+  fts_candidates: 50
+  vector_candidates: 50
+use_metadata_filters: false
+rerank:
+  enabled: false
+top_k: 10
+dataset: eval/datasets/qa_dev.jsonl
+fts:
+  rank: plain
+  normalization: 1
+  max_df: null

@@ -1,0 +1,19 @@
+name: C_bge_m3_hybrid_filters_rerank_tsrank
+chunker: table_aware
+embedding_model: bge_m3
+fusion:
+  k: 60
+  fts_candidates: 50
+  vector_candidates: 50
+top_k: 10
+dataset: eval/datasets/qa_dev.jsonl
+retrieval: hybrid
+use_metadata_filters: true
+rerank:
+  enabled: true
+  model: BAAI/bge-reranker-v2-m3
+  candidates: 50
+fts:
+  rank: plain
+  normalization: 1
+  max_df: null
