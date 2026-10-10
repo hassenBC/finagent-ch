@@ -1,0 +1,5 @@
+name: rag_baseline_k5
+retrieval: configs/retrieval/A_fixed512_vector.yaml
+k: 5
+generator: deepseek_flash
+dataset: eval/datasets/qa_dev.jsonl

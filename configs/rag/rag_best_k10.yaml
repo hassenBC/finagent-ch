@@ -1,0 +1,5 @@
+name: rag_best_k10
+retrieval: configs/retrieval/C_bge_m3_hybrid_filters_translate_tsrank.yaml
+k: 10
+generator: deepseek_flash
+dataset: eval/datasets/qa_dev.jsonl
