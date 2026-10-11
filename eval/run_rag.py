@@ -104,6 +104,7 @@ def run(cfg: RagConfig, budget: Budget, workers: int = 6) -> None:
             "tokens_in": r.tokens_in,
             "tokens_out": r.tokens_out,
             "cost_usd": r.cost_usd,
+            "generation_error": float(r.generation_error),
         }
         if it["answerable"]:
             _, relevant = gold_pages(it, docs)
@@ -160,6 +161,7 @@ def summarise(ms: list[dict]) -> dict:
         "latency_p50_ms": percentile(lat, 50) if lat else float("nan"),
         "latency_p95_ms": percentile(lat, 95) if lat else float("nan"),
         "cost_per_query_usd": sum(m["cost_usd"] for m in ms) / len(ms),
+        "generation_errors": sum(m.get("generation_error", 0.0) for m in ms),
     }
     return s
 

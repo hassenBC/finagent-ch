@@ -39,6 +39,7 @@ class RagResult(BaseModel):
     latency_ms: int
     cost_usd: float
     cached: bool
+    generation_error: bool = False  # the model returned no valid JSON, even with a larger budget
 
 
 def resolve_citations(ans: Answer, sources: list[Source]) -> tuple[list[CitedSource], list[str]]:
@@ -82,7 +83,15 @@ def _sections(chunk_ids: list[int]) -> dict[int, str]:
 def answer(question: str, hits: list[Hit], llm: LLMClient, max_tokens: int = 2000) -> RagResult:
     sources = build_sources(hits, _doc_meta())
     messages = build_messages(question, sources, _sections([h.chunk_id for h in hits]))
-    r: ChatResult = llm.chat(messages, response_format=Answer, max_tokens=max_tokens)
+    try:
+        r: ChatResult = llm.chat(messages, response_format=Answer, max_tokens=max_tokens)
+    except ValueError:  # truncated JSON: the model spent the budget before answering
+        try:
+            r = llm.chat(messages, response_format=Answer, max_tokens=2 * max_tokens)
+        except ValueError:
+            return RagResult(answer="", abstain=True, citations=[], invalid_citations=[],
+                             n_sources=len(sources), tokens_in=0, tokens_out=0, latency_ms=0,
+                             cost_usd=0.0, cached=False, generation_error=True)  # fmt: skip
     ans: Answer = r.parsed
     valid, invalid = resolve_citations(ans, sources)
     return RagResult(
