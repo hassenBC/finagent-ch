@@ -1,0 +1,3 @@
+config,n,numeric_em,numeric_em_first,citation_precision,citation_recall,invalid_citation_rate,abstain_precision,abstain_recall,abstain_f1,false_abstention_rate,latency_p50_ms,latency_p95_ms,cost_per_query_usd,generation_errors,numeric_em_lo,numeric_em_hi
+rag_baseline_k5,50,0.25,0.25,0.4808,0.4444,0.0,0.1515,1.0,0.2632,0.6222,2085.849,5962.1944,0.0013,0.0,0.125,0.4062
+rag_best_k10,50,0.7812,0.4688,0.8493,0.8667,0.0,0.5556,1.0,0.7143,0.0889,2249.0763,5389.2353,0.0014,0.0,0.625,0.9062
