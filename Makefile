@@ -1,4 +1,4 @@
-.PHONY: setup db-up db-down migrate test test-unit lint fmt llm-smoke llm-models gpu-smoke download ingest embed-small eval-retrieval eval-retrieval-grid report
+.PHONY: setup db-up db-down migrate test test-unit lint fmt llm-smoke llm-models gpu-smoke download ingest embed-small eval-retrieval eval-retrieval-grid report eval-rag judge report-rag
 
 UV  ?= uv
 RUN := $(UV) run
@@ -57,3 +57,12 @@ eval-retrieval-grid:  ## run every config matching GRID (default: all of configs
 
 report:           ## aggregate latest runs into results/*.csv and results/retrieval.png
 	$(RUN) python -m eval.report
+
+eval-rag:         ## make eval-rag CONFIG=configs/rag/<name>.yaml [MAX_COST=0.5]; then make report-rag
+	$(RUN) python -m eval.run_rag $(or $(CONFIG),configs/rag/*.yaml) --max-cost $(or $(MAX_COST),0.5)
+
+judge:            ## make judge NAMES="rag_best_k10" [MAX_COST=0.5]
+	$(RUN) python -m eval.run_judge $(NAMES) --max-cost $(or $(MAX_COST),0.5)
+
+report-rag:       ## RAG table per dataset -> results/rag_dev.csv, results/rag_test.csv
+	$(RUN) python -m eval.report_rag
