@@ -86,3 +86,42 @@ configuration scored 0.87 recall@5, so part of its dev advantage was selection o
 
 Caveats: 90 dev questions give wide intervals; many configurations were compared on the same dev set; approximate (HNSW)
 search cost up to 0.04 recall@5 for unfiltered queries because one index serves five chunkers.
+
+## RAG results (Phase 4)
+
+Generator `deepseek-flash` (temperature 0, structured output with citations; it may abstain). Numeric match = some
+number in the answer equals the gold value within its tolerance, after unit normalisation (numeric questions only);
+citation precision/recall are page-level against gold pages; abstention metrics treat "unanswerable" as the positive
+class, and false abstentions are refusals on answerable questions. Intervals are 95 % bootstrap CIs; "A beats B" needs
+the paired bootstrap CI of the difference to exclude 0. Files: `results/rag_dev.csv`, `results/rag_test.csv`.
+
+**Held-out test set (run once, n = 50):**
+
+| Configuration | numeric match [95 % CI] | citation precision | citation recall | abstention F1 | false abstentions | faithful answers | p50 latency | cost / question |
+|---|---|---|---|---|---|---|---|---|
+| Naive baseline retrieval, k = 5 | 0.25 [0.13, 0.41] | 0.48 | 0.44 | 0.26 | 0.62 | 13/17 = 0.76 | 2.1 s | $0.0013 |
+| Best retrieval (bge-m3 hybrid + filters + translation), k = 10 | 0.78 [0.63, 0.91] | 0.85 | 0.87 | 0.71 | 0.09 | 40/41 = 0.98 | 2.2 s | $0.0014 |
+
+**Findings (dev unless stated):**
+
+1. **Better retrieval carries through to answers.** At k = 5, the best retrieval configuration vs the baseline gives
+   +0.34 numeric match [+0.24, +0.46] and +0.41 citation recall [+0.29, +0.52], for a +0.41 recall@5 gap in retrieval.
+   The baseline mostly fails by refusing: 54 % false abstentions on dev, 62 % on test.
+2. **More context helps up to k = 10.** Numeric match 0.62 → 0.69 → 0.75 and false abstentions 0.29 → 0.21 → 0.13 for
+   k = 3 → 5 → 10 (each step significant); citation precision peaks at k = 5 (0.76 vs 0.71). Cost per question rises
+   from $0.0006 to $0.0014.
+3. **When the system answers, it rarely says more than its cited sources.** An LLM judge (`deepseek-v4-pro`) splits
+   each non-abstained answer into atomic claims and checks them against the cited chunks only; an answer is faithful
+   when every claim is supported. Test: best 0.98 [0.87, 1.00] (n = 41) vs baseline 0.76 [0.53, 0.90] (n = 17); dev:
+   0.96 vs 0.93 (n = 78 / 40). Intervals overlap, and the baseline is judged only on the few questions it does not
+   refuse, so this is not a significant difference; the baseline's main failure is refusing, not inventing.
+4. **The judge needed a rubric fix before it could be trusted.** Against 50 hand-labelled dev answers (human labels,
+   4 unfaithful), the first rubric reached only κ = 0.09: it rated correct arithmetic ("the difference is CHF 8,480.8m")
+   as only partially supported, and accepted numbers whose unit appeared only in the question. After stating both
+   rules explicitly, the judge agreed on 50/50 (κ = 1.00). This is in-sample — the rubric was revised after seeing
+   these disagreements — and 4 positives make κ fragile, so treat it as "no known disagreement", not as a held-out
+   accuracy.
+
+Caveats: 100 dev / 50 test questions give wide intervals; k was chosen on dev; the generator and judge are different
+DeepSeek models but from the same family; dev k = 3 / 5 were not judged (budget); 1 baseline dev answer got no
+judge verdict (empty output twice) and is excluded.

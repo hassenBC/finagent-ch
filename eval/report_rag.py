@@ -59,7 +59,8 @@ def table(dataset: str) -> pd.DataFrame:
                "numeric_em_lo": round(lo, 4), "numeric_em_hi": round(hi, 4)}  # fmt: skip
         n_to_judge = sum(1 for m in ms if not m["abstain"])
         if name in judged and len(judged[name]) == n_to_judge:  # only complete judge runs
-            jm = [m for _, m in judged[name]]
+            jm = [m for _, m in judged[name] if m["faithfulness"] is not None]
+            row["judge_errors"] = len(judged[name]) - len(jm)
             row["faithfulness"] = round(sum(m["faithfulness"] for m in jm) / len(jm), 4)
             row["faithful_share"] = round(sum(m["faithful"] for m in jm) / len(jm), 4)
             corr = [m["correctness"] for m in jm if m["correctness"] is not None]
