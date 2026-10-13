@@ -31,6 +31,15 @@ phrases like "the sources do not say"). For each claim decide:
 - supported: the cited sources state it (numbers must match, including unit and period);
 - partially: part of it is stated, or it needs an inference the sources do not make explicit;
 - not_supported: the cited sources do not state it, or contradict it.
+Arithmetic on numbers the cited sources state (differences, sums, ratios, percentage changes,
+unit conversions such as thousands to millions) and conclusions that follow directly from them
+(e.g. "A is not higher than B") are supported when the result is correct (allow rounding) and
+not_supported when it is wrong. Do not rate a correct calculation as partially.
+Units, places and dates must come from the cited sources themselves, never from the question:
+- a number whose unit or scale (e.g. CHF, CHF thousands, %) the cited sources do not state is
+  not_supported, even if the digits appear;
+- a place or date must be stated as the one asked about; an address or a date in another
+  role (e.g. a company's postal address) does not establish it.
 
 PART 2 — CORRECTNESS. Now compare the answer with the reference answer:
 - correct: it gives the reference answer (equivalent wording, numbers within rounding);
@@ -53,12 +62,14 @@ def judge(
 ) -> tuple[Judgement, float]:
     """Returns the judgement and its cost in USD."""
     sources = "\n\n".join(f"[{i}] {c}" for i, c in enumerate(cited, 1)) or "(none)"
-    r = llm.chat(
-        [{"role": "user", "content": PROMPT.format(
-            question=question, answer=answer, sources=sources, reference=reference or "(none)")}],
-        response_format=Judgement,
-        max_tokens=3000,
-    )  # fmt: skip
+    prompt = PROMPT.format(
+        question=question, answer=answer, sources=sources, reference=reference or "(none)"
+    )
+    messages = [{"role": "user", "content": prompt}]
+    try:
+        r = llm.chat(messages, response_format=Judgement, max_tokens=3000)
+    except ValueError:  # empty/truncated JSON: the reasoning model spent the whole budget thinking
+        r = llm.chat(messages, response_format=Judgement, max_tokens=8000)
     return r.parsed, r.cost_usd
 
 
