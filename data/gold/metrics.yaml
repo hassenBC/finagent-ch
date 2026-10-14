@@ -1,0 +1,90 @@
+# Metric vocabulary for the `figures` table (Phase 5).
+# Units: CHF_m (CHF million), CHF_bn (CHF billion), pct (percent, 15.2 = 15.2 %), count.
+# One value per (bank, fiscal year, metric): the GROUP / consolidated figure at 31 December, as reported
+# (not "adjusted", unless the bank only reports an adjusted figure: then say so in the gold `note`).
+# `synonyms` are the wordings found in the 12 reports (keyword probe, 7 Nov 2026); extraction uses them as queries.
+# `caveat` = where banks are NOT comparable. Do not compare such metrics across banks without reading it.
+
+metrics:
+  net_profit:
+    definition: Consolidated net profit for the year, attributable to shareholders where both are given.
+    unit: CHF_m
+    synonyms: [net profit, group net profit, net income, bénéfice net, résultat net]
+    caveat: >-
+      Cantonal banks (BCV, BCGE) report under Swiss GAAP (FINMA accounting rules); the private banks report IFRS.
+      Julius Baer also reports an "adjusted" net profit — use the IFRS figure.
+
+  operating_income:
+    definition: Total operating income (revenues) of the group for the year.
+    unit: CHF_m
+    synonyms: [operating income, total operating income, total income, produits d'exploitation, total des produits]
+    caveat: >-
+      Swiss GAAP income statements (BCV, BCGE) have no single "operating income" line under that name; use
+      the total of the operating-income subtotals ("Total des produits d'exploitation" or equivalent).
+
+  operating_expenses:
+    definition: Total operating expenses (personnel + general and administrative), excluding provisions and impairments where shown separately.
+    unit: CHF_m
+    synonyms: [operating expenses, total operating expenses, charges d'exploitation]
+    caveat: Whether depreciation and amortisation are included differs by bank; record the total line as reported.
+
+  cost_income_ratio:
+    definition: Operating expenses divided by operating income, as reported by the bank.
+    unit: pct
+    synonyms: [cost/income ratio, cost-income ratio, cost to income, coefficient d'exploitation, ratio charges/produits]
+    caveat: >-
+      Every bank computes it differently (with/without depreciation, adjusted or not). Swissquote does not report
+      the ratio at all: leave its cells empty, do not compute it.
+
+  cet1_ratio:
+    definition: Common Equity Tier 1 capital ratio (CET1 capital / risk-weighted assets), group level, at year end.
+    unit: pct
+    synonyms: [CET1 ratio, CET1 capital ratio, CET1, common equity tier 1, fonds propres de base durs]
+    caveat: Comparable across banks (Basel III, FINMA), but fully-applied vs transitional figures can differ.
+
+  total_capital_ratio:
+    definition: Total capital ratio (total eligible capital / risk-weighted assets), group level, at year end.
+    unit: pct
+    synonyms: [total capital ratio, ratio de fonds propres globaux, capital total, total capital]
+    caveat: Comparable across banks.
+
+  leverage_ratio:
+    definition: Basel III leverage ratio (Tier 1 capital / total exposure), group level, at year end.
+    unit: pct
+    synonyms: [leverage ratio, tier 1 leverage ratio, ratio de levier]
+    caveat: Comparable across banks.
+
+  assets_under_management:
+    definition: The bank's headline client-asset figure at year end.
+    unit: CHF_bn
+    synonyms: [assets under management, client assets, total client assets, avoirs administrés, masses sous gestion]
+    caveat: >-
+      NOT comparable across banks. Julius Baer, EFG and Vontobel report assets under management; Swissquote
+      reports total client assets (custody, mostly self-directed trading); BCV and BCGE report "avoirs
+      administrés" (assets under administration). Record the bank's headline figure and name it in the gold `note`.
+
+  net_new_money:
+    definition: Net new money / net new assets for the year.
+    unit: CHF_bn
+    synonyms: [net new money, net new assets, apports nets, afflux net]
+    caveat: Definitions vary like AuM. BCGE does not report it (leave empty).
+
+  total_assets:
+    definition: Total assets on the consolidated balance sheet at year end.
+    unit: CHF_m
+    synonyms: [total assets, total balance sheet, total du bilan, total des actifs]
+    caveat: Comparable within an accounting framework (IFRS vs Swiss GAAP differ slightly).
+
+  return_on_equity:
+    definition: Return on (average) equity for the year, as reported.
+    unit: pct
+    synonyms: [return on equity, ROE, rendement des fonds propres]
+    caveat: >-
+      Some banks headline return on tangible equity (RoTE) instead (Julius Baer, EFG): record ROE if given,
+      otherwise leave empty — do not substitute RoTE.
+
+  headcount_fte:
+    definition: Number of employees in full-time equivalents at year end, group level.
+    unit: count
+    synonyms: [full-time equivalents, FTE, FTEs, headcount, employees, effectif, effectifs, équivalents plein temps, EPT]
+    caveat: Year-end vs average FTE differ; record year-end and say so in the gold `note` if only the average is given.

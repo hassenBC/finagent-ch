@@ -16,3 +16,4 @@ __pycache__/
 .ruff_cache/
 eval/spotcheck/
 eval/judge_validation/
+eval/figures_sheet/
