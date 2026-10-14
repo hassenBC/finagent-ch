@@ -23,7 +23,7 @@ metrics:
       the total of the operating-income subtotals ("Total des produits d'exploitation" or equivalent).
 
   operating_expenses:
-    definition: Total operating expenses (personnel + general and administrative), excluding provisions and impairments where shown separately.
+    definition: Total operating expenses (personnel + general and administrative), excluding provisions and impairments where shown separately; recorded as a positive amount.
     unit: CHF_m
     synonyms: [operating expenses, total operating expenses, charges d'exploitation]
     caveat: Whether depreciation and amortisation are included differs by bank; record the total line as reported.
