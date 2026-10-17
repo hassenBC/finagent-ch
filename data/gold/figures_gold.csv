@@ -1,145 +1,145 @@
 bank,year,metric,value,unit,page,note
-bcge,2024,net_profit,,CHF_m,,
-bcge,2024,operating_income,,CHF_m,,
-bcge,2024,operating_expenses,,CHF_m,,
-bcge,2024,cost_income_ratio,,pct,,
-bcge,2024,cet1_ratio,,pct,,
-bcge,2024,total_capital_ratio,,pct,,
-bcge,2024,leverage_ratio,,pct,,
-bcge,2024,assets_under_management,,CHF_bn,,
-bcge,2024,net_new_money,,CHF_bn,,
-bcge,2024,total_assets,,CHF_m,,
-bcge,2024,return_on_equity,,pct,,
-bcge,2024,headcount_fte,,count,,
-bcge,2025,net_profit,,CHF_m,,
-bcge,2025,operating_income,,CHF_m,,
-bcge,2025,operating_expenses,,CHF_m,,
-bcge,2025,cost_income_ratio,,pct,,
-bcge,2025,cet1_ratio,,pct,,
-bcge,2025,total_capital_ratio,,pct,,
-bcge,2025,leverage_ratio,,pct,,
-bcge,2025,assets_under_management,,CHF_bn,,
-bcge,2025,net_new_money,,CHF_bn,,
-bcge,2025,total_assets,,CHF_m,,
-bcge,2025,return_on_equity,,pct,,
-bcge,2025,headcount_fte,,count,,
-bcv,2024,net_profit,,CHF_m,,
-bcv,2024,operating_income,,CHF_m,,
-bcv,2024,operating_expenses,,CHF_m,,
-bcv,2024,cost_income_ratio,,pct,,
-bcv,2024,cet1_ratio,,pct,,
-bcv,2024,total_capital_ratio,,pct,,
-bcv,2024,leverage_ratio,,pct,,
-bcv,2024,assets_under_management,,CHF_bn,,
-bcv,2024,net_new_money,,CHF_bn,,
-bcv,2024,total_assets,,CHF_m,,
-bcv,2024,return_on_equity,,pct,,
-bcv,2024,headcount_fte,,count,,
-bcv,2025,net_profit,,CHF_m,,
-bcv,2025,operating_income,,CHF_m,,
-bcv,2025,operating_expenses,,CHF_m,,
-bcv,2025,cost_income_ratio,,pct,,
-bcv,2025,cet1_ratio,,pct,,
-bcv,2025,total_capital_ratio,,pct,,
-bcv,2025,leverage_ratio,,pct,,
-bcv,2025,assets_under_management,,CHF_bn,,
-bcv,2025,net_new_money,,CHF_bn,,
-bcv,2025,total_assets,,CHF_m,,
-bcv,2025,return_on_equity,,pct,,
-bcv,2025,headcount_fte,,count,,
-efg,2024,net_profit,,CHF_m,,
-efg,2024,operating_income,,CHF_m,,
-efg,2024,operating_expenses,,CHF_m,,
-efg,2024,cost_income_ratio,,pct,,
-efg,2024,cet1_ratio,,pct,,
-efg,2024,total_capital_ratio,,pct,,
-efg,2024,leverage_ratio,,pct,,
-efg,2024,assets_under_management,,CHF_bn,,
-efg,2024,net_new_money,,CHF_bn,,
-efg,2024,total_assets,,CHF_m,,
-efg,2024,return_on_equity,,pct,,
-efg,2024,headcount_fte,,count,,
-efg,2025,net_profit,,CHF_m,,
-efg,2025,operating_income,,CHF_m,,
-efg,2025,operating_expenses,,CHF_m,,
-efg,2025,cost_income_ratio,,pct,,
-efg,2025,cet1_ratio,,pct,,
-efg,2025,total_capital_ratio,,pct,,
-efg,2025,leverage_ratio,,pct,,
-efg,2025,assets_under_management,,CHF_bn,,
-efg,2025,net_new_money,,CHF_bn,,
-efg,2025,total_assets,,CHF_m,,
-efg,2025,return_on_equity,,pct,,
-efg,2025,headcount_fte,,count,,
-juliusbaer,2024,net_profit,,CHF_m,,
-juliusbaer,2024,operating_income,,CHF_m,,
-juliusbaer,2024,operating_expenses,,CHF_m,,
-juliusbaer,2024,cost_income_ratio,,pct,,
-juliusbaer,2024,cet1_ratio,,pct,,
-juliusbaer,2024,total_capital_ratio,,pct,,
-juliusbaer,2024,leverage_ratio,,pct,,
-juliusbaer,2024,assets_under_management,,CHF_bn,,
-juliusbaer,2024,net_new_money,,CHF_bn,,
-juliusbaer,2024,total_assets,,CHF_m,,
-juliusbaer,2024,return_on_equity,,pct,,
-juliusbaer,2024,headcount_fte,,count,,
-juliusbaer,2025,net_profit,,CHF_m,,
-juliusbaer,2025,operating_income,,CHF_m,,
-juliusbaer,2025,operating_expenses,,CHF_m,,
-juliusbaer,2025,cost_income_ratio,,pct,,
-juliusbaer,2025,cet1_ratio,,pct,,
-juliusbaer,2025,total_capital_ratio,,pct,,
-juliusbaer,2025,leverage_ratio,,pct,,
-juliusbaer,2025,assets_under_management,,CHF_bn,,
-juliusbaer,2025,net_new_money,,CHF_bn,,
-juliusbaer,2025,total_assets,,CHF_m,,
-juliusbaer,2025,return_on_equity,,pct,,
-juliusbaer,2025,headcount_fte,,count,,
-swissquote,2024,net_profit,,CHF_m,,
-swissquote,2024,operating_income,,CHF_m,,
-swissquote,2024,operating_expenses,,CHF_m,,
-swissquote,2024,cost_income_ratio,,pct,,
-swissquote,2024,cet1_ratio,,pct,,
-swissquote,2024,total_capital_ratio,,pct,,
-swissquote,2024,leverage_ratio,,pct,,
-swissquote,2024,assets_under_management,,CHF_bn,,
-swissquote,2024,net_new_money,,CHF_bn,,
-swissquote,2024,total_assets,,CHF_m,,
-swissquote,2024,return_on_equity,,pct,,
-swissquote,2024,headcount_fte,,count,,
-swissquote,2025,net_profit,,CHF_m,,
-swissquote,2025,operating_income,,CHF_m,,
-swissquote,2025,operating_expenses,,CHF_m,,
-swissquote,2025,cost_income_ratio,,pct,,
-swissquote,2025,cet1_ratio,,pct,,
-swissquote,2025,total_capital_ratio,,pct,,
-swissquote,2025,leverage_ratio,,pct,,
-swissquote,2025,assets_under_management,,CHF_bn,,
-swissquote,2025,net_new_money,,CHF_bn,,
-swissquote,2025,total_assets,,CHF_m,,
-swissquote,2025,return_on_equity,,pct,,
-swissquote,2025,headcount_fte,,count,,
-vontobel,2024,net_profit,,CHF_m,,
-vontobel,2024,operating_income,,CHF_m,,
-vontobel,2024,operating_expenses,,CHF_m,,
-vontobel,2024,cost_income_ratio,,pct,,
-vontobel,2024,cet1_ratio,,pct,,
-vontobel,2024,total_capital_ratio,,pct,,
-vontobel,2024,leverage_ratio,,pct,,
-vontobel,2024,assets_under_management,,CHF_bn,,
-vontobel,2024,net_new_money,,CHF_bn,,
-vontobel,2024,total_assets,,CHF_m,,
-vontobel,2024,return_on_equity,,pct,,
-vontobel,2024,headcount_fte,,count,,
-vontobel,2025,net_profit,,CHF_m,,
-vontobel,2025,operating_income,,CHF_m,,
-vontobel,2025,operating_expenses,,CHF_m,,
-vontobel,2025,cost_income_ratio,,pct,,
-vontobel,2025,cet1_ratio,,pct,,
-vontobel,2025,total_capital_ratio,,pct,,
-vontobel,2025,leverage_ratio,,pct,,
-vontobel,2025,assets_under_management,,CHF_bn,,
-vontobel,2025,net_new_money,,CHF_bn,,
-vontobel,2025,total_assets,,CHF_m,,
-vontobel,2025,return_on_equity,,pct,,
-vontobel,2025,headcount_fte,,count,,
+bcge,2024,net_profit,219,CHF_m,48,Consolidated résultat de la période
+bcge,2024,operating_income,585,CHF_m,48,Total des produits d’exploitation
+bcge,2024,operating_expenses,302,CHF_m,48,
+bcge,2024,cost_income_ratio,51.6,pct,48,Reported as Charges / Produits
+bcge,2024,cet1_ratio,15.0,pct,49,
+bcge,2024,total_capital_ratio,16.7,pct,49,
+bcge,2024,leverage_ratio,7.1,pct,49,
+bcge,2024,assets_under_management,37.0,CHF_bn,48,Reported as actifs gérés et administrés (combined managed and administered assets); not strictly pure AUM
+bcge,2024,net_new_money,,CHF_bn,,Not identified in annual report; do not interpret blank as independently proven absence
+bcge,2024,total_assets,32436,CHF_m,48,
+bcge,2024,return_on_equity,9.6,pct,48,
+bcge,2024,headcount_fte,968.2,count,48,
+bcge,2025,net_profit,221,CHF_m,64,Consolidated résultat de la période
+bcge,2025,operating_income,554,CHF_m,64,Total des produits d’exploitation
+bcge,2025,operating_expenses,298,CHF_m,64,
+bcge,2025,cost_income_ratio,53.7,pct,64,Reported as Charges / Produits
+bcge,2025,cet1_ratio,16.1,pct,65,
+bcge,2025,total_capital_ratio,16.9,pct,65,
+bcge,2025,leverage_ratio,6.6,pct,65,
+bcge,2025,assets_under_management,40.4,CHF_bn,64,Reported as actifs gérés et administrés (combined managed and administered assets); not strictly pure AUM
+bcge,2025,net_new_money,,CHF_bn,,Not identified in annual report; do not interpret blank as independently proven absence
+bcge,2025,total_assets,34905,CHF_m,64,
+bcge,2025,return_on_equity,9.1,pct,64,
+bcge,2025,headcount_fte,958.4,count,64,
+bcv,2024,net_profit,441,CHF_m,3,Reported bénéfice consolidé
+bcv,2024,operating_income,1155,CHF_m,3,
+bcv,2024,operating_expenses,557,CHF_m,3,
+bcv,2024,cost_income_ratio,55.2,pct,3,Reported as Charges / Produits; excludes goodwill amortization
+bcv,2024,cet1_ratio,16.8,pct,163,Ratio CET1; Group regulatory capital notes
+bcv,2024,total_capital_ratio,16.9,pct,3,Reported capital total
+bcv,2024,leverage_ratio,5.5,pct,3,
+bcv,2024,assets_under_management,124.164,CHF_bn,3,Reported as total des avoirs administrés; broader than discretionary AUM
+bcv,2024,net_new_money,3.248,CHF_bn,158,Apports nets d’argent frais / retraits nets; CHF millions converted to CHF billions
+bcv,2024,total_assets,60629,CHF_m,3,
+bcv,2024,return_on_equity,11.5,pct,3,
+bcv,2024,headcount_fte,2089,count,3,
+bcv,2025,net_profit,430,CHF_m,3,Reported bénéfice consolidé
+bcv,2025,operating_income,1150,CHF_m,3,
+bcv,2025,operating_expenses,560,CHF_m,3,
+bcv,2025,cost_income_ratio,55.6,pct,3,Reported as Charges / Produits; excludes goodwill amortization
+bcv,2025,cet1_ratio,18.0,pct,165,Ratio CET1; Group regulatory capital notes
+bcv,2025,total_capital_ratio,18.1,pct,3,Reported capital total
+bcv,2025,leverage_ratio,5.4,pct,3,
+bcv,2025,assets_under_management,134.11,CHF_bn,3,Reported as total des avoirs administrés; broader than discretionary AUM
+bcv,2025,net_new_money,3.814,CHF_bn,160,Apports nets d’argent frais / retraits nets; CHF millions converted to CHF billions
+bcv,2025,total_assets,61620,CHF_m,3,
+bcv,2025,return_on_equity,11.0,pct,3,
+bcv,2025,headcount_fte,2083,count,3,
+efg,2024,net_profit,321.6,CHF_m,3,IFRS net profit
+efg,2024,operating_income,1498.9,CHF_m,3,
+efg,2024,operating_expenses,1107.9,CHF_m,3,
+efg,2024,cost_income_ratio,72.9,pct,3,Alternative performance measure
+efg,2024,cet1_ratio,17.7,pct,3,
+efg,2024,total_capital_ratio,21.5,pct,3,
+efg,2024,leverage_ratio,4.8,pct,104,Basel III leverage ratio; unaudited
+efg,2024,assets_under_management,165.5,CHF_bn,3,
+efg,2024,net_new_money,10.1,CHF_bn,3,Reported as net new assets
+efg,2024,total_assets,40599.5,CHF_m,108,Exact consolidated balance sheet figure in CHF million
+efg,2024,return_on_equity,,pct,,"Return on tangible equity is reported, but is not return on shareholders equity; exact ROE not verified"
+efg,2024,headcount_fte,3114,count,3,
+efg,2025,net_profit,325.2,CHF_m,3,IFRS net profit
+efg,2025,operating_income,1669.0,CHF_m,3,
+efg,2025,operating_expenses,1175.9,CHF_m,3,
+efg,2025,cost_income_ratio,69.8,pct,3,Alternative performance measure
+efg,2025,cet1_ratio,14.0,pct,3,
+efg,2025,total_capital_ratio,17.3,pct,3,
+efg,2025,leverage_ratio,4.7,pct,118,Basel III leverage ratio; unaudited
+efg,2025,assets_under_management,185.0,CHF_bn,3,
+efg,2025,net_new_money,11.3,CHF_bn,3,Reported as net new assets
+efg,2025,total_assets,39394.4,CHF_m,199,Exact consolidated balance sheet figure in CHF million
+efg,2025,return_on_equity,,pct,,"Return on tangible equity is reported, but is not return on shareholders equity; exact ROE not verified"
+efg,2025,headcount_fte,3225,count,3,
+juliusbaer,2024,net_profit,1022.3,CHF_m,5,IFRS net profit
+juliusbaer,2024,operating_income,3860.9,CHF_m,130,"IFRS operating income, consolidated income statement"
+juliusbaer,2024,operating_expenses,2806.7,CHF_m,130,"IFRS operating expenses, consolidated income statement; replaces adjusted"
+juliusbaer,2024,cost_income_ratio,70.9,pct,5,ADJUSTED cost/income ratio
+juliusbaer,2024,cet1_ratio,17.8,pct,5,
+juliusbaer,2024,total_capital_ratio,26.4,pct,5,
+juliusbaer,2024,leverage_ratio,,pct,,Annual report refers to separate Basel III Pillar 3 disclosure; ratio not independently extracted
+juliusbaer,2024,assets_under_management,497.4,CHF_bn,5,
+juliusbaer,2024,net_new_money,14.2,CHF_bn,5,
+juliusbaer,2024,total_assets,105071.5,CHF_m,5,
+juliusbaer,2024,return_on_equity,,pct,,Adjusted RoTE and RoCET1 do not equal unadjusted ROE; not independently verified
+juliusbaer,2024,headcount_fte,7595,count,5,Personnel FTE
+juliusbaer,2025,net_profit,763.8,CHF_m,5,IFRS net profit
+juliusbaer,2025,operating_income,3760.4,CHF_m,130,"IFRS operating income, consolidated income statement"
+juliusbaer,2025,operating_expenses,2822.8,CHF_m,130,"IFRS operating expenses, consolidated income statement; replaces adjusted"
+juliusbaer,2025,cost_income_ratio,71.3,pct,5,ADJUSTED cost/income ratio
+juliusbaer,2025,cet1_ratio,17.4,pct,5,
+juliusbaer,2025,total_capital_ratio,24.7,pct,5,
+juliusbaer,2025,leverage_ratio,,pct,,Annual report refers to separate Basel III Pillar 3 disclosure; ratio not independently extracted
+juliusbaer,2025,assets_under_management,521.0,CHF_bn,5,
+juliusbaer,2025,net_new_money,14.4,CHF_bn,5,
+juliusbaer,2025,total_assets,107488.9,CHF_m,5,
+juliusbaer,2025,return_on_equity,,pct,,Adjusted RoTE and RoCET1 do not equal unadjusted ROE; not independently verified
+juliusbaer,2025,headcount_fte,7390,count,5,Personnel FTE
+swissquote,2024,net_profit,294.173,CHF_m,8,"Rounded from IFRS consolidated net profit, CHF thousands in key figures"
+swissquote,2024,operating_income,664.331,CHF_m,8,CHF thousands converted to CHF million
+swissquote,2024,operating_expenses,315.716,CHF_m,8,CHF thousands converted to CHF million
+swissquote,2024,cost_income_ratio,,pct,,No explicitly reported cost/income ratio located; do not substitute net profit margin
+swissquote,2024,cet1_ratio,23.4,pct,67,Group Basel III CET1 ratio
+swissquote,2024,total_capital_ratio,23.5,pct,67,Group total capital ratio; not the CET1 ratio
+swissquote,2024,leverage_ratio,7.2,pct,68,Group Basel III leverage ratio; unaudited disclosure
+swissquote,2024,assets_under_management,76.285,CHF_bn,8,Reported as client assets; broader than discretionary assets under management
+swissquote,2024,net_new_money,8.29,CHF_bn,8,"2024 net new money CHF 8,290 million / 1000; 2024 key figures"
+swissquote,2024,total_assets,13290.010856,CHF_m,31,"IFRS consolidated balance sheet, CHF converted to CHF million"
+swissquote,2024,return_on_equity,,pct,,Reported ROE not located; no ratio inferred from balance sheet values
+swissquote,2024,headcount_fte,1217,count,37,Consolidated group employees (full-time equivalent)
+swissquote,2025,net_profit,366.392,CHF_m,7,"Rounded from IFRS consolidated net profit, CHF thousands in key figures"
+swissquote,2025,operating_income,724.225,CHF_m,7,CHF thousands converted to CHF million
+swissquote,2025,operating_expenses,365.436,CHF_m,7,CHF thousands converted to CHF million
+swissquote,2025,cost_income_ratio,,pct,,No explicitly reported cost/income ratio located; do not substitute net profit margin
+swissquote,2025,cet1_ratio,24.9,pct,66,Group Basel III CET1 ratio
+swissquote,2025,total_capital_ratio,25.0,pct,66,Group total capital ratio; not the CET1 ratio
+swissquote,2025,leverage_ratio,6.7,pct,67,Group Basel III leverage ratio; unaudited disclosure
+swissquote,2025,assets_under_management,88.7,CHF_bn,6,Reported as client assets; broader than discretionary assets under management
+swissquote,2025,net_new_money,8.5,CHF_bn,6,CHF billion; 2025 rounded headline figure
+swissquote,2025,total_assets,16052.375307,CHF_m,28,"IFRS consolidated balance sheet, CHF converted to CHF million"
+swissquote,2025,return_on_equity,,pct,,Reported ROE not located; no ratio inferred from balance sheet values
+swissquote,2025,headcount_fte,1448,count,34,Consolidated group employees (full-time equivalent)
+vontobel,2024,net_profit,266.1,CHF_m,8,Group net profit
+vontobel,2024,operating_income,1422.5,CHF_m,8,
+vontobel,2024,operating_expenses,1068.7,CHF_m,8,
+vontobel,2024,cost_income_ratio,74.7,pct,15,Reported cost/income ratio
+vontobel,2024,cet1_ratio,16.1,pct,183,
+vontobel,2024,total_capital_ratio,20.9,pct,183,
+vontobel,2024,leverage_ratio,4.8,pct,183,
+vontobel,2024,assets_under_management,229.1,CHF_bn,8,
+vontobel,2024,net_new_money,2.6,CHF_bn,17,
+vontobel,2024,total_assets,32860.9,CHF_m,8,
+vontobel,2024,return_on_equity,12.3,pct,8,Return on shareholders equity; group net profit divided by monthly-average equity
+vontobel,2024,headcount_fte,2264.4,count,244,Group FTE in consolidated segment reporting
+vontobel,2025,net_profit,280.1,CHF_m,7,Group net profit
+vontobel,2025,operating_income,1431.5,CHF_m,7,
+vontobel,2025,operating_expenses,1067.9,CHF_m,7,
+vontobel,2025,cost_income_ratio,74.2,pct,15,Reported cost/income ratio
+vontobel,2025,cet1_ratio,19.7,pct,177,
+vontobel,2025,total_capital_ratio,24.4,pct,177,
+vontobel,2025,leverage_ratio,4.7,pct,177,
+vontobel,2025,assets_under_management,240.7,CHF_bn,7,
+vontobel,2025,net_new_money,4.2,CHF_bn,16,
+vontobel,2025,total_assets,34737.4,CHF_m,7,
+vontobel,2025,return_on_equity,12.2,pct,7,Return on shareholders equity; group net profit divided by monthly-average equity
+vontobel,2025,headcount_fte,2310.0,count,239,Group FTE in consolidated segment reporting
