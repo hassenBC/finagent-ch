@@ -1,0 +1,4 @@
+setting,n,execution_accuracy,sql_valid,generator,cost_usd
+extracted,40,0.85,1.0,deepseek_flash,0.0
+gold,40,0.95,1.0,deepseek_flash,0.0
+oracle,40,0.875,1.0,deepseek_flash,0.0
