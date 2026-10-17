@@ -18,6 +18,8 @@ class Env(BaseSettings):
     model_config = SettingsConfigDict(env_file=ROOT / ".env", extra="ignore")
 
     database_url: str = "postgresql://finagent:finagent@localhost:5432/finagent"
+    # read-only role for the agent's SQL tool (sql/004_agent_reader.sql)
+    agent_database_url: str = "postgresql://agent_reader:agent_reader@localhost:5432/finagent"
 
 
 class Provider(BaseModel):
