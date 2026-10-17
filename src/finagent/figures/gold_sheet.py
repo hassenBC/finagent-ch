@@ -31,6 +31,7 @@ Fill `data/gold/figures_gold.csv`. Rules:
 - the group / consolidated figure at 31 Dec of the fiscal year, from the **current-year** column;
 - the unit given in `metrics.yaml` (convert if the report uses another scale);
 - `page` = PDF page index (what your viewer shows);
+- `value`: dot decimal, no commas (`1310709` or `1'310'709`, `15.2`); expenses as positive amounts;
 - leave `value` empty if the report does not give the metric;
 - put anything non-obvious in `note` (e.g. "only average FTE", "AuM = avoirs administrés").
 """

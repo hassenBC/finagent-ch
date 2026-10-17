@@ -17,3 +17,4 @@ __pycache__/
 eval/spotcheck/
 eval/judge_validation/
 eval/figures_sheet/
+eval/extraction/
