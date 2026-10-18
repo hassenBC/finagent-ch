@@ -28,6 +28,9 @@ dependencies = [
 # Heavy ML stack. Pick exactly one:
 #   CPU only:     uv sync --extra cpu
 #   laptop GPU:   uv sync --extra gpu   (CUDA 12.9 wheels, driver >= 525)
+[project.scripts]
+finagent = "finagent.cli:main"
+
 [project.optional-dependencies]
 cpu = ["torch>=2.13,<2.14", "torchvision>=0.28,<0.29", "sentence-transformers>=3", "docling>=2"]
 gpu = ["torch>=2.13,<2.14", "torchvision>=0.28,<0.29", "sentence-transformers>=3", "docling>=2"]
