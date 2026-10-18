@@ -1,0 +1,2 @@
+mode,n,success,routing_acc,tool_precision,tool_recall,calls_per_task,cost_per_task,latency_p50_ms,latency_p95_ms,arg_validity,solved_all_runs,failures
+routed,60,0.95,0.95,0.95,0.95,1.5667,0.0013,2265.0,6377.1,0.9787,0.95,"{""wrong_route"": 3}"
