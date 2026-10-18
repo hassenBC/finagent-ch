@@ -48,12 +48,12 @@ Also return the bank (one of the ids above) and year if the question names exact
 Question: {question}"""
 
 
-def classify(question: str, llm: LLMClient) -> tuple[Route, float]:
+def classify(question: str, llm: LLMClient, salt: str | None = None) -> tuple[Route, float]:
     msgs = [{"role": "user", "content": ROUTER_PROMPT.format(question=question)}]
     try:
-        r = llm.chat(msgs, response_format=Route, max_tokens=1500)
+        r = llm.chat(msgs, response_format=Route, max_tokens=1500, cache_salt=salt)
     except ValueError:
-        r = llm.chat(msgs, response_format=Route, max_tokens=3000)
+        r = llm.chat(msgs, response_format=Route, max_tokens=3000, cache_salt=salt)
     return r.parsed, r.cost_usd
 
 
@@ -65,7 +65,7 @@ async def ask(question: str, mode: Literal["routed", "single"] = "routed",
         return await run_agent(question, cfg.model_copy(update={"tools": ALL_TOOLS}), policy,
                                session, route="single")  # fmt: skip
     llm = LLMClient.from_config(cfg.model)
-    route, cost = await anyio.to_thread.run_sync(lambda: classify(question, llm))
+    route, cost = await anyio.to_thread.run_sync(lambda: classify(question, llm, cfg.cache_salt))
     if route.route == "out_of_scope":
         return AgentRun(trace_id="", answer="I cannot answer this: it is outside the reports and "
                         "clients I can access.", citations=[], steps=[], route="out_of_scope",
