@@ -86,6 +86,7 @@ class AgentConfig(BaseModel):
     max_steps: int = 8
     system: str = SYSTEM
     max_tokens: int = 2000
+    cache_salt: str | None = None  # set for repeated evaluation runs
 
 
 def server_params(trace_id: str | None = None) -> StdioServerParameters:
@@ -142,7 +143,12 @@ async def run_agent(question: str, cfg: AgentConfig, policy: Policy | None = Non
     for _ in range(cfg.max_steps):
         try:
             r = await anyio.to_thread.run_sync(
-                lambda: llm.chat(messages, tools=tools or None, max_tokens=cfg.max_tokens)
+                lambda: llm.chat(
+                    messages,
+                    tools=tools or None,
+                    max_tokens=cfg.max_tokens,
+                    cache_salt=cfg.cache_salt,
+                )
             )
         except Exception as e:  # API failure: stop, keep the trace
             answer, reason = f"error: {type(e).__name__}", "error"

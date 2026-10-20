@@ -103,3 +103,11 @@ def test_response_format_raises_after_second_failure(tmp_path):
     client, _ = make_client(tmp_path, ("nope", None), ("still nope", None))
     with pytest.raises(ValidationError):
         client.chat(HI, response_format=Verdict)
+
+
+def test_cache_salt_gives_separate_entries_and_none_keeps_the_old_key(tmp_path):
+    from finagent.llm.cache import request_key
+
+    base = dict(model="m", messages=[], tools=None, json_mode=False, temperature=0.0,
+                max_tokens=5)  # fmt: skip
+    assert request_key(**base) != request_key(**base, salt="run1")

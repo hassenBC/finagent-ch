@@ -95,9 +95,12 @@ class LLMClient:
         response_format: type[BaseModel] | None = None,
         temperature: float = 0.0,
         max_tokens: int = 1024,
+        cache_salt: str | None = None,
     ) -> ChatResult:
+        """`cache_salt` gives repeated runs their own cache entries (to measure run-to-run
+        variation); None keeps the normal key, so existing entries stay valid."""
         if response_format is None:
-            return self._complete(messages, tools, False, temperature, max_tokens)
+            return self._complete(messages, tools, False, temperature, max_tokens, cache_salt)
 
         schema = json.dumps(response_format.model_json_schema())
         messages = [
@@ -107,7 +110,7 @@ class LLMClient:
             },
             *messages,
         ]
-        first = self._complete(messages, tools, True, temperature, max_tokens)
+        first = self._complete(messages, tools, True, temperature, max_tokens, cache_salt)
         try:
             first.parsed = response_format.model_validate_json(first.text or "")
             return first
@@ -120,7 +123,7 @@ class LLMClient:
                     "content": f"That JSON was invalid:\n{err}\nReturn only corrected JSON.",
                 },
             ]
-        second = self._complete(retry_messages, tools, True, temperature, max_tokens)
+        second = self._complete(retry_messages, tools, True, temperature, max_tokens, cache_salt)
         second.parsed = response_format.model_validate_json(
             second.text or ""
         )  # raises if still bad
@@ -141,6 +144,7 @@ class LLMClient:
         json_mode: bool,
         temperature: float,
         max_tokens: int,
+        cache_salt: str | None = None,
     ) -> ChatResult:
         key = request_key(
             model=self.model,
@@ -149,6 +153,7 @@ class LLMClient:
             json_mode=json_mode,
             temperature=temperature,
             max_tokens=max_tokens,
+            **({"salt": cache_salt} if cache_salt else {}),
         )
         start = time.perf_counter()
         if (hit := self.cache.get(key)) is not None:
