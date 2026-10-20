@@ -1,0 +1,6 @@
+mode,kind,n,success,routing_acc,tool_precision,tool_recall,calls_per_task,cost_per_task,latency_p50_ms,latency_p95_ms,arg_validity
+routed,client,9,1.0,1.0,1.0,1.0,1.0,0.0006,2623.0,3251.0,1.0
+routed,documents,21,0.8571,0.8571,0.8571,0.8571,1.9048,0.0016,2764.0,8208.0,0.95
+routed,documents_and_figures,9,1.0,1.0,1.0,1.0,2.6667,0.0021,3325.0,5935.4,1.0
+routed,figures,15,1.0,1.0,1.0,1.0,1.4,0.0012,2228.0,3685.0,1.0
+routed,out_of_scope,6,1.0,1.0,1.0,1.0,0.0,0.0002,0.0,0.0,0.0
