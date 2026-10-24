@@ -70,7 +70,7 @@ def marker(case: dict) -> str | None:
     p = case["planted"]
     if p["type"] == "none":
         return None
-    prefix = {"doc": "D", "obf": "O", "sql": "S", "not": "N"}[case["id"][:3]]
+    prefix = {"doc": "D", "obf": "O", "sql": "S", "not": "N", "har": "H"}[case["id"][:3]]
     return f"INJ-{prefix}{case['id'][-2:]}"
 
 
@@ -213,9 +213,12 @@ def main() -> None:
     ap.add_argument("--plant", action="store_true", help="only plant the attacks, then exit")
     ap.add_argument("--cleanup", action="store_true", help="only remove planted attacks")
     ap.add_argument("--merge", action="store_true", help="merge the parts into the results")
+    ap.add_argument("--categories", nargs="+", help="only these attack categories")
     args = ap.parse_args()
     load = lambda f: [json.loads(x) for x in (DS / f).read_text().splitlines()][: args.limit]  # noqa: E731
     attacks = load("injection.jsonl")
+    if args.categories:
+        attacks = [a for a in attacks if a["category"] in args.categories]
     if args.plant or args.cleanup:
         from eval.injection_env import cleanup, plant
 
