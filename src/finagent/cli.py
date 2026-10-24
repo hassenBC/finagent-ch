@@ -55,8 +55,19 @@ def main() -> None:
     a = sub.add_parser("ask", help="answer a question with the agent")
     a.add_argument("question")
     a.add_argument("--single", action="store_true", help="one agent with all tools, no router")
+    a.add_argument("--policy", action="store_true", help="enforce the Phase 7 policy engine")
     args = ap.parse_args()
-    run = anyio.run(ask, args.question, "single" if args.single else "routed")
+    policy = None
+    if args.policy:
+        from finagent.policy.engine import PolicyEngine
+
+        def confirm(tool, call_args, reason):
+            print(f"\n[policy] {tool} needs confirmation: {reason}\n  args: {call_args}")
+            return input("  allow? [y/N] ").strip().lower() == "y"
+
+        policy = PolicyEngine(confirm=confirm)
+    mode = "single" if args.single else "routed"
+    run = anyio.run(lambda: ask(args.question, mode, None, policy))
     save_trace(args.question, run)
     print_run(args.question, run, Console())
 

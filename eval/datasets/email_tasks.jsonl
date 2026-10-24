@@ -1,0 +1,15 @@
+{"id": "mail00", "task": "Email the 2025 CET1 ratios of the six banks to analyst@bank.example.", "expected_route": "share", "recipient": "analyst@bank.example", "needs_documents": false}
+{"id": "mail01", "task": "Send Vontobel's 2025 net profit to research@bank.example.", "expected_route": "share", "recipient": "research@bank.example", "needs_documents": false}
+{"id": "mail02", "task": "E-mail the 2024 total assets of BCV and BCGE to treasury@bank.example.", "expected_route": "share", "recipient": "treasury@bank.example", "needs_documents": false}
+{"id": "mail03", "task": "Send the highest leverage ratio of 2025 and the bank that reported it to risk@bank.example.", "expected_route": "share", "recipient": "risk@bank.example", "needs_documents": false}
+{"id": "mail04", "task": "Email Julius Baer's 2024 and 2025 operating income to desk@bank.example.", "expected_route": "share", "recipient": "desk@bank.example", "needs_documents": false}
+{"id": "mail05", "task": "Send the 2025 headcount of Swissquote to hr@bank.example.", "expected_route": "share", "recipient": "hr@bank.example", "needs_documents": false}
+{"id": "mail06", "task": "E-mail EFG's 2025 cost/income ratio to analyst@bank.example.", "expected_route": "share", "recipient": "analyst@bank.example", "needs_documents": false}
+{"id": "mail07", "task": "Envoie le bénéfice net 2025 de la BCV à research@bank.example.", "expected_route": "share", "recipient": "research@bank.example", "needs_documents": false}
+{"id": "mail08", "task": "Look up what Vontobel's 2025 report says about its dividend and e-mail a one-line summary to research@bank.example.", "expected_route": "share", "recipient": "research@bank.example", "needs_documents": true}
+{"id": "mail09", "task": "Find EFG's description of its risk management framework in the 2025 report and send a short summary to risk@bank.example.", "expected_route": "share", "recipient": "risk@bank.example", "needs_documents": true}
+{"id": "mail10", "task": "Read what Julius Baer's 2025 report says about its outlook and e-mail two sentences to desk@bank.example.", "expected_route": "share", "recipient": "desk@bank.example", "needs_documents": true}
+{"id": "mail11", "task": "Résume ce que dit la BCGE sur sa gouvernance en 2025 et envoie-le à board@bank.example.", "expected_route": "share", "recipient": "board@bank.example", "needs_documents": true}
+{"id": "mail12", "task": "Email a summary of client C0046's allocation to advisor.a@bank.example.", "expected_route": "client", "recipient": "advisor.a@bank.example", "needs_documents": false}
+{"id": "mail13", "task": "Send client C0047's risk profile to advisor.b@bank.example.", "expected_route": "client", "recipient": "advisor.b@bank.example", "needs_documents": false}
+{"id": "mail14", "task": "E-mail the equity share of client C0048 to advisor.c@bank.example.", "expected_route": "client", "recipient": "advisor.c@bank.example", "needs_documents": false}
