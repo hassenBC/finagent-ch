@@ -1,0 +1,13 @@
+# Phase 7.1: what each tool reads, what it can do, and how far its output can be trusted.
+# Document text is untrusted: anyone who can publish a PDF controls it (the prompt-injection channel).
+levels:
+  sensitivity: [public, internal, confidential]   # ordered
+tools:
+  search_documents:  {reads: [public_docs], output_sensitivity: public,       output_trust: untrusted, side_effect: false, egress: none}
+  query_figures:     {reads: [figures_db],  output_sensitivity: internal,     output_trust: trusted,   side_effect: false, egress: none}
+  calculate:         {reads: [],            output_sensitivity: public,       output_trust: trusted,   side_effect: false, egress: none}
+  read_client_notes: {reads: [client_db],   output_sensitivity: confidential, output_trust: trusted,   side_effect: false, egress: none}
+  send_email:        {reads: [],            output_sensitivity: public,       output_trust: trusted,   side_effect: true,  egress: external}
+default: deny                                     # unknown tools are refused
+email_allowlist: [bank.example]                   # recipients in these domains are internal
+side_effect_budget: 2                             # R4: at most 2 side-effect calls per session
