@@ -1,4 +1,5 @@
-.PHONY: setup db-up db-down migrate test test-unit lint fmt llm-smoke llm-models gpu-smoke download ingest embed-small eval-retrieval eval-retrieval-grid report eval-rag judge report-rag
+
+.PHONY: security setup db-up db-down migrate test test-unit lint fmt llm-smoke llm-models gpu-smoke download ingest embed-small eval-retrieval eval-retrieval-grid report eval-rag judge report-rag
 
 UV  ?= uv
 RUN := $(UV) run
@@ -66,3 +67,6 @@ judge:            ## make judge NAMES="rag_best_k10" [MAX_COST=0.5]
 
 report-rag:       ## RAG table per dataset -> results/rag_dev.csv, results/rag_test.csv
 	$(RUN) python -m eval.report_rag
+
+security:         ## Phase 7 grid: attacks + benign x {single, routed} x {none, prompt, policy}, in parallel
+	bash eval/security_parallel.sh
