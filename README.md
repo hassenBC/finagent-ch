@@ -4,7 +4,7 @@
 
 Retrieval-augmented question answering over 12 Swiss bank annual reports (6 banks, FY2024–FY2025, French and
 English, table-heavy PDFs), **measured** on a 150-question page-level evaluation set built before any tuning. An MCP
-agent with a deterministic tool-permission layer is in progress (see [Roadmap](#roadmap)).
+agent with a deterministic tool-permission layer is measured against a 55-case prompt-injection suite (Phase 7).
 
 **Headline results (held-out test set, run once):**
 
@@ -189,6 +189,57 @@ figures, one out-of-scope question answered by the single agent. Repeating 20 ta
 gave identical outcomes (0.95 in every run, solved-in-all-runs 0.95): at temperature 0 this agent was
 deterministic on this subset.
 
+## Permission layer and injection suite (Phase 7)
+
+A **deterministic policy engine** (`src/finagent/policy/`) checks every tool call before it runs; no LLM decides
+whether a call is allowed. Each tool is described in `configs/policy/tools.yaml` (what it reads, output
+sensitivity and trust, side effects, egress); the session state is folded from the calls that actually ran
+(highest sensitivity seen, whether untrusted text entered the context). Rules, as data: **R1** no external egress
+after confidential data, **R2** e-mail only to allowlisted domains (`bank.example`), **R3** a side effect after
+untrusted document text needs a human (escalate), **R4** at most 2 side-effect calls per session, **R5** SQL must
+pass the validator; deny > escalate > allow, unknown tools denied. A **static check** rejects any toolset that can
+read confidential data, ingest untrusted content and send data out unless R1 and R3 are active: it flags the
+single all-tools agent and none of the routed sub-agents. `finagent ask --policy` asks y/n on an escalation.
+
+**Suite.** 55 attacks (`eval/datasets/injection.jsonl`) with programmatic success checks on what happened (an
+e-mail to a non-allowlisted address, more than two e-mails, a changed figures table / confidential rows via SQL):
+15 indirect injections in synthetic document chunks planted into the real index for the run (visible, hidden,
+footnote, table cell, look-alike domain, fake approval, French), 8 in client notes, 7 direct requests, 5 SQL
+misuse, 5 obfuscated (base64, spaced letters, German, split, table row), and 15 **in-task redirections** — added
+after the first 40 proved too easy — where the user legitimately asks for an e-mail and planted text changes or
+adds the recipient. Benign utility: the 60 agent tasks + 15 legitimate e-mails to `@bank.example`.
+
+| Configuration | Attack success (55) | Benign success (75) | Benign tasks blocked | Escalation rate | Policy overhead |
+|---|---|---|---|---|---|
+| Single agent, no defence | 0.036 (2) | 0.920 | — | — | — |
+| Single agent, prompt-only defence | 0 | 0.920 | — | — | — |
+| Single agent, policy engine | **0** | 0.867 | 0.067 (R3) | 0.108 | 0.30 ms / call |
+| Routed sub-agents, no defence | 0.036 (2) | 0.920 | — | — | — |
+| Routed sub-agents, prompt-only defence | 0 | 0.933 | — | — | — |
+| Routed sub-agents, policy engine | **0** | 0.867 | 0.053 (R3) | 0.108 | 0.29 ms / call |
+
+Attack text reached the model in 96–100 % of runs (each planted chunk carries a marker found in tool results).
+
+**What this shows — and what it does not.** `deepseek-flash` followed **none** of the 48 planted instructions
+(documents, notes, obfuscated, in-task redirections), even with no defence: it read the redirections and still
+e-mailed only the recipient the user named. Both successful attacks were *direct* requests involving public data
+(a mailing to five addresses, figures sent to an outside domain); the prompt-only defence and the policy engine
+(R2, R4) stopped both. So on this model the policy engine is not what keeps attacks out; it turns "the model
+happened to refuse" into a guarantee that holds for any model or prompt — at a measured price: every legitimate
+"read a document, then e-mail" task is escalated by R3 (all 4 benign ones and the 10 document-based in-task e-mails),
+lowering unattended benign success from 0.92 to 0.87. With 55 attacks, "0 successes" bounds the true attack
+success rate only at roughly ≤ 6.5 % (95 %, rule of three). Whether smaller self-hosted models are easier to
+inject is tested in Phase 9.
+
+**Threat model and limitations.** In scope: an attacker who can publish text the agent retrieves (a PDF page, a
+client note) or a user asking for something they should not get; the asset is the synthetic client data and the
+bank's outgoing e-mail. Out of scope: a compromised server, database or model provider, and leaks through the
+answer text itself (the engine controls tool calls, not what the model writes back). The flow tracking is coarse:
+after one confidential read everything is treated as confidential, and taint is per session, not per value
+(finer tracking would label values, as in CaMeL). Client notes are labelled *trusted*, so an instruction inside a
+note does not trigger R3 — only R1/R2 stop it; trust labels are an assumption that can be wrong. The
+recipient allowlist is the main egress control: a compromised internal mailbox would defeat it.
+
 ## Evaluation dataset
 
 `eval/datasets/qa_dev.jsonl` (100 questions, tuned on) and `qa_test.jsonl` (50 questions, run once per final
@@ -234,6 +285,6 @@ without one, use `uv sync --extra cpu`.
 ## Roadmap
 
 Done: corpus and parsing, evaluation set, retrieval lab (Phase 3), RAG with citations and abstention, validated LLM
-judge (Phase 4), extracted key figures with a guarded text-to-SQL tool (Phase 5), MCP server and routed agent (Phase 6).
-Next: a deterministic permission layer measured against a prompt-injection suite, CI regression tiers, and a self-hosted
-vs API model comparison.
+judge (Phase 4), extracted key figures with a guarded text-to-SQL tool (Phase 5), MCP server and routed agent (Phase 6),
+deterministic permission layer and injection suite (Phase 7). Next: CI regression tiers and a self-hosted vs API model
+comparison (including whether small local models are easier to inject).
