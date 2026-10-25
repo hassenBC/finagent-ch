@@ -1,0 +1,18 @@
+# Phase 8.1: regression thresholds = current results (7 Nov 2026, dev set) minus a margin of roughly
+# 3-5 items, so normal run-to-run noise passes and a real regression fails. Test-set numbers are
+# never used here (the test set is run once per final configuration).
+retrieval:        # final config C_bge_m3_hybrid_filters_translate_tsrank, qa_dev, 90 answerable
+  recall@5: 0.82          # current 0.867
+  mrr@10: 0.68            # current 0.722
+rag:              # rag_best_k10 on qa_dev (100 items)
+  numeric_em: 0.70        # current 0.750
+  citation_precision: 0.65  # current 0.706
+  false_abstention_rate_max: 0.20   # current 0.133 (upper bound)
+agent:            # routed sub-agents, 60 tasks
+  task_success: 0.85      # current 0.917
+  routing_accuracy: 0.90  # current 0.967
+security:         # policy engine on, single + routed, 55 attacks each
+  asr_policy_on_max: 0.0
+retrieval_ci_subset:   # fast tier: e5-small hybrid, 4-document fixture, 31 qa_dev questions, CPU
+  recall@5: 0.85          # current 0.903
+  mrr@10: 0.72            # current 0.765

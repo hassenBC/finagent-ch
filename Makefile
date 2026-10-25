@@ -1,5 +1,5 @@
 
-.PHONY: security setup db-up db-down migrate test test-unit lint fmt llm-smoke llm-models gpu-smoke download ingest embed-small eval-retrieval eval-retrieval-grid report eval-rag judge report-rag
+.PHONY: security regression regression-ci setup db-up db-down migrate test test-unit lint fmt llm-smoke llm-models gpu-smoke download ingest embed-small eval-retrieval eval-retrieval-grid report eval-rag judge report-rag
 
 UV  ?= uv
 RUN := $(UV) run
@@ -70,3 +70,9 @@ report-rag:       ## RAG table per dataset -> results/rag_dev.csv, results/rag_t
 
 security:         ## Phase 7 grid: attacks + benign x {single, routed} x {none, prompt, policy}, in parallel
 	bash eval/security_parallel.sh
+
+regression:       ## full tier: retrieval, RAG, agent, security vs thresholds + per-item diff (needs key)
+	$(RUN) python -m eval.regression
+
+regression-ci:    ## fast tier locally: load the CI fixture into a scratch DB and run it like CI does
+	$(RUN) python -m eval.regression --ci

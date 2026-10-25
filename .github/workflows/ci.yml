@@ -1,18 +1,58 @@
 name: ci
 
+# Fast tier (Phase 8.2): every push and PR, no API key, no GPU.
+# The full tier (RAG, agent and security evals against the whole corpus) needs the parsed reports,
+# a GPU for bge-m3 and an API key, so it runs locally: `make regression` (see README).
 on:
   push:
   pull_request:
 
 jobs:
   test:
+    name: lint and unit tests (incl. SQL safety, policy engine, dataset)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
         with:
           python-version: "3.12"
+          enable-cache: true
       - run: uv sync --locked
       - run: uv run ruff check .
       - run: uv run ruff format --check .
       - run: uv run pytest -q tests/unit
+
+  retrieval-subset:
+    name: retrieval regression on the CI fixture + SQL role
+    runs-on: ubuntu-latest
+    services:
+      db:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: finagent
+          POSTGRES_PASSWORD: finagent
+          POSTGRES_DB: finagent
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U finagent -d finagent"
+          --health-interval 2s --health-timeout 3s --health-retries 30
+    env:
+      DATABASE_URL: postgresql://finagent:finagent@localhost:5432/finagent
+      AGENT_DATABASE_URL: postgresql://agent_reader:agent_reader@localhost:5432/finagent
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+          enable-cache: true
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/huggingface
+          key: hf-multilingual-e5-small
+      - run: uv sync --locked --extra cpu
+      - run: uv run python -m finagent.db
+      - run: uv run python -m eval.ci_fixture load
+      - name: database role refuses writes, other tables and long queries
+        run: uv run pytest -q tests/integration/test_sql_role.py
+      - name: retrieval on 31 questions vs thresholds, per-item diff vs baseline
+        run: uv run python -m eval.regression --ci
