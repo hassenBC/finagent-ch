@@ -18,3 +18,6 @@ eval/spotcheck/
 eval/judge_validation/
 eval/figures_sheet/
 eval/extraction/
+results/regression/
+results/security_parts/
+results/*_regression.csv

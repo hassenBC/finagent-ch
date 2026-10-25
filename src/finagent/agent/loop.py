@@ -20,6 +20,7 @@ import anyio
 from mcp import Client, StdioServerParameters
 from pydantic import BaseModel, Field
 
+from finagent import tracing
 from finagent.llm.client import LLMClient
 
 SYSTEM = """You answer questions about the FY2024 and FY2025 annual reports of six Swiss banks
@@ -101,6 +102,7 @@ class AgentConfig(BaseModel):
 
 def server_params(trace_id: str | None = None) -> StdioServerParameters:
     env = {**os.environ, "HF_HUB_OFFLINE": "1", "TRANSFORMERS_VERBOSITY": "error",
+           "FINAGENT_PROCESS": "mcp_server",
            **({"FINAGENT_TRACE_ID": trace_id} if trace_id else {})}  # fmt: skip
     return StdioServerParameters(
         command=sys.executable, args=["-m", "finagent.mcp_server.server"], env=env
@@ -130,13 +132,12 @@ def _labels(text: str) -> dict[str, str] | None:
 
 async def run_agent(question: str, cfg: AgentConfig, policy: Policy | None = None,
                     session: Client | None = None, route: str = "single",
-                    llm: LLMClient | None = None) -> AgentRun:  # fmt: skip
+                    llm: LLMClient | None = None,
+                    trace_id: str | None = None) -> AgentRun:  # fmt: skip
+    trace_id = trace_id or tracing.current() or str(uuid.uuid4())
     if session is None:
-        trace_id = str(uuid.uuid4())
         async with mcp_session(trace_id) as s:
-            run = await run_agent(question, cfg, policy, s, route, llm)
-            return run.model_copy(update={"trace_id": trace_id})
-    trace_id = str(uuid.uuid4())
+            return await run_agent(question, cfg, policy, s, route, llm, trace_id)
     policy = policy or AllowAll()
     llm = llm or LLMClient.from_config(cfg.model)
     tools = to_openai_tools((await session.list_tools()).tools, cfg.tools)
@@ -184,9 +185,14 @@ async def run_agent(question: str, cfg: AgentConfig, policy: Policy | None = Non
                 step.decision, step.rule_id = d.decision, d.rule_id
                 if d.decision != "allow":
                     step.result = f"DENIED by {d.rule_id}: {d.reason}"
+                    with tracing.span(f"tool.{c.name}", args=c.arguments, decision=d.decision,
+                                      rule_id=d.rule_id, reason=d.reason):  # fmt: skip
+                        pass
                 else:
                     t0 = time.perf_counter()
-                    res = await session.call_tool(c.name, c.arguments)
+                    with tracing.span(f"tool.{c.name}", args=c.arguments, decision="allow") as sp:
+                        res = await session.call_tool(c.name, c.arguments)
+                        sp.set(ok=not res.is_error)
                     step.latency_ms = int((time.perf_counter() - t0) * 1000)
                     text = "".join(getattr(b, "text", "") for b in res.content)
                     step.ok, step.labels = not res.is_error, _labels(text)
