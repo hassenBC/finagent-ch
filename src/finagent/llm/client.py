@@ -88,7 +88,16 @@ class LLMClient:
     def cost(self, tokens_in: int, tokens_out: int) -> float:
         return (tokens_in * self.price_in + tokens_out * self.price_out) / 1_000_000
 
-    def chat(
+    def chat(self, messages: list[dict], *args, **kwargs) -> ChatResult:
+        from finagent import tracing
+
+        with tracing.span("llm", model=self.model) as sp:
+            r = self._chat(messages, *args, **kwargs)
+            sp.set(tokens_in=r.tokens_in, tokens_out=r.tokens_out, cost_usd=round(r.cost_usd, 6),
+                   cached=r.cached, tool_calls=[c.name for c in r.tool_calls])  # fmt: skip
+            return r
+
+    def _chat(
         self,
         messages: list[dict],
         tools: list[dict] | None = None,

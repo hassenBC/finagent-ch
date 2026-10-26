@@ -12,6 +12,7 @@ import anyio
 from mcp import Client
 from pydantic import BaseModel
 
+from finagent import tracing
 from finagent.agent.loop import AgentConfig, AgentRun, Policy, run_agent
 from finagent.llm.client import LLMClient
 
@@ -64,17 +65,22 @@ def classify(question: str, llm: LLMClient, salt: str | None = None) -> tuple[Ro
 
 async def ask(question: str, mode: Literal["routed", "single"] = "routed",
               cfg: AgentConfig | None = None, policy: Policy | None = None,
-              session: Client | None = None) -> AgentRun:  # fmt: skip
+              session: Client | None = None, trace_id: str | None = None) -> AgentRun:  # fmt: skip
     cfg = cfg or AgentConfig()
     if mode == "single":
         return await run_agent(question, cfg.model_copy(update={"tools": ALL_TOOLS}), policy,
-                               session, route="single")  # fmt: skip
+                               session, route="single", trace_id=trace_id)  # fmt: skip
     llm = LLMClient.from_config(cfg.model)
-    route, cost = await anyio.to_thread.run_sync(lambda: classify(question, llm, cfg.cache_salt))
+    with tracing.span("route") as sp:
+        route, cost = await anyio.to_thread.run_sync(
+            lambda: classify(question, llm, cfg.cache_salt)
+        )
+        sp.set(route=route.route, bank=route.bank, year=route.year)
     if route.route == "out_of_scope":
-        return AgentRun(trace_id="", answer="I cannot answer this: it is outside the reports and "
+        return AgentRun(trace_id=trace_id or "",
+                        answer="I cannot answer this: it is outside the reports and "
                         "clients I can access.", citations=[], steps=[], route="out_of_scope",
                         cost_usd=cost, stopped_reason="abstained")  # fmt: skip
     sub = cfg.model_copy(update={"tools": ROUTE_TOOLS[route.route]})
-    run = await run_agent(question, sub, policy, session, route=route.route)
+    run = await run_agent(question, sub, policy, session, route=route.route, trace_id=trace_id)
     return run.model_copy(update={"cost_usd": run.cost_usd + cost})

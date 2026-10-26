@@ -42,15 +42,20 @@ def sh(*args: str) -> None:
 
 
 def latest(kind: str, name: str, dataset: str = DEV) -> list[tuple[str, dict, dict]]:
-    with pool().connection() as conn:
+    """Read the run this check just made, then delete it: a regression run is a check, not an
+    experiment, and must not become the "latest run" that the reports (report_rag) read."""
+    with pool().connection() as conn, conn.transaction():
         (run_id,) = conn.execute(
             "SELECT run_id FROM eval_runs WHERE kind = %s AND config->>'name' = %s AND "
             "dataset = %s ORDER BY started_at DESC LIMIT 1",
             (kind, name, dataset),
         ).fetchone()
-        return conn.execute(
+        rows = conn.execute(
             "SELECT item_id, metrics, output FROM eval_results WHERE run_id = %s", (run_id,)
         ).fetchall()
+        conn.execute("DELETE FROM eval_results WHERE run_id = %s", (run_id,))
+        conn.execute("DELETE FROM eval_runs WHERE run_id = %s", (run_id,))
+    return rows
 
 
 def snapshot(kind: str, rows) -> pd.DataFrame:
