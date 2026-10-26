@@ -214,6 +214,9 @@ def main() -> None:
     ap.add_argument("--cleanup", action="store_true", help="only remove planted attacks")
     ap.add_argument("--merge", action="store_true", help="merge the parts into the results")
     ap.add_argument("--categories", nargs="+", help="only these attack categories")
+    ap.add_argument(
+        "--out-dir", help="directory for the --tag file (default results/security_parts)"
+    )
     args = ap.parse_args()
     load = lambda f: [json.loads(x) for x in (DS / f).read_text().splitlines()][: args.limit]  # noqa: E731
     attacks = load("injection.jsonl")
@@ -244,8 +247,9 @@ def main() -> None:
                 anyio.run(run_suite, attacks, "attack", configs, rows, budget, trace)
     df = pd.DataFrame(rows)
     if args.tag:
-        PARTS.mkdir(parents=True, exist_ok=True)
-        df.to_csv(PARTS / f"{args.tag}.csv", index=False)
+        out_dir = ROOT / args.out_dir if args.out_dir else PARTS
+        out_dir.mkdir(parents=True, exist_ok=True)
+        df.to_csv(out_dir / f"{args.tag}.csv", index=False)
         print(f"{args.tag}: {len(df)} runs, spent ${budget['spent']:.3f}")
         return
     print(write_results(df).to_string(index=False))

@@ -1,0 +1,10 @@
+# Fast CI tier: e5-small hybrid on the 4-document fixture (no GPU, no API key)
+name: CI_e5_small_hybrid
+chunker: table_aware
+embedding_model: e5_small
+retrieval: hybrid
+use_metadata_filters: true
+fts: {rank: plain, normalization: 1}
+translate_cross_lingual: false
+top_k: 10
+dataset: eval/datasets/qa_ci.jsonl
