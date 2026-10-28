@@ -98,3 +98,16 @@ def test_a_broken_listener_does_not_break_the_agent():
             return await run_agent("q", AgentConfig(), None, s, llm=llm, on_event=boom)
 
     assert anyio.run(go).answer == "done"
+
+
+def test_router_isolates_a_broken_listener(monkeypatch):
+    from finagent.agent import router
+
+    monkeypatch.setattr(router, "classify", lambda q, llm, salt=None: (
+        router.Route(route="out_of_scope"), 0.0))  # fmt: skip
+
+    def boom(kind, data):
+        raise RuntimeError("listener bug")
+
+    r = anyio.run(lambda: router.ask("weather?", "routed", AgentConfig(), on_event=boom))
+    assert r.route == "out_of_scope" and r.stopped_reason == "abstained"
