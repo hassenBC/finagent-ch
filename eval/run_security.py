@@ -216,6 +216,7 @@ def main() -> None:
     ap.add_argument("--cleanup", action="store_true", help="only remove planted attacks")
     ap.add_argument("--merge", action="store_true", help="merge the parts into the results")
     ap.add_argument("--categories", nargs="+", help="only these attack categories")
+    ap.add_argument("--model", default="deepseek_flash", help="router + agent model")
     ap.add_argument(
         "--out-dir", help="directory for the --tag file (default results/security_parts)"
     )
