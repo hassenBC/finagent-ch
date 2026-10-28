@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import time
 from typing import Any
 
@@ -63,13 +64,18 @@ class LLMClient:
         cache_dir: str = str(ROOT / ".cache" / "llm"),
         max_retries: int = 5,
         client: Any = None,
+        timeout_s: float = 600.0,
+        no_think: bool = False,
     ):
         self.model = model
+        self.no_think = no_think
         self.price_in = price_in
         self.price_out = price_out
         self.cache = DiskCache(cache_dir)
         # The openai SDK retries 408/409/429/5xx and timeouts with exponential backoff.
-        self._client = client or OpenAI(base_url=base_url, api_key=api_key, max_retries=max_retries)
+        self._client = client or OpenAI(
+            base_url=base_url, api_key=api_key, max_retries=max_retries, timeout=timeout_s
+        )
 
     @classmethod
     def from_config(cls, name: str | None = None) -> LLMClient:
@@ -83,6 +89,8 @@ class LLMClient:
             price_in=spec.price_in,
             price_out=spec.price_out,
             cache_dir=str(ROOT / cfg.cache_dir),
+            timeout_s=provider.timeout_s,
+            no_think=spec.no_think,
         )
 
     def cost(self, tokens_in: int, tokens_out: int) -> float:
@@ -155,6 +163,10 @@ class LLMClient:
         max_tokens: int,
         cache_salt: str | None = None,
     ) -> ChatResult:
+        if self.no_think and messages and messages[-1].get("role") == "user":
+            last = messages[-1]
+            if isinstance(last.get("content"), str) and "/no_think" not in last["content"]:
+                messages = [*messages[:-1], {**last, "content": last["content"] + " /no_think"}]
         key = request_key(
             model=self.model,
             messages=messages,
@@ -188,8 +200,11 @@ class LLMClient:
         usage = resp.usage
         tokens_in = usage.prompt_tokens if usage else 0
         tokens_out = usage.completion_tokens if usage else 0
+        text = msg.content
+        if text and "<think>" in text:  # Qwen3 (local) may emit a reasoning block before the answer
+            text = re.sub(r"<think>.*?</think>\s*", "", text, flags=re.S)
         payload = {
-            "text": msg.content,
+            "text": text,
             "tool_calls": [tc.model_dump() for tc in _parse_tool_calls(msg.tool_calls)],
             "tokens_in": tokens_in,
             "tokens_out": tokens_out,

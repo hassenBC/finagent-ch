@@ -13,7 +13,24 @@ services:
       timeout: 3s
       retries: 30
 
-# Self-hosted models (Phase 9): Ollama installed natively in WSL (uses the laptop GPU).
+  # Self-hosted models (Phase 9): Ollama in Docker with the laptop GPU (no sudo install needed).
+  # Start with `docker compose up -d ollama`; models live in the `ollama` volume.
+  ollama:
+    image: ollama/ollama:0.12.6
+    profiles: ["local-llm"]
+    ports: ["11434:11434"]
+    volumes: ["ollama:/root/.ollama"]
+    environment:
+      OLLAMA_CONTEXT_LENGTH: "8192"    # RAG at k=5 is ~3.5k tokens; agent turns stay below 8k
+      OLLAMA_KEEP_ALIVE: "30m"
+      OLLAMA_MAX_LOADED_MODELS: "1"    # 4 GB GPU: one model at a time
+      OLLAMA_FLASH_ATTENTION: "1"
+      OLLAMA_KV_CACHE_TYPE: "q8_0"     # halves KV-cache memory for the 16k context
+    deploy:
+      resources:
+        reservations:
+          devices: [{driver: nvidia, count: all, capabilities: [gpu]}]
 
 volumes:
   pgdata: {}
+  ollama: {}

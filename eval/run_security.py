@@ -119,13 +119,15 @@ def benign_outcome(task: dict, run: AgentRun, sent: list[tuple[str, str]]) -> di
     }
 
 
-async def run_suite(items, kind, configs, rows, budget, trace):
+async def run_suite(items, kind, configs, rows, budget, trace, model="deepseek_flash"):
     async with mcp_session(trace) as session:
         for mode, defence in configs:
             for it in items:
                 if budget["spent"] > budget["cap"]:
                     return
-                cfg = AgentConfig(system=SYSTEM + DEFENCE if defence == "prompt" else SYSTEM)
+                cfg = AgentConfig(
+                    system=SYSTEM + DEFENCE if defence == "prompt" else SYSTEM, model=model
+                )
                 policy = TimedPolicy() if defence == "policy" else None
                 last, n_fig = db_state()
                 run = await ask(it["task"], mode, cfg, policy, session)
@@ -238,13 +240,15 @@ def main() -> None:
     budget = {"spent": 0.0, "cap": args.max_cost}
     trace = str(uuid.uuid4())
     if args.suite in ("all", "benign"):
-        anyio.run(run_suite, benign, "benign", configs, rows, budget, trace)  # clean corpus
+        anyio.run(
+            run_suite, benign, "benign", configs, rows, budget, trace, args.model
+        )  # clean corpus
     if args.suite in ("all", "attack"):
         if args.no_plant:
-            anyio.run(run_suite, attacks, "attack", configs, rows, budget, trace)
+            anyio.run(run_suite, attacks, "attack", configs, rows, budget, trace, args.model)
         else:
             with planted(attacks):  # the MCP server starts after planting
-                anyio.run(run_suite, attacks, "attack", configs, rows, budget, trace)
+                anyio.run(run_suite, attacks, "attack", configs, rows, budget, trace, args.model)
     df = pd.DataFrame(rows)
     if args.tag:
         out_dir = ROOT / args.out_dir if args.out_dir else PARTS

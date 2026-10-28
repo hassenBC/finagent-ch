@@ -25,6 +25,7 @@ class Env(BaseSettings):
 class Provider(BaseModel):
     base_url: str
     api_key_env: str
+    timeout_s: float = 600.0  # local models on a 4 GB GPU can need minutes per call
 
 
 class ModelSpec(BaseModel):
@@ -32,6 +33,7 @@ class ModelSpec(BaseModel):
     model: str
     price_in: float  # USD per million input tokens
     price_out: float  # USD per million output tokens
+    no_think: bool = False  # Qwen3 hybrid models: append the /no_think soft switch
 
 
 class LLMConfig(BaseModel):
