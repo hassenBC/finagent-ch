@@ -211,7 +211,7 @@ async def run_agent(question: str, cfg: AgentConfig, policy: Policy | None = Non
                                else "error: arguments are not valid JSON")  # fmt: skip
                 emit("invalid_call", tool=c.name, reason=step.result, raw=c.arguments_raw[:500])
             else:
-                before = flow()
+                before = flow() if on_event else {}  # no policy work when nobody listens
                 emit("policy_check", tool=c.name, args=c.arguments, state=before)
                 d = policy.check(c.name, c.arguments, state)
                 step.decision, step.rule_id = d.decision, d.rule_id
@@ -236,7 +236,8 @@ async def run_agent(question: str, cfg: AgentConfig, policy: Policy | None = Non
                     if step.labels:
                         state.labels.append(step.labels)
                     emit("tool_end", tool=c.name, ok=step.ok, latency_ms=step.latency_ms,
-                         labels=step.labels, result=text[:4000], state=flow())  # fmt: skip
+                         labels=step.labels, result=text[:4000],
+                         state=flow() if on_event else {})  # fmt: skip
             steps.append(step)
             messages.append({"role": "tool", "tool_call_id": c.id, "content": step.result})
     emit("final", answer=answer, citations=sorted(set(CITATION.findall(answer))),

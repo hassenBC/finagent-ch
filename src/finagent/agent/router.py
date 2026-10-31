@@ -6,6 +6,7 @@ One structured LLM call picks a route; the sub-agent for that route sees only th
 
 from __future__ import annotations
 
+from contextlib import suppress
 from typing import Literal
 
 import anyio
@@ -79,7 +80,8 @@ async def ask(question: str, mode: Literal["routed", "single"] = "routed",
         )
         sp.set(route=route.route, bank=route.bank, year=route.year)
     if on_event:
-        on_event("route", {"route": route.route, "bank": route.bank, "year": route.year,
+        with suppress(Exception):  # a broken listener must never break the agent
+            on_event("route", {"route": route.route, "bank": route.bank, "year": route.year,
                            "tools": ROUTE_TOOLS[route.route], "cost_usd": cost})  # fmt: skip
     if route.route == "out_of_scope":
         return AgentRun(trace_id=trace_id or "",
