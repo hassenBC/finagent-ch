@@ -272,6 +272,22 @@ and `finagent trace <id>` prints them as a tree, nesting server spans under the 
 first trace already found something: a 9.8 s vector search that is bge-m3 loading lazily on the server's first
 query, not slow retrieval.
 
+## Live demo app
+
+`finagent ui` → http://localhost:8000. Ask a question (or pick one of ten scenarios), choose the model (DeepSeek
+or a local Qwen3 via Ollama), routed or single agent, and the defence (none / prompt-only / policy engine). The
+**developer view** streams every step as it happens: the router's choice and the static toolset check, each LLM
+call (tokens, latency, cost, cache hit), each policy decision with its rule and the session state (highest
+sensitivity, untrusted text seen, side effects), each tool call with its result labels, and the retrieval stages
+running inside the MCP server (FTS, vector, fusion). An R3 escalation pauses the run for an Approve / Deny click;
+citations open the cited PDF page; the outbox shows what the agent "sent" (nothing leaves the machine). A toggle
+plants a synthetic poisoned page for a live prompt-injection demo — it is excluded from every other retrieval, so
+it cannot leak into evaluations.
+
+Built as two peers: the backend (Starlette, SSE event log with replay, one long-lived MCP session) by Claude
+Code, the frontend (plain HTML/CSS/JS, `?mock=1` offline walkthrough) by Codex, each reviewing the other's code
+against a shared contract (`src/finagent/ui/API.md`) — 11 backend and 4 frontend findings, all fixed.
+
 ## Evaluation dataset
 
 `eval/datasets/qa_dev.jsonl` (100 questions, tuned on) and `qa_test.jsonl` (50 questions, run once per final
