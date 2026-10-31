@@ -77,6 +77,7 @@ select = ["E", "F", "I", "B", "UP", "SIM"]
 
 [tool.ruff.lint.per-file-ignores]
 "eval/build_injection.py" = ["E501"]  # attack and task texts are prose data
+"src/finagent/ui/app.py" = ["E501"]  # scenario texts and SQL are prose data
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

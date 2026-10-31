@@ -67,3 +67,34 @@ def test_max_steps():
     llm = Scripted([reply(calls=[call("calculate", {"expression": "1+1"})])] * 3)
     r = run(llm, AgentConfig(max_steps=3))
     assert r.stopped_reason == "max_steps" and len(r.steps) == 3
+
+
+def test_events_are_emitted_in_order_and_do_not_change_the_run():
+    events = []
+    llm = Scripted(
+        [reply(calls=[call("calculate", {"expression": "1+1"})]), reply("2 [x-2025-p1]")]
+    )
+
+    async def go():
+        async with Client(mcp) as s:
+            return await run_agent("q", AgentConfig(), None, s, llm=llm,
+                                   on_event=lambda k, d: events.append(k))  # fmt: skip
+
+    r = anyio.run(go)
+    assert r.stopped_reason == "answered"
+    assert events == ["agent_start", "llm_request", "llm_response", "policy_check",
+                      "policy_decision", "tool_start", "tool_end", "llm_request",
+                      "llm_response", "final"]  # fmt: skip
+
+
+def test_a_broken_listener_does_not_break_the_agent():
+    llm = Scripted([reply("done")])
+
+    def boom(kind, data):
+        raise RuntimeError("listener bug")
+
+    async def go():
+        async with Client(mcp) as s:
+            return await run_agent("q", AgentConfig(), None, s, llm=llm, on_event=boom)
+
+    assert anyio.run(go).answer == "done"

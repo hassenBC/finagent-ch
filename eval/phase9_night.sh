@@ -16,7 +16,7 @@ PY="uv run python -m"
 
 # 1. Qwen3-4B 4-bit: fully on the GPU -> full suites
 M=local_qwen4b_q4
-step $PY eval.run_rag configs/rag/rag_local_qwen4b_q4_k5.yaml --max-cost 0
+step $PY eval.run_rag configs/rag/rag_local_qwen4b_q4_k5.yaml --max-cost 0.01  # local calls cost 0; a 0 cap counts as reached
 step $PY eval.run_agent_eval --model $M --modes routed single --tag $M --max-cost 0.05
 step $PY eval.run_security --model $M --suite attack --modes single routed --defences none policy \
      --tag $M --out-dir results/phase9 --max-cost 0.05
@@ -24,7 +24,7 @@ step $PY eval.run_judge rag_local_qwen4b_q4_k5 --max-cost 0.8
 
 # 2./3. Qwen3-4B 8-bit and Qwen3-8B 4-bit: partly on the CPU -> half-size subsets
 for M in local_qwen4b_q8 local_qwen8b_q4; do
-  step $PY eval.run_rag configs/rag/rag_${M}_k5.yaml --dataset eval/datasets/qa_dev_half.jsonl --max-cost 0
+  step $PY eval.run_rag configs/rag/rag_${M}_k5.yaml --dataset eval/datasets/qa_dev_half.jsonl --max-cost 0.01  # local calls cost 0; a 0 cap counts as reached
   step $PY eval.run_agent_eval --model $M --modes routed --every 2 --tag $M --max-cost 0.05
   step $PY eval.run_security --model $M --suite attack --modes single --defences none \
        --tag $M --out-dir results/phase9 --max-cost 0.05

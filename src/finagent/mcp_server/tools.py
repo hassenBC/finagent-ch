@@ -91,6 +91,8 @@ def search_documents(query: str, bank: str | None = None, year: int | None = Non
     filters = Filters(banks=[bank] if bank else None, years=[year] if year else None)
     cfg = _retrieval_cfg().model_copy(update={"top_k": max(1, min(k, 10))})
     hits = retrieve(query, cfg, filters if (bank or year) else None)
+    if any(h.doc_id not in _docs() for h in hits):  # a document was added after the cache was built
+        _docs.cache_clear()
     passages = [
         {"source_id": f"{_docs()[h.doc_id][0]}-{_docs()[h.doc_id][1]}-p{h.page_start}",
          "bank": _docs()[h.doc_id][0], "year": _docs()[h.doc_id][1], "page": h.page_start,
