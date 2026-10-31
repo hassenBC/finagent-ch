@@ -320,7 +320,13 @@ async def _execute(run: Run) -> None:
     policy = PolicyEngine(confirm=confirm) if run.defence == "policy" else None
     run.emit(
         "run_start",
-        {"question": run.question, "mode": run.mode, "defence": run.defence, "model": run.model},
+        {
+            "question": run.question,
+            "mode": run.mode,
+            "defence": run.defence,
+            "model": run.model,
+            "started_at": run.started.isoformat(),
+        },
     )
     try:
         result = await ask(
@@ -455,6 +461,15 @@ async def start_run(request: Request) -> Response:
         RUNS.pop(oldest_id)
     w.submit(_execute(run))
     return JSONResponse({"run_id": run.id})
+
+
+async def list_runs(request: Request) -> Response:
+    """Recent runs of this server (newest first), for history and replay."""
+    return JSONResponse({"runs": [
+        {"run_id": r.id, "question": r.question, "mode": r.mode, "defence": r.defence,
+         "model": r.model, "started_at": r.started.isoformat(), "done": r.done,
+         "n_events": len(r.log)}
+        for r in reversed(RUNS.values())]})  # fmt: skip
 
 
 async def events(request: Request) -> Response:
@@ -620,6 +635,7 @@ routes = [
     Route("/", index),
     Route("/api/config", config),
     Route("/api/runs", start_run, methods=["POST"]),
+    Route("/api/runs", list_runs, methods=["GET"]),
     Route("/api/runs/{run_id}/events", events),
     Route("/api/runs/{run_id}/approval", approval, methods=["POST"]),
     Route("/api/page", page),
