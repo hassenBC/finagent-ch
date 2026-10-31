@@ -19,7 +19,7 @@
 <body>
   <header class="toolbar" aria-label="Run configuration">
     <span class="brand">finagent-ch</span>
-    <button id="toggle-left" class="text-button" aria-expanded="true" aria-controls="left-pane">Question / Runs</button>
+    <button id="toggle-left" class="button panel-toggle" aria-expanded="true" aria-controls="left-pane" title="Show or hide the question, answer, runs and outbox">Hide panel</button>
     <label>Model <select id="model" disabled><option>Loading…</option></select></label>
     <label>Mode <select id="mode" disabled></select></label>
     <label>Defence <select id="defence" disabled></select></label>
@@ -56,6 +56,7 @@
         <details id="trace-overview" class="trace-overview" open><summary>Trace summary</summary><div id="minimap" class="minimap" aria-label="Run overview"></div></details>
         <div class="session mono" aria-label="Session state">
           <span>sensitivity: <b id="sensitivity">public</b></span><span>input: <b id="taint">trusted</b></span><span>side effects: <b id="side-effects">0</b></span>
+          <span class="kind-legend" aria-label="Span colours"><span><i style="background:var(--k-llm)"></i>LLM</span><span><i style="background:var(--k-tool)"></i>tool</span><span><i style="background:var(--k-server)"></i>MCP server</span><span><i style="background:var(--danger)"></i>denied</span><span><i style="background:var(--attention)"></i>needs approval</span><span><i style="border:1px dashed var(--sensitive)"></i>untrusted / confidential</span></span>
         </div>
       </header>
       <div id="trace-notice" class="trace-notice" role="status" hidden></div>
