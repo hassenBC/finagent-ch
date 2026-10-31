@@ -17,6 +17,7 @@ cited answer.
 |---|---|---|
 | `GET /api/config` | – | `{models: [{key, label, local, note}], modes: ["routed","single"], defences: ["none","prompt","policy"], presets: [{id, label, question, mode, defence, explains}], injection_demo: bool}` |
 | `POST /api/runs` | `{question, mode, defence, model}` | `{run_id}`; `409 {error}` if a run is in progress (one at a time); `503 {error}` if the agent backend failed to start |
+| `GET /api/runs` | – | `{runs: [{run_id, question, mode, defence, model, started_at, done, n_events}]}` newest first (last 20 runs of this server) — for history and replay |
 | `GET /api/runs/{run_id}/events` | – | Server-Sent Events stream (below); ends with `done`. Every message has an SSE `id` (= `seq`); reconnecting with `Last-Event-ID` replays the rest, and several subscribers each get the full log |
 | `POST /api/runs/{run_id}/approval` | `{approval_id, allow: true|false}` (strict boolean) | `{ok: true}`; `409` if that approval is not pending (already answered, expired, wrong id) |
 | `GET /api/page?source=efg-2025-p12` | `source` = citation id `bank-year-pN` | PNG of that PDF page (404 if unknown) |
@@ -29,7 +30,7 @@ Each message: `data: {"seq": int, "t_ms": int, "kind": str, "data": {...}}` (`t_
 
 | kind | data | meaning |
 |---|---|---|
-| `run_start` | `{question, mode, defence, model}` | |
+| `run_start` | `{question, mode, defence, model, started_at}` | `started_at` (ISO, UTC) anchors `server_span.started_at` on the run's time axis |
 | `route` | `{route, bank, year, tools: [..], cost_usd, static_check: {flagged, accepted, reason}}` | router decision (routed mode only); the sub-agent gets only `tools` |
 | `agent_start` | `{route, model, tools: [..], system, question, max_steps, policy}` | `system` = full system prompt |
 | `llm_request` | `{turn, n_messages, context_chars}` | an LLM call starts |
