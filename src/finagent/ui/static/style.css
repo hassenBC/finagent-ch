@@ -6,14 +6,21 @@
 :root {
   color-scheme:light dark; --bg:#fff; --soft:#f7f7f8; --text:#27272a; --muted:#71717a;
   --line:#dedee2; --grid:#ededf0; --accent:#356a9d; --selected:#eaf1f8; --hover:#f1f1f3;
-  --llm:#7a92ad; --tool:#929ba5; --server:#b5bcc4; --marker:#777781;
-  --red:#b33138; --amber:#926415; --amber-bg:#fcf5e8; --green:#34734b; --orange:#aa5a1a; --purple:#8255a2;
+  /* Colour system: grey is the default; colour only marks exceptions (Few; Atlassian/Carbon roles).
+     Four meanings, never decorative: danger (denied, error), attention (needs a human),
+     sensitive (untrusted input, confidential data), accent (interaction: selection, links). */
+  --llm:#a9b0b8; --tool:#8f969e; --server:#c9ced3; --marker:#8a8a93; --ink:#27272a;
+  --danger:#c4262e; --attention:#b07400; --attention-bg:#ffc233; --sensitive:#7b3fb3;
+  --red:var(--danger); --amber:var(--attention); --amber-bg:#fdf3dc; --green:var(--marker);
+  --orange:var(--sensitive); --purple:var(--sensitive);
   --mono:'JetBrains Mono'; font:13px/1.45 'IBM Plex Sans'; font-synthesis:none; font-variant-numeric:tabular-nums;
 }
 @media (prefers-color-scheme:dark) {
   :root { --bg:#18181b; --soft:#202023; --text:#dedee3; --muted:#a1a1aa; --line:#38383e; --grid:#2a2a30;
-    --accent:#83a9d0; --selected:#253343; --hover:#26262b; --llm:#627f9e; --tool:#717d89; --server:#505b66; --marker:#9999a3;
-    --red:#e88b90; --amber:#d8ad65; --amber-bg:#302a20; --green:#84bc95; --orange:#df9b64; --purple:#bc9bdb; }
+    --accent:#83a9d0; --selected:#253343; --hover:#26262b; --llm:#4c525a; --tool:#6b727b; --server:#3c4148; --marker:#8d8d97;
+    --ink:#e4e4e7; --danger:#ff6b70; --attention:#f2b84b; --attention-bg:#f2b84b; --sensitive:#c39bff;
+    --red:var(--danger); --amber:var(--attention); --amber-bg:#3a2f17; --green:var(--marker);
+    --orange:var(--sensitive); --purple:var(--sensitive); }
 }
 * { box-sizing:border-box }
 [hidden] { display:none!important }
@@ -151,3 +158,22 @@ dialog::backdrop { background:#0008 } .modal-header { display:flex; justify-cont
 .run-item[aria-current="true"] { background:var(--selected) }
 .run-question { display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
 .run-meta { display:block; color:var(--muted); font:11px/1.6 var(--mono) }
+
+/* --- colour hierarchy (added: grey default, colour for exceptions) --- */
+/* allow is the normal case: a grey marker, no colour */
+.kind-policy.allow .marker { background:var(--marker) }
+.kind-policy.allow .row-status { color:var(--muted) }
+/* a pending approval is the one loud element: a solid block the presenter cannot miss */
+.span-row.pending { background:var(--attention-bg); color:#1a1a1a; font-weight:600 }
+.span-row.pending .row-status,.span-row.pending .span-duration,.span-row.pending small { color:#1a1a1a }
+/* denied: red text plus a 3px rule, so it survives greyscale */
+.span-row.deny { box-shadow:inset 3px 0 0 var(--danger); font-weight:600 }
+/* sensitive data flow: violet label, dashed outline on the bar (shape as well as colour) */
+.kind-tool.untrusted .span-bar { border:1px dashed var(--sensitive); background:transparent }
+/* the run's longest span is drawn in ink, like a critical path */
+.span-row.critical .span-bar { background:var(--ink) }
+/* session chips stay grey at their safe defaults and take colour only when they change */
+.session-chip.changed { border-color:var(--sensitive); color:var(--sensitive) }
+.session-chip.changed.effects { border-color:var(--attention); color:var(--attention) }
+/* links look like links (brutalist rule: only links and buttons respond to clicks) */
+.citation { text-decoration:underline; text-underline-offset:2px; background:none }

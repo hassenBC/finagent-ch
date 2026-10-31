@@ -241,6 +241,15 @@
     ui.sensitivity.textContent = session.max_sensitivity;
     ui.taint.textContent = session.tainted ? 'tainted' : 'trusted';
     ui['side-effects'].textContent = number(session.side_effects);
+    // grey at the safe default, coloured only when the state has changed (see style.css)
+    const mark = (node, changed, extra) => {
+      node.parentElement.classList.add('session-chip');
+      node.parentElement.classList.toggle('changed', changed);
+      if (extra) node.parentElement.classList.add(extra);
+    };
+    mark(ui.sensitivity, session.max_sensitivity !== 'public');
+    mark(ui.taint, Boolean(session.tainted));
+    mark(ui['side-effects'], num(session.side_effects) > 0, 'effects');
   }
   function elapsed() { return loadingLog ? 0 : active && !finalReceived ? Math.max(lastMs, performance.now() - (replaying ? replayOrigin : clockOrigin)) : lastMs; }
   function buildAxis() {
@@ -258,6 +267,14 @@
     const rough = extent / 5, magnitude = 10 ** Math.floor(Math.log10(rough));
     const step = [1, 2, 5, 10].find(n => n * magnitude >= rough) * magnitude;
     if (step !== axisStep) { axisStep = step; axisMax = step * 5; buildAxis(); }
+    // the longest finished span is drawn in ink (critical-path style emphasis)
+    let longest = null, longestMs = 0;
+    for (const row of rows) {
+      if (row.marker || row.end == null) continue;
+      const d = row.end - row.start;
+      if (d > longestMs) { longestMs = d; longest = row; }
+    }
+    for (const row of rows) row.node.classList.toggle('critical', row === longest);
     for (const row of rows) {
       const duration = row.marker ? 0 : Math.max(0, (row.end ?? time) - row.start);
       row.duration.textContent = (row.marker ? '—' : ms(duration)) + (row.kind === 'llm' && row.data.cost_usd !== undefined ? ` · ${row.data.cached ? 'cached' : money(row.data.cost_usd)}` : '');
