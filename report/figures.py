@@ -398,3 +398,33 @@ def phase9_table() -> pd.DataFrame | None:
         rows.append(r)
     df = pd.DataFrame(rows).set_index("model")
     return None if df.shape[1] == 0 else df
+
+
+def fig_models():
+    """Self-hosted vs API: one small multiple per metric, the API model as the grey reference."""
+    t = phase9_table()
+    if t is None:
+        return None
+    metrics = [c for c in ["RAG numeric correct", "citation precision", "agent success (routed)",
+                           "routing accuracy", "valid tool calls", "attack success, no defence"]
+               if c in t.columns and t[c].notna().sum() >= 2]  # fmt: skip
+    if not metrics:
+        return None
+    fig, axes = plt.subplots(1, len(metrics), figsize=(2.0 * len(metrics) + 0.6, 2.6), sharey=True)
+    axes = np.atleast_1d(axes)
+    y = np.arange(len(t))[::-1]
+    colors = [GREY if "API" in m else BLUE for m in t.index]
+    for ax, m in zip(axes, metrics, strict=True):
+        vals = t[m].to_numpy(dtype=float)
+        ax.barh(y, np.nan_to_num(vals), color=colors, height=0.6)
+        for yy, v in zip(y, vals, strict=True):
+            ax.text(0.02 if np.isnan(v) else v + 0.02, yy, "n/a" if np.isnan(v) else f"{v:.2f}",
+                    va="center", fontsize=8, color=MUTED if np.isnan(v) else INK)  # fmt: skip
+        ax.set_xlim(0, 1.25)
+        ax.set_xticks([0, 0.5, 1])
+        ax.set_title(m, fontsize=8.5)
+    axes[0].set_yticks(y, t.index, fontsize=8.5)
+    fig.suptitle("Self-hosted models on a 4 GB GPU vs the API model", x=0.02, ha="left",
+                 fontweight="bold", fontsize=10.5)  # fmt: skip
+    fig.tight_layout()
+    return _save(fig, "models")
