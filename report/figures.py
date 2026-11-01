@@ -81,7 +81,7 @@ def fig_ladder():
     test = pd.read_csv(RES / "retrieval_test.csv").set_index("config")
     fig, ax = plt.subplots(figsize=(6.6, 3.4))
     ys = np.arange(len(LADDER))[::-1]
-    for i, (y, (cfg, label)) in enumerate(zip(ys, LADDER, strict=True)):
+    for i, (y, (cfg, _label)) in enumerate(zip(ys, LADDER, strict=True)):
         r = dev.loc[cfg]
         color = GREY if i == 0 else (BLUE if i == len(LADDER) - 1 else BLUE_LIGHT)
         ax.barh(y, r["recall@5"], height=0.6, color=color)
@@ -109,7 +109,7 @@ def fig_header_ablation():
             ("A_table_aware_vector", "table-aware + header", BLUE)]  # fmt: skip
     fig, ax = plt.subplots(figsize=(6.2, 2.6))
     y = np.arange(len(rows))[::-1]
-    for yy, (cfg, label, c) in zip(y, rows, strict=True):
+    for yy, (cfg, _label, c) in zip(y, rows, strict=True):
         v = dev.loc[cfg, "recall@5"]
         ax.barh(yy, v, color=c, height=0.6)
         ax.text(v + 0.01, yy, f"{v:.2f}", va="center", fontsize=8.5, color=INK)
@@ -122,12 +122,14 @@ def fig_header_ablation():
 
 def fig_fts_rank():
     dev = pd.read_csv(RES / "retrieval.csv").set_index("config")
-    rows = [("A_table_aware_fts", "ts_rank_cd (cover density)", GREY),
-            ("F_table_aware_fts_plain_norm1", "ts_rank + length normalisation", BLUE),
-            ("A_table_aware_vector", "for reference: e5-small vector", GREY_LIGHT)]
+    rows = [
+        ("A_table_aware_fts", "ts_rank_cd (cover density)", GREY),
+        ("F_table_aware_fts_plain_norm1", "ts_rank + length normalisation", BLUE),
+        ("A_table_aware_vector", "for reference: e5-small vector", GREY_LIGHT),
+    ]
     fig, ax = plt.subplots(figsize=(6.2, 1.9))
     y = np.arange(len(rows))[::-1]
-    for yy, (cfg, label, c) in zip(y, rows, strict=True):
+    for yy, (cfg, _label, c) in zip(y, rows, strict=True):
         v = dev.loc[cfg, "recall@5"]
         ax.barh(yy, v, color=c, height=0.6)
         ax.text(v + 0.01, yy, f"{v:.2f}", va="center", fontsize=8.5, color=INK)
@@ -262,12 +264,14 @@ def fig_extraction():
 
 def fig_sql():
     s = pd.read_csv(RES / "figures_sql.csv").set_index("setting")
-    rows = [("gold", "generated SQL on gold figures\n(text-to-SQL errors only)", BLUE),
-            ("oracle", "reference SQL on extracted figures\n(extraction errors only)", GREY),
-            ("extracted", "generated SQL on extracted figures\n(end to end)", BLUE_LIGHT)]
+    rows = [
+        ("gold", "generated SQL on gold figures\n(text-to-SQL errors only)", BLUE),
+        ("oracle", "reference SQL on extracted figures\n(extraction errors only)", GREY),
+        ("extracted", "generated SQL on extracted figures\n(end to end)", BLUE_LIGHT),
+    ]
     fig, ax = plt.subplots(figsize=(6.2, 2.1))
     y = np.arange(len(rows))[::-1]
-    for yy, (k, label, c) in zip(y, rows, strict=True):
+    for yy, (k, _label, c) in zip(y, rows, strict=True):
         v = s.loc[k, "execution_accuracy"]
         ax.barh(yy, v, color=c, height=0.6)
         ax.text(v + 0.01, yy, f"{v:.3f}", va="center", fontsize=8.5)
@@ -286,8 +290,13 @@ def fig_agent():
     x = np.arange(len(order))
     for off, mode, c in [(-0.2, "single", GREY), (0.2, "routed", BLUE)]:
         d = k[k["mode"] == mode].set_index("kind")
-        axes[0].bar(x + off, [d.loc[o, "success"] for o in order], width=0.38, color=c,
-                    label={"single": "one agent, 5 tools", "routed": "router + sub-agents"}[mode])
+        axes[0].bar(
+            x + off,
+            [d.loc[o, "success"] for o in order],
+            width=0.38,
+            color=c,
+            label={"single": "one agent, 5 tools", "routed": "router + sub-agents"}[mode],
+        )
         axes[1].bar(x + off, [1000 * d.loc[o, "cost_per_task"] for o in order], width=0.38,
                     color=c)  # fmt: skip
     for ax in axes:
@@ -337,7 +346,7 @@ def fig_regression_demo():
             ("RAG false refusals", 0.144, 0.211, 0.20, False)]  # fmt: skip
     fig, ax = plt.subplots(figsize=(6.2, 2.3))
     y = np.arange(len(rows))[::-1]
-    for yy, (label, good, bad, thr, higher) in zip(y, rows, strict=True):
+    for yy, (_label, good, bad, thr, _higher) in zip(y, rows, strict=True):
         ax.plot([good, bad], [yy, yy], color=GREY_LIGHT, lw=2)
         ax.scatter([good], [yy], color=BLUE, s=36, zorder=3, label="main" if yy == y[0] else None)
         ax.scatter([bad], [yy], color=BAD, s=36, zorder=3,
@@ -355,7 +364,11 @@ def fig_regression_demo():
 # --- self-hosted (Phase 9) ---------------------------------------------------------------------------
 def phase9_table() -> pd.DataFrame | None:
     """Model comparison, built from whatever Phase 9 results exist (None if none yet)."""
-    rag = pd.read_csv(RES / "rag_dev.csv").set_index("config") if (RES / "rag_dev.csv").exists() else None
+    rag = (
+        pd.read_csv(RES / "rag_dev.csv").set_index("config")
+        if (RES / "rag_dev.csv").exists()
+        else None
+    )
     rows = []
     for key, label, rag_cfg, agent in [
         ("deepseek_flash", "DeepSeek flash (API)", "rag_best_k5", "agent_items.csv"),
