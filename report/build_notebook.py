@@ -225,6 +225,7 @@ plain("""Banks often cannot send data to an outside API. We ran the same evaluat
 on a laptop GPU (4 GB)** and compared them with the API model on quality, tool use, security and speed.""")
 code("""t = F.phase9_table()
 t if t is not None else "Phase 9 results not available yet — re-run this notebook after the overnight run." """)
+code("F.fig_models();")
 md("""**Method.** Qwen3-4B (4-bit and 8-bit) and Qwen3-8B (4-bit) served by Ollama in Docker; identical
 prompts and code; the judge kept fixed (API). Only the 4-bit 4B fits the 4 GB GPU entirely (37/37 layers,
 ~3 s per answer); the 8-bit 4B and the 8B spill onto the CPU (minutes per answer), so they ran on half-size
