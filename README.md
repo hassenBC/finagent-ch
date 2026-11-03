@@ -40,7 +40,7 @@ LLM calls are cached in `.cache/llm/`, so re-runs are free; every LLM runner tak
 `qa_dev` holds 90 answerable questions and `qa_test` 45; unanswerable items are excluded from retrieval metrics. Relevance
 is page-level (gold or alternate page). Intervals are 95 % bootstrap CIs; "A beats B" is claimed only when the paired
 bootstrap CI of the per-question difference excludes 0. All runs: `results/retrieval*.csv`, full chart of all
-60 dev runs `results/retrieval.png`.
+56 dev runs `results/retrieval.png`.
 
 **Held-out test set (run once):**
 
