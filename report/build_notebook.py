@@ -29,18 +29,18 @@ def expert(text: str) -> None:
 
 
 md("""
-# finagent-ch — what we built, how we measured it, and what we learned
+# finagent-ch: what we built, how we measured it, and what we learned
 
 A question-answering assistant over the **annual reports of six Swiss banks** (Julius Baer, Vontobel,
 EFG International, Swissquote, BCV, BCGE; fiscal years 2024 and 2025; English and French; table-heavy PDFs),
-grown step by step into a **tool-using agent with a security layer** — and **measured at every step**.
+grown step by step into a **tool-using agent with a security layer**, and **measured at every step**.
 
 **How to read this report.** Every section has the same four parts:
 
-* **In plain words** — two or three sentences, no jargon. If you only read these, you get the story.
-* **Method** — what we did and why, including the optimisations we tried in order.
-* **Result** — a figure and the numbers behind it, read live from `results/*.csv`.
-* **For experts** (click to open) — statistics, caveats, and the mistakes we made and corrected.
+* **In plain words**: two or three sentences, no jargon. If you only read these, you get the story.
+* **Method**: what we did and why, including the optimisations we tried in order.
+* **Result**: a figure and the numbers behind it, read live from `results/*.csv`.
+* **For experts** (click to open): statistics, caveats, and the mistakes we made and corrected.
 
 A glossary of every metric is right below. All numbers are reproducible with the commands in the README.
 """)
@@ -56,7 +56,7 @@ md("""
 | **RAG** | Retrieval-augmented generation: a language model writes the answer from the retrieved passages and cites them. |
 | **Numeric match** | The answer contains the correct number (within rounding). |
 | **Citation precision / recall** | Share of cited pages that are right / share of right pages that were cited. |
-| **Abstention** | The system says "I cannot answer" — correct for questions the reports do not answer. |
+| **Abstention** | The system says "I cannot answer"; correct for questions the reports do not answer. |
 | **Faithfulness** | Every claim in the answer is supported by the pages it cites (checked by an LLM judge we validated). |
 | **Cohen's κ (kappa)** | Agreement between two raters beyond chance: 0 = chance level, 1 = perfect, ≥ 0.6 usually "substantial". |
 | **Agent / tool** | A model that decides which tools to call (search, SQL, calculator, client notes, e-mail) to finish a task. |
@@ -97,8 +97,8 @@ once per final configuration and never used for a decision.""")
 md("## 2. Retrieval: finding the right page")
 plain("""Most wrong answers start with the wrong passage. We tried many ways of cutting the reports into
 passages and of searching them, kept what measurably helped, and ended at **80 % of test questions with the
-right page in the top 5 — up from 44 %** for a simple baseline.""")
-md("""**Method — the optimisation path.** One change at a time, each compared on the same 90 answerable dev
+right page in the top 5, up from 44 %** for a simple baseline.""")
+md("""**Method: the optimisation path.** One change at a time, each compared on the same 90 answerable dev
 questions with paired bootstrap confidence intervals ("A beats B" only if the interval of the per-question
 difference excludes 0):
 
@@ -118,8 +118,8 @@ structure chunks gave the same result, and removing it from table-aware chunks e
 code("F.fig_header_ablation();")
 md("""Second, full-text search first looked useless (recall@5 0.26) and we concluded that "hybrid search does
 not help". The cause was Postgres' default **cover-density ranking** (`ts_rank_cd`), which ranks OR-queries
-almost arbitrarily. With `ts_rank` and length normalisation, full-text search alone reached 0.71 — as good as
-vector search — and hybrid search became useful. We re-ran every affected experiment.""")
+almost arbitrarily. With `ts_rank` and length normalisation, full-text search alone reached 0.71, as good as
+vector search, and hybrid search became useful. We re-ran every affected experiment.""")
 code("F.fig_fts_rank();")
 md("""**Error analysis.** We read every miss of the best dev configuration. The top cause was **cross-lingual**:
 English questions about the French-language BCGE report. Translating the question to the report's language
@@ -127,7 +127,7 @@ fixed most of them (cross-lingual recall@5 0.50 → 0.80).""")
 code("F.fig_errors();")
 code("F.fig_by_type();")
 expert("""Reranking (+1 s) and 3-query expansion (+2.6 s) were not significant alone and added nothing on top of
-filters, so they were dropped — a "negative" result that saved latency and cost. Filters: +0.09 recall@5
+filters, so they were dropped: a "negative" result that saved latency and cost. Filters: +0.09 recall@5
 [+0.03, +0.14] at no latency cost. bge-m3 vs e5-small: MRR +0.11 [+0.03, +0.20]; e5-large = e5-small.
 On test, the two final configurations are indistinguishable (recall@5 +0.00 [−0.09, +0.09]); the dev advantage
 of the hybrid one (0.87) was partly selection on dev. Approximate (HNSW) vector search cost up to 0.04
@@ -151,12 +151,12 @@ human labels**. The first rubric agreed barely above chance (κ = 0.09): it mark
 difference is CHF 8.5 bn") as unsupported and accepted numbers whose unit appeared only in the question.
 Stating both rules explicitly gave full agreement.""")
 code("F.fig_judge();")
-expert("""κ = 1.00 is **in-sample** — the rubric was revised after seeing these 50 disagreements — and with
+expert("""κ = 1.00 is **in-sample** (the rubric was revised after seeing these 50 disagreements), and with
 only 4 unfaithful answers one label moves κ by ~0.3; treat it as "no known disagreement", not a held-out
 accuracy. Faithful answers on test: final system 40/41 = 0.98 [0.87, 1.00], baseline 13/17 = 0.76 [0.53,
 0.90]; intervals overlap and the baseline is judged only on the questions it does not refuse, so its main
 failure is refusing, not inventing. Judge: `deepseek-v4-pro` (≈ $0.009 per answer, a reasoning model that
-silently returns empty JSON when it hits its token budget — handled by a retry and a recorded judge error).""")
+silently returns empty JSON when it hits its token budget; this is handled by a retry and a recorded judge error).""")
 
 # ------------------------------------------------------------------------------------------------
 md("## 4. Key figures and safe SQL")
@@ -174,25 +174,24 @@ code("F.fig_sql();")
 expert("""Extraction errors were all "not found" (retrieval did not surface the table); no prior-year, unit,
 sign or wrong-metric errors. Caveat: gold and extractor are both LLM-assisted, so a shared mistake would not
 show. The two text-to-SQL failures on gold are a correct answer in another shape and a correct value rounded
-to one decimal — the metric was kept strict rather than loosened after seeing results.""")
+to one decimal; the metric was kept strict rather than loosened after seeing results.""")
 
 # ------------------------------------------------------------------------------------------------
 md("## 5. The agent and its router")
 plain("""The agent chooses tools by itself. A small **router** first decides what kind of question it is and
-gives the agent **only the tools it needs** — a document question never sees the client database or e-mail.
+gives the agent **only the tools it needs**: a document question never sees the client database or e-mail.
 On 60 tasks this was as accurate as one agent with every tool, and **30 % cheaper**.""")
 code("F.fig_agent();")
 code("""pd.read_csv(RES / "agent.csv")[["mode", "success", "routing_acc", "arg_validity", "calls_per_task",
     "cost_per_task", "latency_p50_ms"]]""")
-expert("""Tasks are checked automatically (numbers with tolerance, the first bank named, or a refusal) — no LLM
+expert("""Tasks are checked automatically (numbers with tolerance, the first bank named, or a refusal): no LLM
 judge. 91.7 % vs 90.0 % success is one task out of 60: not a difference. Repeating 20 tasks three times with
 fresh API calls gave identical outcomes. Main failure: the agent searching until its step limit on document
 questions.""")
 
 # ------------------------------------------------------------------------------------------------
 md("## 6. Security: a policy engine and 55 attacks")
-plain("""We tried to trick the agent into **e-mailing confidential (synthetic) client data outside the bank**
-— with instructions hidden in documents, in client notes, in other languages, in base64, and by simply
+plain("""We tried to trick the agent into **e-mailing confidential (synthetic) client data outside the bank**, with instructions hidden in documents, in client notes, in other languages, in base64, and by simply
 asking. A deterministic **policy engine** checks every tool call: no data leaves after confidential data was
 read, e-mail only to the bank's own domain, a human must approve actions after reading untrusted documents.
 With it, **0 of 55 attacks succeeded**; without it, 2 did.""")
@@ -200,7 +199,7 @@ code("F.fig_security();")
 code("""pd.read_csv(RES / "security_by_category.csv").pivot_table(index="category",
     columns=["mode", "defence"], values="ASR")""")
 expert("""The model itself (`deepseek-flash`) followed **none of the 48 planted instructions**, even with no
-defence — including 15 "in-task" redirections added after the first 40 proved too easy. Both successes were
+defence, including 15 "in-task" redirections added after the first 40 proved too easy. Both successes were
 direct requests involving public data (a 5-recipient mailing, figures to an outside domain). So on this model
 the policy engine is a guarantee, not the thing that stopped the attacks; its measured price is 5 points of
 unattended task success (every legitimate "read a document, then e-mail" task waits for a human). 0/55
@@ -215,7 +214,7 @@ mistake (switching off the bank/year filters) is caught immediately.""")
 code("F.fig_regression_demo();")
 expert("""Fast tier: lint, 212 unit tests (incl. SQL injection inputs and policy rules), the read-only role
 against Postgres, and retrieval on 31 dev questions against a 4-report fixture that stores only FTS vectors,
-embeddings and page numbers — not the report text. Averages hide regressions: moving to the final retrieval
+embeddings and page numbers, not the report text. Averages hide regressions: moving to the final retrieval
 configuration looked like +4 questions but was 7 fixes and 3 regressions. Re-runs are not bit-identical (2 of
 100 RAG items changed with unchanged code, from approximate vector search), so thresholds carry a margin.""")
 
@@ -224,7 +223,7 @@ md("## 8. Can it run on our own hardware?")
 plain("""Banks often cannot send data to an outside API. We ran the same evaluations with small **open models
 on a laptop GPU (4 GB)** and compared them with the API model on quality, tool use, security and speed.""")
 code("""t = F.phase9_table()
-t if t is not None else "Phase 9 results not available yet — re-run this notebook after the overnight run." """)
+t if t is not None else "Phase 9 results not available yet: re-run this notebook after the overnight run." """)
 code("F.fig_models();")
 md("""**Method.** Qwen3-4B (4-bit and 8-bit) and Qwen3-8B (4-bit) served by Ollama in Docker; identical
 prompts and code; the judge kept fixed (API). Only the 4-bit 4B fits the 4 GB GPU entirely (37/37 layers,
@@ -233,7 +232,7 @@ subsets.""")
 expert("""A first finding before any score: partial offload, not model size, is the bottleneck on a 4 GB card
 (52 s vs 3.3 s for the same answer once the 4B fits entirely with an 8k context and one request slot; two
 parallel slots made it worse by doubling the KV cache). The local 4B produced invalid tool arguments and
-refused document questions without searching more often than the API model — prompts were kept identical,
+refused document questions without searching more often than the API model; prompts were kept identical,
 not tuned for it.""")
 
 # ------------------------------------------------------------------------------------------------
