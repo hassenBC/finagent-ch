@@ -336,6 +336,28 @@ its policy decision, and inside the MCP server process retrieve → translate / 
 first trace already found something: a 9.8 s vector search that is bge-m3 loading lazily on the server's first
 query, not slow retrieval.
 
+## Self-hosted vs API models (Phase 9)
+
+Qwen3-4B (4-bit and 8-bit) and Qwen3-8B (4-bit) served by Ollama on a 4 GB laptop GPU, same prompts, code and
+judge as the API model. Only the 4-bit 4B fits in GPU memory; the 8-bit 4B ran half-size subsets, and the 8B did
+not finish (over 11 minutes per answer, about nine hours for 50 RAG questions), so there are no 8B numbers.
+
+| | DeepSeek flash (API) | Qwen3-4B 4-bit | Qwen3-4B 8-bit (subset) |
+|---|---|---|---|
+| RAG numeric correct, dev, k = 5 | 0.69 | 0.57 | not run on dev |
+| citation precision | 0.76 | 0.65 | |
+| judged faithfulness | 0.98 | 0.90 | |
+| agent task success (routed) | 0.92 | 0.42 | 0.50 (30 tasks) |
+| routing accuracy | 0.97 | 0.65 | 0.73 |
+| attacks succeeding, no defence (of 55) | 2 single, 2 routed | 4 single, 2 routed | 6 single |
+
+**Reading it.** The small model is much weaker at the agent job: it often refuses or answers without searching
+(false abstention on 12 and 25 of 60 tasks) and misroutes a third of the questions. On injection the counts are
+too small to separate the models (2 vs 4 of 55). The 4B is not more robust, though: about half of its attack runs
+made no tool call at all, so the attack never reached the tools, and every successful attack was a direct request.
+The policy layer blocked all of them, as it did for the API model. The retrieval stage ran on the CPU in the local
+runs, so the 13.6 s median RAG latency (API: 1.9 s) is not a pure generation comparison.
+
 ## Live demo app
 
 `finagent ui` → http://localhost:8000. Ask a question (or pick one of ten scenarios), choose the model (DeepSeek
@@ -368,5 +390,5 @@ without one, use `uv sync --extra cpu`.
 
 Done: corpus and parsing, evaluation set, retrieval lab (Phase 3), RAG with citations and abstention, validated LLM
 judge (Phase 4), extracted key figures with a guarded text-to-SQL tool (Phase 5), MCP server and routed agent (Phase 6),
-deterministic permission layer and injection suite (Phase 7), regression tiers, CI and tracing (Phase 8). Next: a self-
-hosted vs API model comparison (including whether small local models are easier to inject).
+deterministic permission layer and injection suite (Phase 7), regression tiers, CI and tracing (Phase 8), self-hosted vs
+API model comparison (Phase 9).
