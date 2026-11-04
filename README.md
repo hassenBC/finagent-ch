@@ -93,6 +93,8 @@ sheet instead of the consolidated one.
 
 ## Report and paper
 
+* **[`report/finagent_report.html`](report/finagent_report.html)**: the report as one web page, no install
+  needed (code hidden).
 * **[`report/finagent_report.ipynb`](report/finagent_report.ipynb)**: the whole project as a notebook for
   two audiences: each section has an "in plain words" summary, the method, the figure and numbers (read
   from `results/*.csv`), and a collapsible "for experts" part with statistics and caveats.
