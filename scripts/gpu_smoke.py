@@ -1,16 +1,12 @@
-"""GPU smoke test: embed a few sentences on CUDA and write the result to remote_out/.
-
-Run on the vast.ai instance with `make vast-smoke`; pulled back with `make vast-pull`.
-"""
+"""GPU smoke test: embed a few sentences on CUDA and print timings. Run with `make gpu-smoke`."""
 
 import json
 import time
-from pathlib import Path
 
 import torch
 from sentence_transformers import SentenceTransformer
 
-assert torch.cuda.is_available(), "CUDA not available: check the instance driver (cuda_vers>=13.0)"
+assert torch.cuda.is_available(), "CUDA not available: run nvidia-smi in WSL"
 
 sentences = [
     "passage: Vontobel's CET1 ratio stood at 20.1% at the end of the year.",
@@ -37,7 +33,4 @@ result = {
     "sim_query_vontobel": round(float(emb[2] @ emb[0]), 4),
     "sim_query_bcv": round(float(emb[2] @ emb[1]), 4),
 }
-out = Path("remote_out/gpu_smoke.json")
-out.parent.mkdir(exist_ok=True)
-out.write_text(json.dumps(result, indent=2))
 print(json.dumps(result, indent=2))

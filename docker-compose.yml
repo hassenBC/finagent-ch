@@ -13,7 +13,7 @@ services:
       timeout: 3s
       retries: 30
 
-# Self-hosted models (Phase 9) run with vLLM on vast.ai, not here: see scripts/vast/.
+# Self-hosted models (Phase 9): Ollama installed natively in WSL (uses the laptop GPU).
 
 volumes:
   pgdata: {}
