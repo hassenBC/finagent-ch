@@ -110,3 +110,11 @@ def parse_pdf(path: Path, doc_id: int, sha256: str) -> list[Block]:
             )
         )
     return blocks
+
+
+if __name__ == "__main__":
+    from finagent.ingest.download import raw_path, read_sources
+
+    for row in read_sources():
+        print(f"parsing {raw_path(row).name}", flush=True)
+        _convert(raw_path(row), row["sha256"])
