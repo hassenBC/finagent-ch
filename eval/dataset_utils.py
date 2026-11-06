@@ -66,3 +66,22 @@ def overlap(question: str, evidence: str) -> float:
     """Share of the question's content words that also occur in the evidence."""
     q = tokens(question)
     return len(q & tokens(evidence)) / len(q) if q else 0.0
+
+
+def find_alt_pages(
+    evidence: str, doc_pages: dict[int, str], gold: set[int], coverage: float = 0.9
+) -> list[int]:
+    """Other pages of the same document that also contain this evidence part.
+
+    A fact repeated elsewhere (opening/closing balances, key-figures page, mission statements)
+    is an equally valid retrieval target, so it must not be counted as a miss. Evidence with
+    fewer than 4 distinct words is too generic to match safely and gets no alternates.
+    """
+    want = tokens(evidence)
+    if len(want) < 4:
+        return []
+    return sorted(
+        pn
+        for pn, text in doc_pages.items()
+        if pn not in gold and len(want & tokens(text)) / len(want) >= coverage
+    )

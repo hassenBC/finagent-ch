@@ -10,6 +10,7 @@ from collections import defaultdict
 
 from eval.build_candidates import TARGETS
 from finagent.config import ROOT
+from finagent.ingest.download import read_sources
 from finagent.ingest.text import normalise_numbers
 
 CAND = ROOT / "eval" / "candidates" / "candidates.jsonl"
@@ -20,8 +21,12 @@ PARAPHRASE_BELOW = 0.2  # question/evidence word overlap under this counts as pa
 TEST_SIZE = 50
 
 
+AMENDMENTS = ROOT / "eval" / "candidates" / "amendments.json"  # key -> fields to override
+
+
 def key(row: dict) -> str:
-    return hashlib.sha1(row["question"].encode()).hexdigest()[:8]
+    """Stable candidate key: hash of the question as originally proposed."""
+    return row.get("key") or hashlib.sha1(row["question"].encode()).hexdigest()[:8]
 
 
 def tolerance(row: dict) -> float:
@@ -71,8 +76,11 @@ def rejection(r: dict) -> str | None:
 def load() -> list[dict]:
     rejected = set(REJECTED.read_text().split()) if REJECTED.exists() else set()
     rows = []
+    amend = json.loads(AMENDMENTS.read_text()) if AMENDMENTS.exists() else {}
     for line in CAND.read_text().splitlines():
         r = json.loads(line)
+        r["key"] = key(r)
+        r.update(amend.get(r["key"], {}))
         if not r["checks"]["ok"] or key(r) in rejected or rejection(r):
             continue
         r["paraphrased"] = r["checks"].get("overlap", 0.0) < PARAPHRASE_BELOW
@@ -151,14 +159,48 @@ def to_item(r: dict, qid: str) -> dict:
         "evidence": r["evidence"],
         "answer": r["answer"],
         "answer_numeric": numeric,
+        "alt_pages": r.get("alt_pages", []),
         "paraphrased": r["paraphrased"],
-        "notes": "",
+        "notes": r.get("notes", ""),
     }
+
+
+def add_alt_pages(rows: list[dict]) -> None:
+    """Record other pages that repeat the evidence (needs the ingested DB).
+
+    Pages come from an automatic scan, plus `extra_alt` entries in amendments.json for repeats the
+    scan cannot match because the other page words the fact differently.
+    """
+    from eval.dataset_utils import EVIDENCE_SEP, find_alt_pages
+    from finagent.db import pool
+
+    with pool().connection() as conn:
+        docs: dict[str, dict[int, str]] = defaultdict(dict)
+        for sha, pn, text in conn.execute(
+            "SELECT d.sha256, p.page_no, p.text FROM pages p JOIN documents d USING (doc_id)"
+        ):
+            docs[sha][pn] = text
+    sha_of = {(s["bank"], int(s["year"])): s["sha256"] for s in read_sources()}
+    for r in rows:
+        r["alt_pages"] = []
+        if not r["answerable"]:
+            continue
+        for bank, year, pn in r.get("extra_alt", []):
+            r["alt_pages"].append({"sha256": sha_of[(bank, year)], "page": pn})
+        parts = r["evidence"].split(EVIDENCE_SEP)
+        for i, g in enumerate(r["gold_pages"]):
+            part = parts[i] if len(parts) == len(r["gold_pages"]) else r["evidence"]
+            gold_here = {x["page"] for x in r["gold_pages"] if x["sha256"] == g["sha256"]}
+            for pn in find_alt_pages(part, docs[g["sha256"]], gold_here):
+                alt = {"sha256": g["sha256"], "page": pn}
+                if alt not in r["alt_pages"] and alt not in r["gold_pages"]:
+                    r["alt_pages"].append(alt)
 
 
 def main(show: bool = False) -> None:
     rng = random.Random(SEED)
     rows = select(load(), rng)
+    add_alt_pages(rows)
     split_of = split(rows, rng)
     rng.shuffle(rows)  # ids must not reveal the type
     out: dict[str, list[dict]] = {"dev": [], "test": []}

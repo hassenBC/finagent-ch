@@ -19,7 +19,7 @@ without one, use `uv sync --extra cpu`.
 ## Evaluation dataset
 
 `eval/datasets/qa_dev.jsonl` (100 questions, tuned on) and `qa_test.jsonl` (50 questions, run once per final
-configuration). `sha256(qa_test.jsonl) = d67c600f3df740eec6437a888f163a1be2101747a5959879e5d8d2759d89b987`.
+configuration). `sha256(qa_test.jsonl) = eb5a4e109de93d86fcb0748373924242476a5d3c06146a99ff048634c43ace04`.
 
 **How the dataset was built.** Pages were sampled with a fixed seed, round-robin over the 12 reports (6 banks x
 FY2024/FY2025) so every document contributes. An LLM (`deepseek-flash`) proposed one question per page for a requested
@@ -32,9 +32,11 @@ independent of the chunker. About 58 % of items are paraphrased (question/eviden
 
 **Limits you should know about.**
 
-- The questions are model-proposed and machine-checked, not written by hand. Answers were not independently re-derived
-  from the PDFs; the check is that the evidence and the numbers occur on the gold page. A manual spot check of 20 items is
-  still to do.
+- The questions are model-proposed and machine-checked, not written by hand. The machine check is that the evidence and
+  the numbers occur on the gold page. An AI-assisted blind spot check of 20 items re-derived all 20 answers from the PDFs
+  and agreed with the dataset (details and caveats in `eval/SPOTCHECK.md`); it is a sample, not a human audit.
+- Facts repeated on several pages are listed in `alt_pages`; a retrieved page counts as relevant if it is a gold or an
+  alternate page.
 - "Unanswerable" items were screened by looking at the nearest passages in the same bank's reports, not by an exhaustive search,
   and most ask about 2026 forecasts.
 - Random page sampling yields many detail questions (governance, notes) and few headline KPIs.
