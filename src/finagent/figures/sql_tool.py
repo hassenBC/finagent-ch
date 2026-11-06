@@ -128,6 +128,21 @@ def _check_text(sql: str) -> None:
         raise UnsafeSQL("non-normalised unicode")
 
 
+def _visible_ctes(table: exp.Table) -> set[str]:
+    """CTE names a table reference may use: those attached to a query that encloses it.
+
+    A CTE defined in a sibling or inner subquery does not make an outer reference to the same
+    name legitimate (it would still read the real relation, e.g. a catalog table)."""
+    names: set[str] = set()
+    node = table.parent
+    while node is not None:
+        with_ = node.args.get("with_") or node.args.get("with")
+        if with_ is not None:
+            names |= {c.alias_or_name.lower() for c in with_.expressions}
+        node = node.parent
+    return names
+
+
 def validate_sql(sql: str, source: str | None = None) -> str:
     """Return the safe SQL to execute, or raise UnsafeSQL.
 
@@ -154,11 +169,13 @@ def validate_sql(sql: str, source: str | None = None) -> str:
     ctes = {c.alias_or_name.lower() for c in tree.find_all(exp.CTE)}
     if ctes & ALLOWED_TABLES:
         raise UnsafeSQL("a CTE may not shadow a table name")
+    if any(w.args.get("recursive") for w in tree.find_all(exp.With)):
+        raise UnsafeSQL("recursive CTEs are not allowed")  # unbounded work inside one statement
     for t in tree.find_all(exp.Table):
         name = t.name.lower()
         if t.args.get("catalog") or (t.db and t.db.lower() != "public"):
             raise UnsafeSQL(f"schema-qualified table not allowed: {t.sql()}")
-        if name not in ALLOWED_TABLES and name not in ctes:
+        if name not in ALLOWED_TABLES and name not in _visible_ctes(t):
             raise UnsafeSQL(f"table not allowed: {name}")
 
     if source is not None:
