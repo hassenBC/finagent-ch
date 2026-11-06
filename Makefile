@@ -1,4 +1,4 @@
-.PHONY: setup db-up db-down migrate test test-unit lint fmt llm-smoke llm-models gpu-smoke download ingest embed-small
+.PHONY: setup db-up db-down migrate test test-unit lint fmt llm-smoke llm-models gpu-smoke download ingest embed-small eval-retrieval eval-retrieval-grid report
 
 UV  ?= uv
 RUN := $(UV) run
@@ -48,3 +48,12 @@ ingest:           ## parse, chunk and load every document (idempotent)
 
 embed-small:      ## embed all chunkers with multilingual-e5-small
 	$(RUN) python -m finagent.ingest.embed e5_small
+
+eval-retrieval:   ## make eval-retrieval CONFIG=configs/retrieval/<name>.yaml
+	$(RUN) python -m eval.run_retrieval $(CONFIG)
+
+eval-retrieval-grid:  ## run every config matching GRID (default: all of configs/retrieval)
+	$(RUN) python -m eval.run_retrieval --grid '$(or $(GRID),configs/retrieval/*.yaml)'
+
+report:           ## aggregate latest runs into results/*.csv and results/retrieval.png
+	$(RUN) python -m eval.report
