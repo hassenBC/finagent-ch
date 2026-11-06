@@ -1,0 +1,16 @@
+config,item,type,cause,note
+C_bge_m3_hybrid_filters_tsrank,q005,cross_lingual,cross-lingual gap,EN question on BCGE FR report; heading-only chunks ranked top
+C_bge_m3_hybrid_filters_tsrank,q031,cross_lingual,cross-lingual gap,
+C_bge_m3_hybrid_filters_tsrank,q063,cross_lingual,cross-lingual gap,
+C_bge_m3_hybrid_filters_tsrank,q102,cross_lingual,cross-lingual gap,heading-only chunks ranked top
+C_bge_m3_hybrid_filters_tsrank,q130,cross_lingual,cross-lingual gap,
+C_bge_m3_hybrid_filters_tsrank,q073,table_lookup,question ambiguous,remuneration report and IFRS note both give totals
+C_bge_m3_hybrid_filters_tsrank,q128,comparison,question ambiguous,gold used Swissquote standalone balance sheet; item corrected
+C_bge_m3_hybrid_filters_tsrank,q142,text_lookup,question ambiguous,vague question
+C_bge_m3_hybrid_filters_tsrank,q070,comparison,gold too narrow,income statement (retrieved) also has net profit
+C_bge_m3_hybrid_filters_tsrank,q139,comparison,gold too narrow,Vontobel p19 (retrieved) states the tax expense
+C_bge_m3_hybrid_filters_tsrank,q027,table_compute,header lost,continuation table parsed without column headers
+C_bge_m3_hybrid_filters_tsrank,q069,comparison,other,two banks in one query
+C_bge_m3_hybrid_filters_tsrank,q089,text_lookup,other,answer in a short trailing fragment
+C_bge_m3_hybrid_filters_tsrank,q140,table_lookup,other,neighbouring table retrieved
+C_bge_m3_hybrid_filters_tsrank,q022,text_lookup,other,paraphrase gap

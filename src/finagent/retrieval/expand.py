@@ -51,3 +51,33 @@ def _expand(query: str, n: int, model: str) -> list[str]:
         max_tokens=2000,
     )
     return [q.strip() for q in r.parsed.queries if q.strip()][:n]
+
+
+BANK_LANG = {"bcv": "fr", "bcge": "fr"}  # every other bank in the corpus reports in English
+_LANG_NAME = {"en": "English", "fr": "French"}
+
+
+class Translation(BaseModel):
+    query: str
+
+
+TRANSLATE = """Translate this question about a Swiss bank's annual report into {target}, using the
+terms such a report would use. Keep bank names, years and numbers exactly. Reply with the
+translated question only.
+
+Question: {q}"""
+
+
+def translate_query(query: str, target: str, model: str = "deepseek_flash") -> str | None:
+    """Translation of the question into the report language; None if the call fails."""
+    try:
+        r = _client(model).chat(
+            [{"role": "user", "content": TRANSLATE.format(target=_LANG_NAME[target], q=query)}],
+            response_format=Translation,
+            max_tokens=2000,
+        )
+        return r.parsed.query.strip() or None
+    except ValueError as e:
+        FAILURES.append(query)
+        print(f"translation failed, using the original query only: {str(e)[:80]}", flush=True)
+        return None

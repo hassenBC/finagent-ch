@@ -134,10 +134,16 @@ def main() -> None:
     ap.add_argument("configs", nargs="*")
     ap.add_argument("--grid", help="glob of config files")
     ap.add_argument("--no-store", action="store_true")
+    ap.add_argument(
+        "--dataset", help="override the config's dataset, e.g. eval/datasets/qa_test.jsonl"
+    )
     args = ap.parse_args()
     paths = sorted(args.configs + (glob.glob(args.grid) if args.grid else []))
     for p in paths:
-        run_config(RetrievalConfig.from_yaml(p), store=not args.no_store)
+        cfg = RetrievalConfig.from_yaml(p)
+        if args.dataset:
+            cfg = cfg.model_copy(update={"dataset": args.dataset})
+        run_config(cfg, store=not args.no_store)
 
 
 if __name__ == "__main__":

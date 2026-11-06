@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from finagent.retrieval.expand import expand_query
+from finagent.retrieval.expand import BANK_LANG, expand_query, translate_query
 from finagent.retrieval.fts import detect_ts_config, fts_search
 from finagent.retrieval.fusion import rrf
 from finagent.retrieval.metadata import extract_filters
@@ -21,6 +21,12 @@ def retrieve(query: str, cfg: RetrievalConfig, filters: Filters | None = None) -
     queries = [query]
     if cfg.expansion.enabled:
         queries += expand_query(query, cfg.expansion.n, cfg.expansion.model)
+    if cfg.translate_cross_lingual and filters and filters.banks:
+        q_lang = "fr" if detect_ts_config(query) == "french" else "en"
+        targets = {BANK_LANG.get(b, "en") for b in filters.banks} - {q_lang}
+        for t in sorted(targets):
+            if tr := translate_query(query, t, cfg.expansion.model):
+                queries.append(tr)
 
     lists: list[list[Hit]] = []
     for q in queries:

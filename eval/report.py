@@ -63,7 +63,27 @@ def chart(summary: pd.DataFrame) -> None:
 
 
 def main() -> None:
+    import sys
+
     RESULTS.mkdir(exist_ok=True)
+    if "--test" in sys.argv:  # final configs on the held-out test set
+        df = latest_runs("eval/datasets/qa_test.jsonl")
+        summarise(df).to_csv(RESULTS / "retrieval_test.csv", index=False)
+        summarise(df, by=["type"]).to_csv(RESULTS / "retrieval_test_by_type.csv", index=False)
+        print(
+            summarise(df)[
+                [
+                    "config",
+                    "n",
+                    "recall@5",
+                    "recall@5_lo",
+                    "recall@5_hi",
+                    "mrr@10",
+                    "latency_p50_ms",
+                ]
+            ].to_string(index=False)
+        )
+        return
     df = latest_runs()
     if df.empty:
         print("no retrieval runs yet")
