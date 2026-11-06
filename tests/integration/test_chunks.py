@@ -32,7 +32,9 @@ def test_no_chunk_over_token_limit(conn):
 
 def test_all_chunkers_present_and_pages_valid(conn):
     chunkers = {r[0] for r in conn.execute("SELECT DISTINCT chunker FROM chunks")}
-    assert chunkers == {"fixed512", "structure", "table_aware"}
+    main = {"fixed512", "structure", "table_aware"}
+    variants = {"structure_hdr", "table_aware_nohdr"}  # ablations, see ingest/variants.py
+    assert main <= chunkers <= main | variants
     bad = conn.execute(
         """SELECT count(*) FROM chunks c JOIN documents d USING (doc_id)
            WHERE c.page_start < 1 OR c.page_end > d.n_pages OR c.page_start > c.page_end"""
