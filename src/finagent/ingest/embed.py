@@ -80,8 +80,12 @@ def embed_chunks(model_key: str, chunker: str, batch_size: int = 32, commit_ever
 
 
 if __name__ == "__main__":
-    import sys
+    import argparse
 
-    key = sys.argv[1]
-    for chunker in sys.argv[2:] or ["fixed512", "structure", "table_aware"]:
-        embed_chunks(key, chunker)
+    ap = argparse.ArgumentParser()
+    ap.add_argument("model", choices=list(EMBEDDERS))
+    ap.add_argument("chunkers", nargs="*", default=["fixed512", "structure", "table_aware"])
+    ap.add_argument("--batch", type=int, default=32)
+    args = ap.parse_args()
+    for chunker in args.chunkers:
+        embed_chunks(args.model, chunker, batch_size=args.batch)
