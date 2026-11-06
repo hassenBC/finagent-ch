@@ -33,6 +33,8 @@ MAX_CHARS = {"query": 1000, "sql": 4000, "client_id": 64, "to": 320, "subject": 
 def cap_lengths(**fields: str) -> None:
     """Reject oversized text arguments before any parsing, translation or database access."""
     for name, value in fields.items():
+        if not isinstance(value, str):
+            raise ValueError(f"{name} must be a string")
         if len(value) > MAX_CHARS[name]:
             raise ValueError(f"{name} is too long ({len(value)} > {MAX_CHARS[name]} characters)")
 
