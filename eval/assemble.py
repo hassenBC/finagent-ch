@@ -30,16 +30,15 @@ def key(row: dict) -> str:
 
 
 def tolerance(row: dict) -> float:
-    decimals = max(
-        (len(n.split(".")[1]) if "." in n else 0 for n in _numstr(row)),
-        default=0,
-    )
-    return 0.5 * 10**-decimals
+    """Half a unit of the answer's last displayed digit, with a 0.1 % relative floor.
 
-
-def _numstr(row: dict) -> list[str]:
-    src = row["calculation"] or row["evidence"]
-    return re.findall(r"\d+(?:\.\d+)?", normalise_numbers(src))
+    Taken from the answer value itself, not from the evidence or calculation, whose unit
+    conversions (CHF thousands -> millions) would otherwise produce absurdly tight tolerances.
+    """
+    v = float(row["answer_value"])
+    text = f"{v:.10f}".rstrip("0").rstrip(".")
+    decimals = len(text.split(".")[1]) if "." in text else 0
+    return max(0.5 * 10**-decimals, 0.001 * abs(v))
 
 
 _YEAR = re.compile(r"\b(?:19|20)\d\d\b")

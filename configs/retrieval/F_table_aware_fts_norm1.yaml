@@ -1,0 +1,13 @@
+name: F_table_aware_fts_norm1
+chunker: table_aware
+embedding_model: e5_small
+retrieval: fts
+fts:
+  rank: cd
+  normalization: 1
+  max_df: null
+use_metadata_filters: false
+rerank:
+  enabled: false
+top_k: 10
+dataset: eval/datasets/qa_dev.jsonl
