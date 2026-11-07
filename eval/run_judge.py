@@ -60,7 +60,12 @@ def run(name: str, dataset: str, budget: Budget, limit: int | None, model: str) 
             return item_id, {"n_claims": None, "faithfulness": 0.0, "faithfulness_lenient": 0.0,
                              "faithful": 0.0, "correctness": None, "judged": 0.0}, None  # fmt: skip
         budget.check()
-        j, cost = judge(it["question"], o["answer"], cited, it["answer"], llm)
+        try:
+            j, cost = judge(it["question"], o["answer"], cited, it["answer"], llm)
+        except ValueError:  # empty JSON even at the larger budget: record, exclude from means
+            return item_id, {"n_claims": None, "faithfulness": None, "faithfulness_lenient": None,
+                             "faithful": None, "correctness": None, "judged": 0.0,
+                             "judge_error": 1.0}, None  # fmt: skip
         budget.charge(cost)
         return item_id, {**scores(j), "judged": 1.0, "cost_usd": cost}, j.model_dump()
 
@@ -90,13 +95,15 @@ def run(name: str, dataset: str, budget: Budget, limit: int | None, model: str) 
                 "VALUES (%s, %s, %s, %s)",
                 [(run_id, i, Jsonb(m), Jsonb(j or {})) for i, m, j in out],
             )
-    judged = [m for _, m, _ in out]
+    judged = [m for _, m, _ in out if m["faithfulness"] is not None]
+    errors = len(out) - len(judged)
     f = sum(m["faithfulness"] for m in judged) / len(judged)
     faithful = sum(m["faithful"] for m in judged) / len(judged)
     corr = [m["correctness"] for m in judged if m["correctness"] is not None]
     print(
         f"{name:22} judged={len(judged)} faithfulness={f:.3f} faithful={faithful:.3f} "
-        f"correctness={sum(corr) / max(1, len(corr)):.3f} spent=${budget.spent:.4f}",
+        f"correctness={sum(corr) / max(1, len(corr)):.3f} judge_errors={errors} "
+        f"spent=${budget.spent:.4f}",
         flush=True,
     )
 
