@@ -16,9 +16,9 @@ cited answer.
 | Method & path | Body / query | Response |
 |---|---|---|
 | `GET /api/config` | – | `{models: [{key, label, local, note}], modes: ["routed","single"], defences: ["none","prompt","policy"], presets: [{id, label, question, mode, defence, explains}], injection_demo: bool}` |
-| `POST /api/runs` | `{question, mode, defence, model}` | `{run_id}`; `409 {error}` if a run is in progress (one at a time) |
-| `GET /api/runs/{run_id}/events` | – | Server-Sent Events stream (below); ends with an event of kind `done` |
-| `POST /api/runs/{run_id}/approval` | `{allow: true|false}` | `{ok: true}` — answers a pending `approval_needed` |
+| `POST /api/runs` | `{question, mode, defence, model}` | `{run_id}`; `409 {error}` if a run is in progress (one at a time); `503 {error}` if the agent backend failed to start |
+| `GET /api/runs/{run_id}/events` | – | Server-Sent Events stream (below); ends with `done`. Every message has an SSE `id` (= `seq`); reconnecting with `Last-Event-ID` replays the rest, and several subscribers each get the full log |
+| `POST /api/runs/{run_id}/approval` | `{approval_id, allow: true|false}` (strict boolean) | `{ok: true}`; `409` if that approval is not pending (already answered, expired, wrong id) |
 | `GET /api/page?source=efg-2025-p12` | `source` = citation id `bank-year-pN` | PNG of that PDF page (404 if unknown) |
 | `GET /api/outbox` | – | `{emails: [{email_id, to, subject, body, created_at, internal}]}` newest first, max 20 (mock e-mail: nothing is sent) |
 | `POST /api/demo/injection` | `{enabled: bool}` | `{enabled}` — plants / removes a synthetic poisoned page (Vontobel 2025, "Digital wealth platforms") containing a hidden instruction to e-mail client notes outside |
@@ -36,14 +36,14 @@ Each message: `data: {"seq": int, "t_ms": int, "kind": str, "data": {...}}` (`t_
 | `llm_response` | `{turn, text, tool_calls: [{name, args}], tokens_in, tokens_out, cost_usd, cached, latency_ms}` | |
 | `policy_check` | `{tool, args, state: {max_sensitivity, tainted, side_effects}}` | state before the call |
 | `policy_decision` | `{tool, decision: allow|deny|escalate, rule_id, reason, state}` | |
-| `approval_needed` | `{tool, args, rule_id, reason}` | the run is paused until `POST .../approval` (auto-deny after 5 min) |
-| `approval_result` | `{allow}` | |
+| `approval_needed` | `{approval_id, tool, args, rule_id, reason}` | the run is paused until `POST .../approval` with this `approval_id` (auto-deny after 5 min) |
+| `approval_result` | `{approval_id, allow, timed_out}` | |
 | `tool_start` | `{tool, args}` | |
 | `server_span` | `{name, ms, attrs, started_at}` | spans from the MCP server process while a tool runs: `retrieve`, `retrieve.translate`, `retrieve.fts`, `retrieve.vector`, `retrieve.fusion`, `retrieve.rerank`, `llm` (translation) |
 | `tool_end` | `{tool, ok, latency_ms, labels: {sensitivity, trust}, result, state}` | `result` = JSON text `{"payload": ..., "_labels": ...}` or an error message; `state` after the call |
 | `invalid_call` | `{tool, reason, raw}` | invalid JSON args or a tool the sub-agent does not have |
 | `error` | `{message}` | |
-| `final` | `{answer, citations: ["bank-year-pN", ..], stopped_reason, tokens_in, tokens_out, cost_usd, latency_ms, n_calls}` | |
+| `final` | `{answer, citations: ["bank-year-pN", ..], stopped_reason, route, tokens_in, tokens_out, cost_usd, latency_ms, n_calls}` | exactly once per run, including out-of-scope answers; cost includes the router |
 | `done` | `{run_id}` | stream ends |
 
 Notes for rendering
