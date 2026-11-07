@@ -1,6 +1,6 @@
 """Agent evaluation (Phase 6.5): routed sub-agents vs one agent with all tools.
 
-python -m eval.run_agent_eval [--modes routed single] [--runs 1] [--limit N] [--max-cost 1.0]
+python -m eval.run_agent_eval [--modes routed single] [--runs 1] [--every N] [--tag T]
   -> results/agent.csv (per mode), results/agent_by_kind.csv, results/agent_items.csv
 Run 0 uses the normal LLM cache; runs 1.. use a cache salt so each repeat is a fresh API call.
 """
@@ -80,10 +80,10 @@ def row(task: dict, run: AgentRun, mode: str, run_idx: int) -> dict:
     }  # fmt: skip
 
 
-async def evaluate(tasks, modes, runs, max_cost) -> list[dict]:
+async def evaluate(tasks, modes, runs, max_cost, first_run=0) -> list[dict]:
     rows, spent = [], 0.0
     async with mcp_session() as session:  # one server for all tasks
-        for run_idx in range(runs):
+        for run_idx in range(first_run, first_run + runs):
             salt = f"agent-run-{run_idx}" if run_idx else None
             for mode in modes:
                 for t in tasks:
@@ -116,11 +116,17 @@ def main() -> None:
     ap.add_argument("--runs", type=int, default=1)
     ap.add_argument("--limit", type=int)
     ap.add_argument("--max-cost", type=float, default=1.0)
+    ap.add_argument("--every", type=int, default=1, help="subset: every n-th task")
+    ap.add_argument("--first-run", type=int, default=0, help="index of the first run (salt)")
+    ap.add_argument("--tag", default="", help="suffix for the result files")
     args = ap.parse_args()
-    tasks = [json.loads(ln) for ln in TASKS.read_text().splitlines()][: args.limit]
-    df = pd.DataFrame(anyio.run(evaluate, tasks, args.modes, args.runs, args.max_cost))
+    tasks = [json.loads(ln) for ln in TASKS.read_text().splitlines()][:: args.every][: args.limit]
+    df = pd.DataFrame(
+        anyio.run(evaluate, tasks, args.modes, args.runs, args.max_cost, args.first_run)
+    )
+    sfx = f"_{args.tag}" if args.tag else ""
     res = ROOT / "results"
-    df.to_csv(res / "agent_items.csv", index=False)
+    df.to_csv(res / f"agent_items{sfx}.csv", index=False)
     summary = summarise(df, ["mode"])
     if df["run"].nunique() > 1:  # share of tasks solved in every run
         allruns = df.groupby(["mode", "id"])["success"].all().groupby("mode").mean()
@@ -128,8 +134,8 @@ def main() -> None:
     summary["failures"] = summary["mode"].map(
         lambda m: json.dumps(df[(df["mode"] == m) & (df["failure"] != "")]["failure"]
                              .value_counts().to_dict()))  # fmt: skip
-    summary.to_csv(res / "agent.csv", index=False)
-    summarise(df, ["mode", "kind"]).to_csv(res / "agent_by_kind.csv", index=False)
+    summary.to_csv(res / f"agent{sfx}.csv", index=False)
+    summarise(df, ["mode", "kind"]).to_csv(res / f"agent_by_kind{sfx}.csv", index=False)
     print(summary.drop(columns=["failures"]).to_string(index=False))
     print(summary[["mode", "failures"]].to_string(index=False))
 

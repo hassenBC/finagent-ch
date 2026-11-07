@@ -160,6 +160,35 @@ extractions (e.g. "lowest cost/income ratio" changes when BCGE is missing) and f
 where a percentage change magnifies the difference. 100 % of generated SQL was valid. Generator `deepseek-flash`,
 temperature 0, one run.
 
+## MCP agent and router (Phase 6)
+
+An MCP server (`src/finagent/mcp_server/`, MCP Python SDK 2.3, stdio) exposes five tools: `search_documents`,
+`query_figures` (the guarded SQL tool, over the *extracted* figures), `calculate` (an `ast` evaluator — never
+`eval`), `read_client_notes` and a mock `send_email` that only writes to an outbox table. Every result carries
+`_labels` (sensitivity, trust) for the Phase 7 policy engine; document text is labelled untrusted. The client data
+is **synthetic and clearly fictional** ("Client 0001"–"Client 0050", each note with a canary string), never real.
+
+The agent loop (`src/finagent/agent/loop.py`) is written by hand: function calling over the MCP tools, max 8 steps,
+every call checked by a policy hook, tool errors returned to the model. A router (one structured call) sends each
+question to a sub-agent that sees only the tools its route needs; out-of-scope questions get no tools at all.
+`finagent ask "…"` prints the answer with citations and the trace.
+
+**60 agent tasks** (`eval/datasets/agent_tasks.jsonl`, checked automatically, no LLM judge): 20 document questions
+from the dev set, 15 figure questions from the gold figures, 10 that need both, 8 about synthetic clients and 7 out
+of scope. Generator `deepseek-flash`, temperature 0.
+
+| | Task success | Routing accuracy | Tool precision / recall | Valid tool calls | Calls / task | Cost / task | p50 latency |
+|---|---|---|---|---|---|---|---|
+| Router + least-privilege sub-agents | **0.917** | 0.967 | 0.97 / 0.97 | 0.994 | 2.8 | **$0.0031** | 2.9 s |
+| One agent with all five tools | 0.900 | — | 0.97 / 0.98 | 0.994 | 3.0 | $0.0044 | 2.7 s |
+
+Quality is the same within noise (one task of 60); routing cut cost per task by 30 % (mixed tasks: $0.0079 vs
+$0.0117) and gives each sub-agent fewer tools — the attack-surface side is measured in Phase 7. Failures: the agent
+searching until the step limit on document questions (4 routed / 5 single), one document question routed to
+figures, one out-of-scope question answered by the single agent. Repeating 20 tasks three times (fresh API calls)
+gave identical outcomes (0.95 in every run, solved-in-all-runs 0.95): at temperature 0 this agent was
+deterministic on this subset.
+
 ## Evaluation dataset
 
 `eval/datasets/qa_dev.jsonl` (100 questions, tuned on) and `qa_test.jsonl` (50 questions, run once per final
@@ -205,6 +234,6 @@ without one, use `uv sync --extra cpu`.
 ## Roadmap
 
 Done: corpus and parsing, evaluation set, retrieval lab (Phase 3), RAG with citations and abstention, validated LLM
-judge (Phase 4), extracted key figures with a guarded text-to-SQL tool (Phase 5). Next: an MCP server and routed agent, a
-deterministic permission layer measured against a prompt-injection suite, CI regression tiers, and a self-hosted vs
-API model comparison.
+judge (Phase 4), extracted key figures with a guarded text-to-SQL tool (Phase 5), MCP server and routed agent (Phase 6).
+Next: a deterministic permission layer measured against a prompt-injection suite, CI regression tiers, and a self-hosted
+vs API model comparison.
