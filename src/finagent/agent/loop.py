@@ -13,7 +13,8 @@ import re
 import sys
 import time
 import uuid
-from contextlib import asynccontextmanager
+from collections.abc import Callable
+from contextlib import asynccontextmanager, suppress
 from typing import Any, Literal, Protocol
 
 import anyio
@@ -133,11 +134,28 @@ def _labels(text: str) -> dict[str, str] | None:
 async def run_agent(question: str, cfg: AgentConfig, policy: Policy | None = None,
                     session: Client | None = None, route: str = "single",
                     llm: LLMClient | None = None,
-                    trace_id: str | None = None) -> AgentRun:  # fmt: skip
+                    trace_id: str | None = None,
+                    on_event: Callable[[str, dict], None] | None = None) -> AgentRun:  # fmt: skip
+    """`on_event(kind, data)` (optional) receives every step as it happens — used by the live
+    dev view of the demo app; it never changes what is sent to the model."""
     trace_id = trace_id or tracing.current() or str(uuid.uuid4())
     if session is None:
         async with mcp_session(trace_id) as s:
-            return await run_agent(question, cfg, policy, s, route, llm, trace_id)
+            return await run_agent(question, cfg, policy, s, route, llm, trace_id, on_event)
+
+    def emit(kind: str, **data: Any) -> None:
+        if on_event is not None:
+            with suppress(Exception):  # a broken listener must never break the agent
+                on_event(kind, data)
+
+    def flow() -> dict:
+        try:
+            from finagent.policy.model import flow_state, load_policy
+
+            return flow_state(state.calls, load_policy()).model_dump()
+        except Exception:
+            return {}
+
     policy = policy or AllowAll()
     llm = llm or LLMClient.from_config(cfg.model)
     tools = to_openai_tools((await session.list_tools()).tools, cfg.tools)
@@ -151,7 +169,13 @@ async def run_agent(question: str, cfg: AgentConfig, policy: Policy | None = Non
     start = time.perf_counter()
     reason: str = "max_steps"
     answer = ""
-    for _ in range(cfg.max_steps):
+    emit("agent_start", route=route, model=getattr(llm, "model", "?"), tools=sorted(allowed),
+         system=cfg.system,
+         question=question, max_steps=cfg.max_steps, policy=type(policy).__name__)  # fmt: skip
+    for turn in range(cfg.max_steps):
+        emit("llm_request", turn=turn, n_messages=len(messages),
+             context_chars=sum(len(str(m.get("content") or "")) for m in messages))  # fmt: skip
+        t_llm = time.perf_counter()
         try:
             r = await anyio.to_thread.run_sync(
                 lambda: llm.chat(
@@ -163,8 +187,13 @@ async def run_agent(question: str, cfg: AgentConfig, policy: Policy | None = Non
             )
         except Exception as e:  # API failure: stop, keep the trace
             answer, reason = f"error: {type(e).__name__}", "error"
+            emit("error", message=f"{type(e).__name__}: {e}"[:300])
             break
         tin, tout, cost = tin + r.tokens_in, tout + r.tokens_out, cost + r.cost_usd
+        emit("llm_response", turn=turn, text=(r.text or "")[:2000],
+             tool_calls=[{"name": c.name, "args": c.arguments} for c in r.tool_calls],
+             tokens_in=r.tokens_in, tokens_out=r.tokens_out, cost_usd=r.cost_usd,
+             cached=r.cached, latency_ms=int((time.perf_counter() - t_llm) * 1000))  # fmt: skip
         if not r.tool_calls:
             answer = (r.text or "").strip()
             reason = "abstained" if re.search(r"cannot answer|can't answer|ne peux pas", answer,
@@ -180,9 +209,14 @@ async def run_agent(question: str, cfg: AgentConfig, policy: Policy | None = Non
                 step.decision = "invalid_args"
                 step.result = (f"error: unknown tool {c.name}" if c.name not in allowed
                                else "error: arguments are not valid JSON")  # fmt: skip
+                emit("invalid_call", tool=c.name, reason=step.result, raw=c.arguments_raw[:500])
             else:
+                before = flow()
+                emit("policy_check", tool=c.name, args=c.arguments, state=before)
                 d = policy.check(c.name, c.arguments, state)
                 step.decision, step.rule_id = d.decision, d.rule_id
+                emit("policy_decision", tool=c.name, decision=d.decision, rule_id=d.rule_id,
+                     reason=d.reason, state=before)  # fmt: skip
                 if d.decision != "allow":
                     step.result = f"DENIED by {d.rule_id}: {d.reason}"
                     with tracing.span(f"tool.{c.name}", args=c.arguments, decision=d.decision,
@@ -190,6 +224,7 @@ async def run_agent(question: str, cfg: AgentConfig, policy: Policy | None = Non
                         pass
                 else:
                     t0 = time.perf_counter()
+                    emit("tool_start", tool=c.name, args=c.arguments)
                     with tracing.span(f"tool.{c.name}", args=c.arguments, decision="allow") as sp:
                         res = await session.call_tool(c.name, c.arguments)
                         sp.set(ok=not res.is_error)
@@ -200,8 +235,13 @@ async def run_agent(question: str, cfg: AgentConfig, policy: Policy | None = Non
                     state.calls.append(c.name)
                     if step.labels:
                         state.labels.append(step.labels)
+                    emit("tool_end", tool=c.name, ok=step.ok, latency_ms=step.latency_ms,
+                         labels=step.labels, result=text[:4000], state=flow())  # fmt: skip
             steps.append(step)
             messages.append({"role": "tool", "tool_call_id": c.id, "content": step.result})
+    emit("final", answer=answer, citations=sorted(set(CITATION.findall(answer))),
+         stopped_reason=reason, tokens_in=tin, tokens_out=tout, cost_usd=cost,
+         latency_ms=int((time.perf_counter() - start) * 1000), n_calls=len(steps))  # fmt: skip
     return AgentRun(
         trace_id=trace_id, answer=answer, citations=sorted(set(CITATION.findall(answer))),
         steps=steps, route=route, tokens_in=tin, tokens_out=tout, cost_usd=cost,

@@ -125,7 +125,15 @@ def main() -> None:
     a.add_argument("--policy", action="store_true", help="enforce the Phase 7 policy engine")
     t = sub.add_parser("trace", help="print the spans of a trace as a tree")
     t.add_argument("trace_id")
+    u = sub.add_parser("ui", help="demo app with the live developer view (http://localhost:8000)")
+    u.add_argument("--port", type=int, default=8000)
     args = ap.parse_args()
+    if args.cmd == "ui":
+        from finagent.ui.app import serve
+
+        print(f"finagent demo app on http://localhost:{args.port}")
+        serve(args.port)
+        return
     if args.cmd == "trace":
         Console().print(trace_tree(args.trace_id))
         return
