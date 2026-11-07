@@ -240,6 +240,38 @@ after one confidential read everything is treated as confidential, and taint is 
 note does not trigger R3 — only R1/R2 stop it; trust labels are an assumption that can be wrong. The
 recipient allowlist is the main egress control: a compromised internal mailbox would defeat it.
 
+## Regression suite, CI and tracing (Phase 8)
+
+| Tier | When | Runs | Needs |
+|---|---|---|---|
+| Fast (`.github/workflows/ci.yml`) | every push / PR | ruff, 206 unit tests (incl. 40 SQL-injection inputs, policy rules, dataset checks), the `agent_reader` role tests against Postgres, and **retrieval on 31 dev questions** (e5-small hybrid) against a 4-report fixture in a pgvector service container, checked against thresholds with a per-item diff in the job summary | nothing (no key, no GPU) |
+| Full (`make regression`) | before a release / after a change | final retrieval config, RAG (k = 10), routed agent (60 tasks), security suite with the policy engine (2 × 55 attacks) — each against thresholds and diffed per item against committed baselines | full corpus, GPU, API key |
+
+The CI fixture (`tests/fixtures/ci_fixture.jsonl.gz`, 3.7 MB) holds only what retrieval needs — FTS vectors,
+e5-small embeddings and page numbers — and **not the report text**. Thresholds (`tests/regression/thresholds.yaml`)
+are the current dev results minus 3–5 items; baselines (`tests/regression/baseline/`) are per-item pass/fail
+snapshots. An unchanged full-tier run replays the LLM cache and costs almost nothing.
+
+**Why per item.** `python -m eval.diff A B` lists pass → fail and fail → pass by question type. Moving from bge-m3
+vector + filters to the final hybrid configuration looks like +4 questions on average — underneath it are 7 fixes
+and **3 regressions** (a table computation, a comparison, a text lookup).
+
+**A deliberately broken change** (`use_metadata_filters: false` in the final retrieval config, one line) makes the
+full tier fail (exit 1, `results/regression_demo_broken.md`): recall@5 0.867 → 0.789, MRR 0.722 → 0.677, numeric
+match 0.750 → 0.691 and false abstentions 0.144 → 0.211 breach their thresholds; the diff names the 7 retrieval and
+5 RAG questions lost (two cross-lingual among them), with no fixes. The agent's 60 tasks did not move: its search
+tool passes bank and year explicitly, so it never relied on the filter extraction that was switched off.
+
+Repeated full runs are not bit-identical: 2 of 100 RAG items changed between two runs of unchanged code (retrieval
+upstream of the cached LLM call is not fully deterministic — approximate vector search, GPU half precision), which
+is why thresholds carry a margin and the diff should be read for patterns, not single items.
+
+**Tracing.** `finagent ask` records spans — route, every LLM call (tokens, cost, cache hit), each tool call with
+its policy decision, and inside the MCP server process retrieve → translate / FTS / vector / fusion / rerank —
+and `finagent trace <id>` prints them as a tree, nesting server spans under the tool call that caused them. The
+first trace already found something: a 9.8 s vector search that is bge-m3 loading lazily on the server's first
+query, not slow retrieval.
+
 ## Evaluation dataset
 
 `eval/datasets/qa_dev.jsonl` (100 questions, tuned on) and `qa_test.jsonl` (50 questions, run once per final
@@ -286,5 +318,5 @@ without one, use `uv sync --extra cpu`.
 
 Done: corpus and parsing, evaluation set, retrieval lab (Phase 3), RAG with citations and abstention, validated LLM
 judge (Phase 4), extracted key figures with a guarded text-to-SQL tool (Phase 5), MCP server and routed agent (Phase 6),
-deterministic permission layer and injection suite (Phase 7). Next: CI regression tiers and a self-hosted vs API model
-comparison (including whether small local models are easier to inject).
+deterministic permission layer and injection suite (Phase 7), regression tiers, CI and tracing (Phase 8). Next: a self-
+hosted vs API model comparison (including whether small local models are easier to inject).
