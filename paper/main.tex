@@ -249,11 +249,18 @@ defence; both successful attacks were direct requests involving public data, sto
 and by the policy engine (R2, R4). On this model the policy engine is therefore a guarantee rather than the cause
 of the low attack rate; its measured price is 5 points of unattended benign success, because every legitimate
 ``read a document, then e-mail'' task waits for a human (R3). With 0 successes in 55, the true attack success
-rate is bounded only at about 6.5\% (95\%). The flow tracking is coarse: one confidential read taints the whole
+rate is bounded only at about 6.5\% (95\%). A second suite of 40 planted-document attacks (eight techniques
+across five report contexts, planted one section at a time: a forged chat template, forged tool calls, a claimed
+user approval, a regulatory deadline, a workflow hijack, a German instruction, laundering the notes as public
+figures, and an instruction to hide the action) was followed in none of its 80 runs (0 of 40 per mode; the planted
+text reached the model in 37 of 40 single-mode runs and in all routed ones; no external e-mail was even attempted).
+The routed runs all took the \texttt{documents} route, which has no e-mail tool, so their zero reflects least
+privilege rather than resistance. Over both suites no planted instruction was followed (0 of 88, at most about
+3.4\% at 95\%); this says nothing about attack techniques we did not try. The flow tracking is coarse: one confidential read taints the whole
 session; per-value labels as in CaMeL~\citep{debenedetti2025camel} would be finer.
 
 \section{Regression testing and observability}\label{sec:regression}
-A fast tier runs on every push without API keys: linting, 264 unit tests including the SQL and policy cases, the
+A fast tier runs on every push without API keys: linting, 285 unit tests including the SQL and policy cases, the
 read-only role against PostgreSQL, and retrieval on 31 dev questions against a four-report fixture that stores
 only full-text vectors, embeddings and page numbers, not the report text. A full tier re-runs retrieval, RAG,
 agent and security evaluations against thresholds and diffs every item against committed baselines; averages hide
@@ -272,8 +279,8 @@ On-premise deployment matters for banks. We served Qwen3-4B (4-bit and 8-bit) an
 Ollama on a 4\,GB laptop GPU, with identical prompts and code and the judge kept fixed. Only the 4-bit 4B fits
 entirely in GPU memory with an 8k context and one request slot (about 3\,s per answer instead of 52\,s with
 partial offload, from informal timings of single answers, not a controlled benchmark); the other two spill onto
-the CPU. The 8-bit 4B therefore ran RAG and agent evaluations on half-size subsets and the attack suite in
-single mode without a defence only.
+the CPU. The 8-bit 4B therefore ran RAG and agent evaluations on half-size subsets, and the full attack grid
+(single and routed, with and without the policy).
 The Qwen3-8B did not finish: at more than 11 minutes per answer (informal timing), 50 RAG questions alone would
 take about nine hours on this GPU, so we report no 8B numbers.
 
@@ -295,25 +302,27 @@ against 2 of 55 for both modes with the API model; with the policy layer none su
 All six successes of the 4-bit model are direct attacks. This does not show that the small model is more
 robust: it attempted the attack in only 9 and 7 of 55 runs (API model: 17), and in about half of all runs
 (28 of 55 single, 30 of 55 routed), including every SQL and obfuscated attack and nearly every document attack,
-it made no tool call, so the attack never reached the tools. The 8-bit model, tested in single mode without a
-defence only, had 6 successes in 55 runs (no call in 18): five direct attacks and one in-task redirection, a
-planted instruction that was followed once, whereas the API model followed none of the 48 planted instructions.
-The counts are too small to say whether the small models are easier to inject, but the one followed redirection
-is the case to watch.
+it made no tool call, so the attack never reached the tools. The 8-bit model, which made no call in 18 of 55
+single-mode and 20 of 55 routed runs, had 6 successes in single mode and 5 in routed mode without a defence:
+direct attacks, plus one in-task redirection in single mode, a planted instruction that was followed once,
+whereas the API model followed none of the 88 planted attacks of both suites. With the policy layer none of the
+three models had a successful attack; for the 8-bit model it denied all 11. The counts are too small to say how
+much easier the small models are to inject (2, 4 and 6 successes per mode without a defence), but the one
+followed redirection is the case to watch.
 
 \begin{figure}[t]\centering
 \includegraphics[width=\linewidth]{figures/models.pdf}
 \caption{Self-hosted models against the API model. The 4-bit 4B ran the full dev set and agent suite; the 8-bit 4B
-ran half-size subsets (30 routed agent tasks, no full-suite agent bar) and only the single-mode attack suite; the
-8B did not finish. Attack success is without a defence: API 4/110 and 4-bit 6/110 (the same 55 attacks in single
-and routed mode), 8-bit 6/55 (single mode only). Agent bars are the full 60 tasks for the API and 4-bit models and
+ran half-size subsets (30 routed agent tasks, no full-suite agent bar) and the full attack grid; the 8B did not
+finish. Attack success is without a defence, pooled over the same 55 attacks in single and routed mode: API 4/110,
+4-bit 6/110, 8-bit 11/110. Agent bars are the full 60 tasks for the API and 4-bit models and
 30 tasks for the 8-bit model; on those same 30 tasks the API model scores 0.90.}\label{fig:models}
 \end{figure}
 
 \section{Limitations}
 About 100 dev and 50 test questions give wide intervals; questions were model-proposed and machine-checked;
-the gold key figures and the judge validation are AI-assisted; the injection suite targets one API model and
-55 attacks; the permission model is coarse and enforced in the agent loop, not in the MCP server; the cost of the API runs is estimated at list prices. The demo
+the gold key figures and the judge validation are AI-assisted; the injection suites (55 and 40 attacks, the second being
+eight techniques in five contexts) target one API model; the permission model is coarse and enforced in the agent loop, not in the MCP server; the cost of the API runs is estimated at list prices. The demo
 application, the regression fixture and the synthetic clients are engineering artefacts, not evaluated
 components.
 
