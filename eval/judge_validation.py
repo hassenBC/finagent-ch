@@ -27,7 +27,8 @@ INSTRUCTIONS = """# Judge validation: is each answer faithful to the sources it 
 
 Faithful = every factual claim in the answer is stated in the cited sources (numbers with the right
 unit and period). Judge only against the cited sources, not against what you know or the report.
-Fill `eval/datasets/faithfulness_labels.jsonl`: `faithful` true/false; for false, the unsupported claim.
+Fill `eval/datasets/faithfulness_labels.jsonl`: `faithful` true/false;
+for false, the unsupported claim.
 """
 
 
