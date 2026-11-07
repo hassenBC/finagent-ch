@@ -4,65 +4,78 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light dark">
-  <title>finagent-ch · Agent observatory</title>
+  <title>finagent-ch</title>
   <script>
-    // Resolve assets at the backend's / route, /static/index.html, or as an offline file.
+    // Support the backend root, /static/index.html and offline file previews.
     const assetBase = location.pathname.endsWith('/') && !location.pathname.endsWith('/static/') ? 'static/' : './';
-    document.write('<link rel="stylesheet" href="' + assetBase + 'style.css">');
-    document.write('<script defer src="' + assetBase + 'app.js"><\/script>');
+    const stylesheet = document.createElement('link');
+    stylesheet.rel = 'stylesheet'; stylesheet.href = assetBase + 'style.css';
+    document.head.append(stylesheet);
+    const application = document.createElement('script');
+    application.src = assetBase + 'app.js'; application.async = false;
+    document.addEventListener('DOMContentLoaded', () => document.head.append(application), { once: true });
   </script>
 </head>
 <body>
-  <header class="topbar">
-    <a class="brand" href="" aria-label="finagent-ch home"><span class="brand-mark" aria-hidden="true">f<span>.</span></span><span>finagent-ch<small>AGENT OBSERVATORY</small></span></a>
-    <div class="controls" aria-label="Run configuration">
-      <label class="field model-field">Model<select id="model" aria-label="Model" disabled><option>Loading…</option></select></label>
-      <label class="field">Mode<select id="mode" aria-label="Agent mode" disabled></select></label>
-      <label class="field">Defence<select id="defence" aria-label="Defence" disabled></select></label>
-      <label class="field scenario-field">Scenarios<select id="scenario" aria-label="Scenarios" disabled><option value="">Custom question</option></select></label>
-    </div>
-    <label class="injection-control"><input id="injection" type="checkbox" role="switch" disabled><span class="switch" aria-hidden="true"></span><span>Plant injection<br>page</span></label>
-    <button id="run" class="button primary run-button" aria-label="Run agent" disabled><span aria-hidden="true">▶</span> Run agent</button>
+  <header class="toolbar" aria-label="Run configuration">
+    <span class="brand">finagent-ch</span>
+    <button id="toggle-left" class="text-button" aria-expanded="true" aria-controls="left-pane">Question / Runs</button>
+    <label>Model <select id="model" disabled><option>Loading…</option></select></label>
+    <label>Mode <select id="mode" disabled></select></label>
+    <label>Defence <select id="defence" disabled></select></label>
+    <label class="scenario-control">Scenario <select id="scenario" disabled><option value="">Custom question</option></select></label>
+    <label class="injection-control"><input id="injection" type="checkbox" disabled>Plant injection page</label>
+    <button id="run" disabled>Run</button>
   </header>
-  <main class="workspace">
-    <section class="conversation" aria-label="Question and answer">
-      <div class="section-heading"><span class="eyebrow">THE RESEARCH DESK</span><span id="environment" class="badge">LIVE BACKEND</span></div>
-      <h1>From question<br>to evidence.</h1>
-      <p class="intro">Swiss bank reports. Cited answers. Every decision, in the open.</p>
+  <main id="workspace" class="workspace">
+    <aside id="left-pane" class="left-pane" aria-label="Question and answer">
+      <section class="runs-panel" aria-labelledby="runs-heading">
+        <div class="section-line"><h2 id="runs-heading">Runs</h2><button id="refresh-runs" class="text-button">Refresh</button></div>
+        <div class="replay-control"><label for="replay-mode">Replay</label><select id="replay-mode"><option value="instant">instant</option><option value="realtime">real time</option></select><button id="replay-run" disabled>Replay</button></div>
+        <div id="runs" class="runs-list" aria-label="Run history"><p class="muted">Loading…</p></div>
+      </section>
       <section class="question-panel">
-        <div class="panel-label"><label for="question">Your question</label><span class="subtle">Ctrl / ⌘ + Enter to run</span></div>
-        <textarea id="question" rows="4" placeholder="Ask about a Swiss bank’s annual report…" aria-describedby="scenario-explains"></textarea>
-        <div id="scenario-explains" class="scenario-explains">Choose a scenario or write your own question to explore the agent.</div>
-        <p id="model-note" class="model-note" hidden></p>
+        <h2><label for="question">Question</label></h2>
+        <textarea id="question" rows="5" aria-describedby="scenario-explains" spellcheck="false"></textarea>
+        <p id="scenario-explains" class="scenario-note muted" hidden></p>
       </section>
       <section class="answer-panel" aria-labelledby="answer-heading">
-        <div class="panel-label"><h2 id="answer-heading">Final answer</h2><span id="answer-status" class="badge">AWAITING QUESTION</span></div>
-        <div id="answer" class="answer"><p class="empty-copy">An answer you can trace back to the source.</p><p class="subtle">Run a question to see the response here. Select a citation to inspect the original report page.</p></div>
+        <h2 id="answer-heading">Answer</h2>
+        <div id="answer" class="answer">—</div>
         <div id="answer-sources" class="citation-list"></div>
       </section>
-      <section class="outbox-panel" aria-labelledby="outbox-tab">
-        <div class="outbox-header"><div role="tablist" aria-label="Run artifacts"><button id="outbox-tab" role="tab" aria-selected="true" aria-controls="outbox" class="tab" aria-label="View outbox">Outbox <span id="outbox-count" class="count">0</span></button></div><button id="refresh-outbox" class="text-button" aria-label="Refresh outbox">Refresh <span aria-hidden="true">↻</span></button></div>
-        <p class="outbox-note">Simulated mail only. Nothing is sent.</p>
-        <div id="outbox" role="tabpanel" aria-labelledby="outbox-tab" tabindex="0"><p class="subtle">Loading outbox…</p></div>
+      <section class="outbox-panel" aria-labelledby="outbox-heading">
+        <div class="section-line"><h2 id="outbox-heading">Outbox <span id="outbox-count" class="muted mono">0</span></h2><button id="refresh-outbox" class="text-button">Refresh</button></div>
+        <div id="outbox"><p class="muted">No e-mails in this session. Mock outbox: nothing is sent.</p></div>
       </section>
-      <footer class="desk-footer"><span class="tiny-square" aria-hidden="true"></span> Built for scrutiny. Designed for conversation.</footer>
-    </section>
-    <section class="dev-view" aria-labelledby="dev-heading">
-      <header class="dev-heading"><div><span class="eyebrow">UNDER THE HOOD</span><h2 id="dev-heading">Dev view <span class="version">EVENT STREAM</span></h2></div><span id="connection" class="connection" role="status"><span class="status-dot"></span><span id="connection-text">Ready</span></span></header>
-      <div class="telemetry">
-        <div class="metrics" aria-label="Run totals"><div><span>Elapsed</span><strong id="elapsed">0.0<span>s</span></strong></div><div><span>LLM calls</span><strong id="llm-count">0</strong></div><div><span>Tokens <small>in / out</small></span><strong id="tokens">0 <span>/</span> 0</strong></div><div><span>Cost <small>USD</small></span><strong id="cost">$0.00000</strong></div><div><span>Tool calls</span><strong id="tool-count">0</strong></div></div>
-        <div class="session"><span class="session-label">SESSION STATE</span><span id="sensitivity" class="badge">public</span><span id="taint" class="badge">untainted</span><span class="side-effects">Side effects <strong id="side-effects">0</strong></span></div>
+    </aside>
+    <section class="trace-pane" aria-labelledby="trace-heading">
+      <header class="trace-header">
+        <div class="section-line"><h1 id="trace-heading">Trace</h1><span id="connection" role="status" class="mono muted">—</span></div>
+        <div class="trace-meta mono"><span id="trace-id">—</span><time id="trace-start">—</time><span id="trace-duration">0 ms</span><span id="trace-count">0 spans</span></div>
+        <details id="trace-overview" class="trace-overview" open><summary>Trace summary</summary><div id="minimap" class="minimap" aria-label="Run overview"></div></details>
+        <div class="session mono" aria-label="Session state">
+          <span>sensitivity: <b id="sensitivity">public</b></span><span>input: <b id="taint">trusted</b></span><span>side effects: <b id="side-effects">0</b></span>
+        </div>
+      </header>
+      <div id="trace-notice" class="trace-notice" role="status" hidden></div>
+      <div id="waterfall-scroll" class="waterfall-scroll">
+        <div id="waterfall" class="waterfall" role="grid" aria-label="Trace waterfall" aria-colcount="3">
+          <div class="waterfall-heading" role="row"><span role="columnheader">Name</span><span role="columnheader" class="duration-heading">Duration · cost</span><div id="axis" role="columnheader" aria-label="Time since run start" class="axis mono"></div></div>
+          <div id="rows" role="rowgroup"></div>
+        </div>
+        <p id="trace-empty" class="empty muted">No run yet.</p>
       </div>
-      <div id="timeline-scroll" class="timeline-scroll" tabindex="0" aria-label="Scrollable execution timeline">
-        <details id="system-panel" class="system-panel"><summary><span class="mono">{ }</span> System prompt <span id="system-meta" class="subtle">Waiting for agent</span></summary><div id="system-content" class="system-content"><p class="subtle">The full system prompt appears when the agent starts.</p></div></details>
-        <div id="timeline" class="timeline"><div id="timeline-empty" class="timeline-empty"><div class="trace-symbol" aria-hidden="true"><span></span><span></span><span></span></div><h3>The reasoning, made visible.</h3><p>Follow the route, inspect each tool call,<br>and see exactly where policy steps in.</p><div class="flow-legend"><span>01 Route</span><span>02 Reason</span><span>03 Verify</span></div></div></div>
-      </div>
-      <button id="jump-latest" class="button jump-latest" aria-label="Resume following latest event" hidden>Follow latest <span aria-hidden="true">↓</span></button>
-      <footer class="trace-footer"><span id="event-count">0 events</span><span id="trace-note">Waiting for a run</span></footer>
+      <div id="trace-summary" class="trace-summary mono" aria-label="Run totals"><span id="span-count">0</span> spans · <span id="llm-count">0</span> LLM calls · <span id="tool-count">0</span> tool calls · <span id="tokens">0 / 0</span> tokens · <span id="cost">$0.00000</span> · <span id="elapsed">0 ms</span></div>
+      <section id="drawer" class="drawer" aria-labelledby="detail-title" hidden>
+        <div class="drawer-heading"><h2>Details <span id="detail-title" class="mono muted"></span></h2><button id="close-drawer" class="text-button" aria-label="Close details">×</button></div>
+        <div id="detail-tabs" class="detail-tabs" role="tablist" aria-label="Span details"></div>
+        <div id="detail-content" class="detail-content" role="tabpanel" tabindex="0"></div>
+      </section>
     </section>
   </main>
-  <dialog id="page-modal" aria-labelledby="page-title"><div class="modal-header"><div><span class="eyebrow">SOURCE DOCUMENT</span><h2 id="page-title">Report page</h2></div><button id="close-modal" class="button icon-button" aria-label="Close source document">×</button></div><div class="modal-body"><p id="page-status" role="status">Loading report page…</p><img id="page-image" alt="" hidden></div></dialog>
-  <div id="toasts" class="toasts" aria-live="polite" aria-atomic="false"></div>
-  <noscript>This demo requires JavaScript. Enable it to run the agent and inspect its event stream.</noscript>
+  <dialog id="page-modal" aria-labelledby="page-title"><div class="modal-header"><h2 id="page-title">Report page</h2><button id="close-modal" class="text-button" aria-label="Close report page">×</button></div><div class="modal-body"><p id="page-status" role="status">Loading report page…</p><img id="page-image" alt="" hidden></div></dialog>
+  <div id="toasts" class="toasts" aria-live="polite"></div>
+  <noscript>JavaScript is required to run the agent.</noscript>
 </body>
 </html>
