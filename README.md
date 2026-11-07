@@ -116,6 +116,49 @@ Caveats: 100 dev / 50 test questions give wide intervals; k was chosen on dev; t
 DeepSeek models but from the same family; dev k = 3 / 5 were not judged (budget); 1 baseline dev answer got no
 judge verdict (empty output twice) and is excluded.
 
+## Structured figures and the SQL tool (Phase 5)
+
+12 key metrics (`data/gold/metrics.yaml`, with a caveat wherever banks are not comparable — e.g. "AuM" is assets under
+management at Julius Baer, EFG and Vontobel, total client assets at Swissquote and *avoirs administrés* at BCV/BCGE)
+× 6 banks × 2 years = 144 cells. **Gold:** `data/gold/figures_gold.csv`, 132 values + 12 documented blanks. It is
+**AI-assisted**: values were extracted with an LLM's help and validated by the author, also with AI assistance —
+not an independent hand audit. A first version that relied on key-figure tables only was rechecked after spot checks
+found metrics reported elsewhere in the reports.
+
+**Extraction** (`src/finagent/figures/extract.py`): one `deepseek-flash` call per cell over the top 8 table-aware
+chunks of the best retrieval configuration. The model returns the value as printed, its unit, the period and a
+verbatim quote; code rejects answers whose period is not the fiscal year (the prior-year column), whose quote is not
+in the cited chunk, whose value is not in the quote, or whose unit does not fit. Cost $0.18 for 144 cells.
+
+| Extraction vs gold (tolerance 0.5 %) | Value |
+|---|---|
+| Accuracy (correct / 132 gold values) | **0.962** (127) |
+| Coverage / precision | 0.970 / 0.992 |
+| Errors | 5 missing (retrieval did not surface the table: BCGE cost/income ×2, Julius Baer FTE ×2, BCV 2024 net new money), 1 "spurious" |
+| Prior-year column, unit scale, sign, wrong metric | 0 |
+
+The one "spurious" value (Julius Baer 2024 leverage ratio 4.9 %) is stated in the report text (p. 12) and is a gold
+omission, left as is in the score. Caveat: gold and extractor are both LLM-assisted, so shared errors (e.g. picking
+the same wrong row) would not show; the code checks make every extracted value traceable to a quote on a page.
+
+**SQL tool** (`src/finagent/figures/sql_tool.py`): one SELECT over `figures`/`documents`, parsed with sqlglot and
+regenerated from the tree (table and **function allowlists**, no write/lock clauses, `LIMIT ≤ 200`, each query pinned
+to one figure source); executed as a read-only `agent_reader` role with a 2 s timeout. 40 malicious inputs (stacked
+statements, `WITH … DELETE`, `pg_sleep`, catalog reads, unicode tricks, …) are all rejected in CI, and the role alone
+refuses writes and other tables when the parser is bypassed.
+
+| Text-to-SQL, 40 questions (`eval/datasets/figures_qa.jsonl`) | Execution accuracy |
+|---|---|
+| Generated SQL on gold figures (text-to-SQL errors only) | **0.950** |
+| Reference SQL on extracted figures (extraction errors only) | 0.875 |
+| Generated SQL on extracted figures (end to end) | 0.850 |
+
+The two text-to-SQL failures are a correct answer in a different shape (two rows instead of one `max, min` row) and
+a correct percentage rounded to one decimal; the metric is kept strict. End-to-end losses come from the 5 missing
+extractions (e.g. "lowest cost/income ratio" changes when BCGE is missing) and from gold rounded to CHF million
+where a percentage change magnifies the difference. 100 % of generated SQL was valid. Generator `deepseek-flash`,
+temperature 0, one run.
+
 ## Evaluation dataset
 
 `eval/datasets/qa_dev.jsonl` (100 questions, tuned on) and `qa_test.jsonl` (50 questions, run once per final
@@ -161,6 +204,6 @@ without one, use `uv sync --extra cpu`.
 ## Roadmap
 
 Done: corpus and parsing, evaluation set, retrieval lab (Phase 3), RAG with citations and abstention, validated LLM
-judge (Phase 4). Next: extracted key figures with a guarded text-to-SQL tool, an MCP server and routed agent, a
+judge (Phase 4), extracted key figures with a guarded text-to-SQL tool (Phase 5). Next: an MCP server and routed agent, a
 deterministic permission layer measured against a prompt-injection suite, CI regression tiers, and a self-hosted vs
 API model comparison.

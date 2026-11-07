@@ -1,0 +1,173 @@
+id,setting,sql_ok,correct,error,sql,n_ref_rows
+f01,gold,True,True,,"SELECT bank, year, value, unit, doc_id, page_no FROM figures WHERE bank = 'juliusbaer' AND metric = 'cet1_ratio' AND year = 2025",1
+f01,extracted,True,True,,"SELECT bank, year, value, unit, doc_id, page_no FROM figures WHERE bank = 'juliusbaer' AND metric = 'cet1_ratio' AND year = 2025",1
+f01,oracle,True,True,,SELECT value FROM figures WHERE bank='juliusbaer' AND year=2025 AND metric='cet1_ratio',1
+f02,gold,True,True,,"SELECT value, unit, doc_id, page_no FROM figures WHERE bank = 'vontobel' AND metric = 'headcount_fte' AND year = 2024",1
+f02,extracted,True,True,,"SELECT value, unit, doc_id, page_no FROM figures WHERE bank = 'vontobel' AND metric = 'headcount_fte' AND year = 2024",1
+f02,oracle,True,True,,SELECT value FROM figures WHERE bank='vontobel' AND year=2024 AND metric='headcount_fte',1
+f03,gold,True,True,,"SELECT bank, value, unit, doc_id, page_no FROM figures WHERE bank = 'bcv' AND metric = 'net_profit' AND year = 2025",1
+f03,extracted,True,True,,"SELECT bank, value, unit, doc_id, page_no FROM figures WHERE bank = 'bcv' AND metric = 'net_profit' AND year = 2025",1
+f03,oracle,True,True,,SELECT value FROM figures WHERE bank='bcv' AND year=2025 AND metric='net_profit',1
+f04,gold,True,True,,"SELECT bank, year, metric, value, unit, doc_id, page_no FROM figures WHERE bank = 'efg' AND metric = 'total_assets' AND year = 2025",1
+f04,extracted,True,True,,"SELECT bank, year, metric, value, unit, doc_id, page_no FROM figures WHERE bank = 'efg' AND metric = 'total_assets' AND year = 2025",1
+f04,oracle,True,True,,SELECT value FROM figures WHERE bank='efg' AND year=2025 AND metric='total_assets',1
+f05,gold,True,True,,"SELECT bank, year, value, unit, doc_id, page_no FROM figures WHERE bank = 'swissquote' AND metric = 'leverage_ratio' AND year = 2024",1
+f05,extracted,True,True,,"SELECT bank, year, value, unit, doc_id, page_no FROM figures WHERE bank = 'swissquote' AND metric = 'leverage_ratio' AND year = 2024",1
+f05,oracle,True,True,,SELECT value FROM figures WHERE bank='swissquote' AND year=2024 AND metric='leverage_ratio',1
+f06,gold,True,True,,"SELECT bank, year, value, unit, doc_id, page_no FROM figures WHERE bank = 'bcge' AND metric = 'total_capital_ratio' AND year = 2025",1
+f06,extracted,True,True,,"SELECT bank, year, value, unit, doc_id, page_no FROM figures WHERE bank = 'bcge' AND metric = 'total_capital_ratio' AND year = 2025",1
+f06,oracle,True,True,,SELECT value FROM figures WHERE bank='bcge' AND year=2025 AND metric='total_capital_ratio',1
+f07,gold,True,True,,"SELECT bank, year, value, unit, doc_id, page_no FROM figures WHERE bank = 'vontobel' AND metric = 'return_on_equity' AND year = 2025",1
+f07,extracted,True,True,,"SELECT bank, year, value, unit, doc_id, page_no FROM figures WHERE bank = 'vontobel' AND metric = 'return_on_equity' AND year = 2025",1
+f07,oracle,True,True,,SELECT value FROM figures WHERE bank='vontobel' AND year=2025 AND metric='return_on_equity',1
+f08,gold,True,True,,"SELECT value, unit, doc_id, page_no FROM figures WHERE bank = 'juliusbaer' AND metric = 'net_new_money' AND year = 2024",1
+f08,extracted,True,True,,"SELECT value, unit, doc_id, page_no FROM figures WHERE bank = 'juliusbaer' AND metric = 'net_new_money' AND year = 2024",1
+f08,oracle,True,True,,SELECT value FROM figures WHERE bank='juliusbaer' AND year=2024 AND metric='net_new_money',1
+f09,gold,True,True,,"SELECT value, unit, doc_id, page_no FROM figures WHERE bank = 'swissquote' AND metric = 'operating_expenses' AND year = 2025",1
+f09,extracted,True,True,,"SELECT value, unit, doc_id, page_no FROM figures WHERE bank = 'swissquote' AND metric = 'operating_expenses' AND year = 2025",1
+f09,oracle,True,True,,SELECT value FROM figures WHERE bank='swissquote' AND year=2025 AND metric='operating_expenses',1
+f10,gold,True,True,,"SELECT value, unit, doc_id, page_no FROM figures WHERE bank = 'efg' AND metric = 'cost_income_ratio' AND year = 2024",1
+f10,extracted,True,True,,"SELECT value, unit, doc_id, page_no FROM figures WHERE bank = 'efg' AND metric = 'cost_income_ratio' AND year = 2024",1
+f10,oracle,True,True,,SELECT value FROM figures WHERE bank='efg' AND year=2024 AND metric='cost_income_ratio',1
+f11,gold,True,True,,"SELECT bank, value, doc_id, page_no FROM figures WHERE metric = 'cet1_ratio' AND year = 2025 ORDER BY value DESC LIMIT 3",3
+f11,extracted,True,True,,"SELECT bank, value, doc_id, page_no FROM figures WHERE metric = 'cet1_ratio' AND year = 2025 ORDER BY value DESC LIMIT 3",3
+f11,oracle,True,True,,SELECT bank FROM figures WHERE metric='cet1_ratio' AND year=2025 ORDER BY value DESC LIMIT 3,3
+f12,gold,True,True,,"SELECT bank, value, unit, doc_id, page_no FROM figures WHERE metric = 'net_profit' AND year = 2025 ORDER BY value DESC",6
+f12,extracted,True,True,,"SELECT bank, value, unit, doc_id, page_no FROM figures WHERE metric = 'net_profit' AND year = 2025 ORDER BY value DESC",6
+f12,oracle,True,True,,"SELECT bank, value FROM figures WHERE metric='net_profit' AND year=2025 ORDER BY value DESC",6
+f13,gold,True,True,,"SELECT bank, value, unit, doc_id, page_no FROM figures WHERE metric = 'cost_income_ratio' AND year = 2024 ORDER BY value ASC LIMIT 1",1
+f13,extracted,True,False,,"SELECT bank, value, unit, doc_id, page_no FROM figures WHERE metric = 'cost_income_ratio' AND year = 2024 ORDER BY value ASC LIMIT 1",1
+f13,oracle,True,False,,SELECT bank FROM figures WHERE metric='cost_income_ratio' AND year=2024 ORDER BY value ASC LIMIT 1,1
+f14,gold,True,True,,"SELECT bank, value, unit, doc_id, page_no FROM figures WHERE metric = 'headcount_fte' AND year = 2025 ORDER BY value DESC LIMIT 1",1
+f14,extracted,True,False,,"SELECT bank, value, unit, doc_id, page_no FROM figures WHERE metric = 'headcount_fte' AND year = 2025 ORDER BY value DESC LIMIT 1",1
+f14,oracle,True,False,,SELECT bank FROM figures WHERE metric='headcount_fte' AND year=2025 ORDER BY value DESC LIMIT 1,1
+f15,gold,True,True,,"SELECT bank, value, doc_id, page_no FROM figures WHERE metric = 'leverage_ratio' AND year = 2025 ORDER BY value DESC LIMIT 2",2
+f15,extracted,True,True,,"SELECT bank, value, doc_id, page_no FROM figures WHERE metric = 'leverage_ratio' AND year = 2025 ORDER BY value DESC LIMIT 2",2
+f15,oracle,True,True,,SELECT bank FROM figures WHERE metric='leverage_ratio' AND year=2025 ORDER BY value DESC LIMIT 2,2
+f16,gold,True,True,,"SELECT bank, value, doc_id, page_no FROM figures WHERE metric = 'total_assets' AND year = 2024 ORDER BY value ASC",6
+f16,extracted,True,True,,"SELECT bank, value, doc_id, page_no FROM figures WHERE metric = 'total_assets' AND year = 2024 ORDER BY value ASC",6
+f16,oracle,True,True,,SELECT bank FROM figures WHERE metric='total_assets' AND year=2024 ORDER BY value ASC,6
+f17,gold,True,True,,"SELECT bank, value, unit, doc_id, page_no FROM figures WHERE metric = 'return_on_equity' AND year = 2024 ORDER BY value DESC LIMIT 1",1
+f17,extracted,True,True,,"SELECT bank, value, unit, doc_id, page_no FROM figures WHERE metric = 'return_on_equity' AND year = 2024 ORDER BY value DESC LIMIT 1",1
+f17,oracle,True,True,,"SELECT bank, value FROM figures WHERE metric='return_on_equity' AND year=2024 ORDER BY value DESC LIMIT 1",1
+f18,gold,True,True,,"SELECT bank, value, unit, doc_id, page_no FROM figures WHERE metric = 'operating_income' AND year = 2025 ORDER BY value DESC LIMIT 2",2
+f18,extracted,True,True,,"SELECT bank, value, unit, doc_id, page_no FROM figures WHERE metric = 'operating_income' AND year = 2025 ORDER BY value DESC LIMIT 2",2
+f18,oracle,True,True,,SELECT bank FROM figures WHERE metric='operating_income' AND year=2025 ORDER BY value DESC LIMIT 2,2
+f19,gold,True,True,,"SELECT round(avg(value), 2) AS avg_cet1_ratio, count(*) AS n_banks, array_agg(doc_id) AS doc_ids, array_agg(page_no) AS page_nos FROM figures WHERE metric = 'cet1_ratio' AND year = 2025;",1
+f19,extracted,True,True,,"SELECT round(avg(value), 2) AS avg_cet1_ratio, count(*) AS n_banks, array_agg(doc_id) AS doc_ids, array_agg(page_no) AS page_nos FROM figures WHERE metric = 'cet1_ratio' AND year = 2025;",1
+f19,oracle,True,True,,SELECT avg(value) FROM figures WHERE metric='cet1_ratio' AND year=2025,1
+f20,gold,True,True,,"SELECT sum(value) AS combined_net_profit_chf_m, array_agg(doc_id) AS doc_ids, array_agg(page_no) AS page_nos FROM figures WHERE metric = 'net_profit' AND year = 2025 AND bank IN ('bcge', 'bcv');",1
+f20,extracted,True,True,,"SELECT sum(value) AS combined_net_profit_chf_m, array_agg(doc_id) AS doc_ids, array_agg(page_no) AS page_nos FROM figures WHERE metric = 'net_profit' AND year = 2025 AND bank IN ('bcge', 'bcv');",1
+f20,oracle,True,True,,SELECT sum(f.value) FROM figures f JOIN documents d ON d.doc_id=f.doc_id WHERE d.lang='fr' AND f.metric='net_profit' AND f.year=2025,1
+f21,gold,True,True,,SELECT count(DISTINCT bank) AS banks_above_20 FROM figures WHERE metric = 'cet1_ratio' AND year = 2025 AND value > 20,1
+f21,extracted,True,True,,SELECT count(DISTINCT bank) AS banks_above_20 FROM figures WHERE metric = 'cet1_ratio' AND year = 2025 AND value > 20,1
+f21,oracle,True,True,,SELECT count(*) FROM figures WHERE metric='cet1_ratio' AND year=2025 AND value > 20,1
+f22,gold,True,True,,"SELECT sum(value) AS total_headcount_fte, count(*) AS n_banks, array_agg(bank ORDER BY bank) AS banks, array_agg(doc_id ORDER BY bank) AS doc_ids, array_agg(page_no ORDER BY bank) AS pages FROM figures WHERE metric = 'headcount_fte' AND year = 2024",1
+f22,extracted,True,False,,"SELECT sum(value) AS total_headcount_fte, count(*) AS n_banks, array_agg(bank ORDER BY bank) AS banks, array_agg(doc_id ORDER BY bank) AS doc_ids, array_agg(page_no ORDER BY bank) AS pages FROM figures WHERE metric = 'headcount_fte' AND year = 2024",1
+f22,oracle,True,False,,SELECT sum(value) FROM figures WHERE metric='headcount_fte' AND year=2024,1
+f23,gold,True,True,,"SELECT round(avg(f.value), 1) AS avg_cost_income_ratio, array_agg(f.page_no) AS pages FROM figures f JOIN documents d ON d.doc_id = f.doc_id WHERE d.lang = 'en' AND f.metric = 'cost_income_ratio' AND f.year = 2025",1
+f23,extracted,True,True,,"SELECT round(avg(f.value), 1) AS avg_cost_income_ratio, array_agg(f.page_no) AS pages FROM figures f JOIN documents d ON d.doc_id = f.doc_id WHERE d.lang = 'en' AND f.metric = 'cost_income_ratio' AND f.year = 2025",1
+f23,oracle,True,True,,SELECT avg(f.value) FROM figures f JOIN documents d ON d.doc_id=f.doc_id WHERE d.lang='en' AND f.metric='cost_income_ratio' AND f.year=2025,1
+f24,gold,True,False,,"(SELECT 'highest' AS position, bank, value, doc_id, page_no FROM figures WHERE metric = 'leverage_ratio' AND year = 2024 ORDER BY value DESC LIMIT 1) UNION ALL (SELECT 'lowest' AS position, bank, value, doc_id, page_no FROM figures WHERE metric = 'leverage_ratio' AND year = 2024 ORDER BY value ASC LIMIT 1);",1
+f24,extracted,True,False,,"(SELECT 'highest' AS position, bank, value, doc_id, page_no FROM figures WHERE metric = 'leverage_ratio' AND year = 2024 ORDER BY value DESC LIMIT 1) UNION ALL (SELECT 'lowest' AS position, bank, value, doc_id, page_no FROM figures WHERE metric = 'leverage_ratio' AND year = 2024 ORDER BY value ASC LIMIT 1);",1
+f24,oracle,True,True,,"SELECT max(value), min(value) FROM figures WHERE metric='leverage_ratio' AND year=2024",1
+f25,gold,True,True,,SELECT count(DISTINCT bank) AS n_banks FROM figures WHERE metric = 'net_new_money' AND year = 2025,1
+f25,extracted,True,True,,SELECT count(DISTINCT bank) AS n_banks FROM figures WHERE metric = 'net_new_money' AND year = 2025,1
+f25,oracle,True,True,,SELECT count(*) FROM figures WHERE metric='net_new_money' AND year=2025,1
+f26,gold,True,True,,"SELECT bank, round(avg(value), 2) AS avg_total_capital_ratio, array_agg(doc_id ORDER BY year) AS doc_ids, array_agg(page_no ORDER BY year) AS pages FROM figures WHERE metric = 'total_capital_ratio' AND year IN (2024, 2025) GROUP BY bank ORDER BY bank",6
+f26,extracted,True,True,,"SELECT bank, round(avg(value), 2) AS avg_total_capital_ratio, array_agg(doc_id ORDER BY year) AS doc_ids, array_agg(page_no ORDER BY year) AS pages FROM figures WHERE metric = 'total_capital_ratio' AND year IN (2024, 2025) GROUP BY bank ORDER BY bank",6
+f26,oracle,True,True,,"SELECT bank, avg(value) FROM figures WHERE metric='total_capital_ratio' GROUP BY bank",6
+f27,gold,True,True,,"SELECT a.bank, a.value AS net_profit_2024, b.value AS net_profit_2025, b.unit, b.doc_id, b.page_no FROM figures a JOIN figures b ON a.bank = b.bank AND a.metric = b.metric WHERE a.metric = 'net_profit' AND a.year = 2024 AND b.year = 2025 AND b.value > a.value ORDER BY b.bank;",4
+f27,extracted,True,True,,"SELECT a.bank, a.value AS net_profit_2024, b.value AS net_profit_2025, b.unit, b.doc_id, b.page_no FROM figures a JOIN figures b ON a.bank = b.bank AND a.metric = b.metric WHERE a.metric = 'net_profit' AND a.year = 2024 AND b.year = 2025 AND b.value > a.value ORDER BY b.bank;",4
+f27,oracle,True,True,,SELECT b.bank FROM figures a JOIN figures b ON a.bank=b.bank WHERE a.metric='net_profit' AND b.metric='net_profit' AND a.year=2024 AND b.year=2025 AND b.value > a.value,4
+f28,gold,True,True,,"SELECT b.value - a.value AS net_profit_change_chf_m, a.value AS net_profit_2024, b.value AS net_profit_2025, a.doc_id AS doc_id_2024, a.page_no AS page_2024, b.doc_id AS doc_id_2025, b.page_no AS page_2025 FROM figures a JOIN figures b ON a.bank = b.bank AND a.metric = b.metric WHERE a.bank = 'juliusbaer' AND a.metric = 'net_profit' AND a.year = 2024 AND b.year = 2025;",1
+f28,extracted,True,True,,"SELECT b.value - a.value AS net_profit_change_chf_m, a.value AS net_profit_2024, b.value AS net_profit_2025, a.doc_id AS doc_id_2024, a.page_no AS page_2024, b.doc_id AS doc_id_2025, b.page_no AS page_2025 FROM figures a JOIN figures b ON a.bank = b.bank AND a.metric = b.metric WHERE a.bank = 'juliusbaer' AND a.metric = 'net_profit' AND a.year = 2024 AND b.year = 2025;",1
+f28,oracle,True,True,,SELECT b.value - a.value FROM figures a JOIN figures b ON a.bank=b.bank WHERE a.bank='juliusbaer' AND a.metric='net_profit' AND b.metric='net_profit' AND a.year=2024 AND b.year=2025,1
+f29,gold,True,True,,"SELECT a.bank, a.value AS aum_2024, b.value AS aum_2025, b.doc_id, b.page_no
+FROM figures a
+JOIN figures b ON a.bank = b.bank AND a.metric = b.metric
+WHERE a.metric = 'assets_under_management'
+  AND a.year = 2024
+  AND b.year = 2025
+  AND b.value > a.value
+ORDER BY b.bank",6
+f29,extracted,True,True,,"SELECT a.bank, a.value AS aum_2024, b.value AS aum_2025, b.doc_id, b.page_no
+FROM figures a
+JOIN figures b ON a.bank = b.bank AND a.metric = b.metric
+WHERE a.metric = 'assets_under_management'
+  AND a.year = 2024
+  AND b.year = 2025
+  AND b.value > a.value
+ORDER BY b.bank",6
+f29,oracle,True,True,,SELECT b.bank FROM figures a JOIN figures b ON a.bank=b.bank WHERE a.metric='assets_under_management' AND b.metric='assets_under_management' AND a.year=2024 AND b.year=2025 AND b.value > a.value,6
+f30,gold,True,True,,"SELECT b.value - a.value AS change_pp, a.value AS cet1_2024, a.doc_id AS doc_id_2024, a.page_no AS page_2024, b.value AS cet1_2025, b.doc_id AS doc_id_2025, b.page_no AS page_2025 FROM figures a JOIN figures b ON a.bank = b.bank AND a.metric = b.metric WHERE a.bank = 'vontobel' AND a.metric = 'cet1_ratio' AND a.year = 2024 AND b.year = 2025",1
+f30,extracted,True,True,,"SELECT b.value - a.value AS change_pp, a.value AS cet1_2024, a.doc_id AS doc_id_2024, a.page_no AS page_2024, b.value AS cet1_2025, b.doc_id AS doc_id_2025, b.page_no AS page_2025 FROM figures a JOIN figures b ON a.bank = b.bank AND a.metric = b.metric WHERE a.bank = 'vontobel' AND a.metric = 'cet1_ratio' AND a.year = 2024 AND b.year = 2025",1
+f30,oracle,True,True,,SELECT b.value - a.value FROM figures a JOIN figures b ON a.bank=b.bank WHERE a.bank='vontobel' AND a.metric='cet1_ratio' AND b.metric='cet1_ratio' AND a.year=2024 AND b.year=2025,1
+f31,gold,True,False,,"SELECT a.value AS v2024, b.value AS v2025, round((b.value - a.value) / a.value * 100, 1) AS variation_pct, b.doc_id, b.page_no FROM figures a JOIN figures b ON b.bank = a.bank AND b.metric = a.metric AND b.year = 2025 WHERE a.bank = 'bcge' AND a.metric = 'operating_expenses' AND a.year = 2024",1
+f31,extracted,True,False,,"SELECT a.value AS v2024, b.value AS v2025, round((b.value - a.value) / a.value * 100, 1) AS variation_pct, b.doc_id, b.page_no FROM figures a JOIN figures b ON b.bank = a.bank AND b.metric = a.metric AND b.year = 2025 WHERE a.bank = 'bcge' AND a.metric = 'operating_expenses' AND a.year = 2024",1
+f31,oracle,True,False,,SELECT 100 * (b.value - a.value) / a.value FROM figures a JOIN figures b ON a.bank=b.bank WHERE a.bank='bcge' AND a.metric='operating_expenses' AND b.metric='operating_expenses' AND a.year=2024 AND b.year=2025,1
+f32,gold,True,True,,"SELECT b.bank, b.value - a.value AS increase_fte, a.value AS fte_2024, b.value AS fte_2025, b.doc_id, b.page_no FROM figures a JOIN figures b ON a.bank = b.bank AND a.metric = b.metric WHERE a.metric = 'headcount_fte' AND a.year = 2024 AND b.year = 2025 ORDER BY increase_fte DESC LIMIT 1",1
+f32,extracted,True,True,,"SELECT b.bank, b.value - a.value AS increase_fte, a.value AS fte_2024, b.value AS fte_2025, b.doc_id, b.page_no FROM figures a JOIN figures b ON a.bank = b.bank AND a.metric = b.metric WHERE a.metric = 'headcount_fte' AND a.year = 2024 AND b.year = 2025 ORDER BY increase_fte DESC LIMIT 1",1
+f32,oracle,True,True,,"SELECT b.bank, b.value - a.value FROM figures a JOIN figures b ON a.bank=b.bank WHERE a.metric='headcount_fte' AND b.metric='headcount_fte' AND a.year=2024 AND b.year=2025 ORDER BY b.value - a.value DESC LIMIT 1",1
+f33,gold,True,True,,"SELECT f24.bank, f24.value AS cir_2024, f25.value AS cir_2025, f24.value - f25.value AS improvement_pct_points, f24.doc_id AS doc_id_2024, f24.page_no AS page_no_2024, f25.doc_id AS doc_id_2025, f25.page_no AS page_no_2025 FROM figures f24 JOIN figures f25 ON f24.bank = f25.bank AND f24.metric = f25.metric WHERE f24.metric = 'cost_income_ratio' AND f24.year = 2024 AND f25.year = 2025 AND f25.value < f24.value ORDER BY improvement_pct_points DESC",2
+f33,extracted,True,True,,"SELECT f24.bank, f24.value AS cir_2024, f25.value AS cir_2025, f24.value - f25.value AS improvement_pct_points, f24.doc_id AS doc_id_2024, f24.page_no AS page_no_2024, f25.doc_id AS doc_id_2025, f25.page_no AS page_no_2025 FROM figures f24 JOIN figures f25 ON f24.bank = f25.bank AND f24.metric = f25.metric WHERE f24.metric = 'cost_income_ratio' AND f24.year = 2024 AND f25.year = 2025 AND f25.value < f24.value ORDER BY improvement_pct_points DESC",2
+f33,oracle,True,True,,SELECT b.bank FROM figures a JOIN figures b ON a.bank=b.bank WHERE a.metric='cost_income_ratio' AND b.metric='cost_income_ratio' AND a.year=2024 AND b.year=2025 AND b.value < a.value,2
+f34,gold,True,True,,"SELECT a.bank, a.value AS v2024, b.value AS v2025, round((b.value - a.value) / a.value * 100, 2) AS growth_pct, a.doc_id AS doc_id_2024, a.page_no AS page_no_2024, b.doc_id AS doc_id_2025, b.page_no AS page_no_2025 FROM figures a JOIN figures b ON b.bank = a.bank AND b.metric = a.metric WHERE a.bank = 'swissquote' AND a.metric = 'operating_income' AND a.year = 2024 AND b.year = 2025",1
+f34,extracted,True,True,,"SELECT a.bank, a.value AS v2024, b.value AS v2025, round((b.value - a.value) / a.value * 100, 2) AS growth_pct, a.doc_id AS doc_id_2024, a.page_no AS page_no_2024, b.doc_id AS doc_id_2025, b.page_no AS page_no_2025 FROM figures a JOIN figures b ON b.bank = a.bank AND b.metric = a.metric WHERE a.bank = 'swissquote' AND a.metric = 'operating_income' AND a.year = 2024 AND b.year = 2025",1
+f34,oracle,True,True,,SELECT 100 * (b.value - a.value) / a.value FROM figures a JOIN figures b ON a.bank=b.bank WHERE a.bank='swissquote' AND a.metric='operating_income' AND b.metric='operating_income' AND a.year=2024 AND b.year=2025,1
+f35,gold,True,True,,"SELECT bank, value, doc_id, page_no FROM figures WHERE metric = 'return_on_equity' AND year = 2025 AND value > 10 ORDER BY value DESC",2
+f35,extracted,True,True,,"SELECT bank, value, doc_id, page_no FROM figures WHERE metric = 'return_on_equity' AND year = 2025 AND value > 10 ORDER BY value DESC",2
+f35,oracle,True,True,,SELECT bank FROM figures WHERE metric='return_on_equity' AND year=2025 AND value > 10,2
+f36,gold,True,True,,"SELECT bank, value, doc_id, page_no FROM figures WHERE metric = 'cet1_ratio' AND year = 2025 AND bank IN ('juliusbaer', 'efg') ORDER BY bank",2
+f36,extracted,True,True,,"SELECT bank, value, doc_id, page_no FROM figures WHERE metric = 'cet1_ratio' AND year = 2025 AND bank IN ('juliusbaer', 'efg') ORDER BY bank",2
+f36,oracle,True,True,,"SELECT bank, value FROM figures WHERE metric='cet1_ratio' AND year=2025 AND bank IN ('juliusbaer','efg')",2
+f37,gold,True,True,,"SELECT bank, value, unit, doc_id, page_no FROM figures WHERE metric = 'total_assets' AND year = 2025 AND value > 50000 ORDER BY value DESC",2
+f37,extracted,True,True,,"SELECT bank, value, unit, doc_id, page_no FROM figures WHERE metric = 'total_assets' AND year = 2025 AND value > 50000 ORDER BY value DESC",2
+f37,oracle,True,True,,SELECT bank FROM figures WHERE metric='total_assets' AND year=2025 AND value > 50000,2
+f38,gold,True,True,,"SELECT bank, value, doc_id, page_no FROM figures WHERE metric = 'cet1_ratio' AND year = 2025 AND value > (SELECT value FROM figures WHERE metric = 'cet1_ratio' AND year = 2025 AND bank = 'bcv') ORDER BY value DESC",2
+f38,extracted,True,True,,"SELECT bank, value, doc_id, page_no FROM figures WHERE metric = 'cet1_ratio' AND year = 2025 AND value > (SELECT value FROM figures WHERE metric = 'cet1_ratio' AND year = 2025 AND bank = 'bcv') ORDER BY value DESC",2
+f38,oracle,True,True,,SELECT f.bank FROM figures f WHERE f.metric='cet1_ratio' AND f.year=2025 AND f.value > (SELECT value FROM figures WHERE bank='bcv' AND metric='cet1_ratio' AND year=2025),2
+f39,gold,True,True,,"WITH np AS (
+  SELECT bank, value, doc_id, page_no
+  FROM figures
+  WHERE metric = 'net_profit' AND year = 2024
+), hi AS (
+  SELECT * FROM np ORDER BY value DESC LIMIT 1
+), lo AS (
+  SELECT * FROM np ORDER BY value ASC LIMIT 1
+)
+SELECT
+  hi.bank AS highest_bank,
+  hi.value AS highest_net_profit,
+  hi.doc_id AS highest_doc_id,
+  hi.page_no AS highest_page_no,
+  lo.bank AS lowest_bank,
+  lo.value AS lowest_net_profit,
+  lo.doc_id AS lowest_doc_id,
+  lo.page_no AS lowest_page_no,
+  hi.value - lo.value AS difference_chf_m
+FROM hi CROSS JOIN lo;",1
+f39,extracted,True,True,,"WITH np AS (
+  SELECT bank, value, doc_id, page_no
+  FROM figures
+  WHERE metric = 'net_profit' AND year = 2024
+), hi AS (
+  SELECT * FROM np ORDER BY value DESC LIMIT 1
+), lo AS (
+  SELECT * FROM np ORDER BY value ASC LIMIT 1
+)
+SELECT
+  hi.bank AS highest_bank,
+  hi.value AS highest_net_profit,
+  hi.doc_id AS highest_doc_id,
+  hi.page_no AS highest_page_no,
+  lo.bank AS lowest_bank,
+  lo.value AS lowest_net_profit,
+  lo.doc_id AS lowest_doc_id,
+  lo.page_no AS lowest_page_no,
+  hi.value - lo.value AS difference_chf_m
+FROM hi CROSS JOIN lo;",1
+f39,oracle,True,True,,SELECT max(value) - min(value) FROM figures WHERE metric='net_profit' AND year=2024,1
+f40,gold,True,True,,"SELECT p.bank, round(p.value * 1000.0 / h.value, 1) AS net_profit_per_fte_chf_thousand, p.doc_id, p.page_no, h.doc_id AS headcount_doc_id, h.page_no AS headcount_page_no FROM figures p JOIN figures h ON h.bank = p.bank AND h.year = p.year AND h.metric = 'headcount_fte' WHERE p.metric = 'net_profit' AND p.year = 2025 ORDER BY net_profit_per_fte_chf_thousand DESC",6
+f40,extracted,True,False,,"SELECT p.bank, round(p.value * 1000.0 / h.value, 1) AS net_profit_per_fte_chf_thousand, p.doc_id, p.page_no, h.doc_id AS headcount_doc_id, h.page_no AS headcount_page_no FROM figures p JOIN figures h ON h.bank = p.bank AND h.year = p.year AND h.metric = 'headcount_fte' WHERE p.metric = 'net_profit' AND p.year = 2025 ORDER BY net_profit_per_fte_chf_thousand DESC",6
+f40,oracle,True,False,,"SELECT p.bank, 1000 * p.value / h.value FROM figures p JOIN figures h ON p.bank=h.bank AND p.year=h.year WHERE p.metric='net_profit' AND h.metric='headcount_fte' AND p.year=2025",6
