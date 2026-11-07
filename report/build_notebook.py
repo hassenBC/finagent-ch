@@ -212,7 +212,7 @@ plain("""Every change is checked automatically. A fast tier runs on each push wi
 tier re-runs all evaluations against thresholds and lists **which questions** got worse. A deliberate one-line
 mistake (switching off the bank/year filters) is caught immediately.""")
 code("F.fig_regression_demo();")
-expert("""Fast tier: lint, 212 unit tests (incl. SQL injection inputs and policy rules), the read-only role
+expert("""Fast tier: lint, 264 unit tests (incl. SQL injection inputs and policy rules), the read-only role
 against Postgres, and retrieval on 31 dev questions against a 4-report fixture that stores only FTS vectors,
 embeddings and page numbers, not the report text. Averages hide regressions: moving to the final retrieval
 configuration looked like +4 questions but was 7 fixes and 3 regressions. Re-runs are not bit-identical (2 of
@@ -228,7 +228,14 @@ code("F.fig_models();")
 md("""**Method.** Qwen3-4B (4-bit and 8-bit) and Qwen3-8B (4-bit) served by Ollama in Docker; identical
 prompts and code; the judge kept fixed (API). Only the 4-bit 4B fits the 4 GB GPU entirely (37/37 layers,
 ~3 s per answer); the 8-bit 4B and the 8B spill onto the CPU (minutes per answer), so they ran on half-size
-subsets.""")
+subsets. The 8B did not finish (over 11 minutes per answer, about nine hours for 50 RAG questions), so the
+chart shows no 8B numbers.""")
+plain("""**Result.** The small 4-bit model answers key-figure questions correctly 57 % of the time (API model: 69 %)
+and completes 42 % of the agent tasks (API model: 92 %); it often refuses or answers without searching.
+On the injection suite 4 of 55 attacks succeed without a defence in single mode (API model: 2 of 55), but the
+small model often did not use its tools at all, so this says little about robustness; with the permission layer,
+none succeed. The 8-bit model, tested without a defence only, followed one planted instruction (the API model
+followed none).""")
 expert("""A first finding before any score: partial offload, not model size, is the bottleneck on a 4 GB card
 (52 s vs 3.3 s for the same answer once the 4B fits entirely with an 8k context and one request slot; two
 parallel slots made it worse by doubling the KV cache). The local 4B produced invalid tool arguments and

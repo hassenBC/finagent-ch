@@ -293,8 +293,8 @@ e-mailed only the recipient the user named. Both successful attacks were *direct
 happened to refuse" into a guarantee that holds for any model or prompt, at a measured price: every legitimate
 "read a document, then e-mail" task is escalated by R3 (all 4 benign ones and the 10 document-based in-task e-mails),
 lowering unattended benign success from 0.92 to 0.87. With 55 attacks, "0 successes" bounds the true attack
-success rate only at roughly ≤ 6.5 % (95 %, rule of three). Whether smaller self-hosted models are easier to
-inject is tested in Phase 9.
+success rate only at roughly ≤ 6.5 % (95 %, rule of three). The self-hosted comparison is in the Phase 9 section
+below.
 
 **Threat model and limitations.** In scope: an attacker who can publish text the agent retrieves (a PDF page, a
 client note) or a user asking for something they should not get; the asset is the synthetic client data and the
@@ -303,13 +303,21 @@ answer text itself (the engine controls tool calls, not what the model writes ba
 after one confidential read everything is treated as confidential, and taint is per session, not per value
 (finer tracking would label values, as in CaMeL). Client notes are labelled *trusted*, so an instruction inside a
 note does not trigger R3; only R1/R2 stop it; trust labels are an assumption that can be wrong. The
-recipient allowlist is the main egress control: a compromised internal mailbox would defeat it.
+recipient allowlist is the main egress control: a compromised internal mailbox would defeat it. The policy runs in
+the agent loop, not in the MCP server, so a client that calls the server directly is not checked (a policy proxy in
+front of the server is the deployment fix); the side-effect budget R4 counts per agent run, not per MCP session;
+and a search query is translated by the same external API that serves the model, so confidential text pasted into a
+query reaches no new party but would leave the bank if that provider were out of scope. An independent read-only
+review of the policy, SQL and MCP code found these three boundaries plus four defects, now fixed with tests: a CTE
+could legitimise a reference to a catalog table (the validator now follows PostgreSQL's CTE scoping, quoting and
+schema rules; a second review of my first fix found four bypasses of it, also fixed), `WITH RECURSIVE` is now
+rejected, the router could widen a caller's tool allowlist, and tool arguments had no length caps.
 
 ## Regression suite, CI and tracing (Phase 8)
 
 | Tier | When | Runs | Needs |
 |---|---|---|---|
-| Fast (`.github/workflows/ci.yml`) | every push / PR | ruff, 206 unit tests (incl. 40 SQL-injection inputs, policy rules, dataset checks), the `agent_reader` role tests against Postgres, and **retrieval on 31 dev questions** (e5-small hybrid) against a 4-report fixture in a pgvector service container, checked against thresholds with a per-item diff in the job summary | nothing (no key, no GPU) |
+| Fast (`.github/workflows/ci.yml`) | every push / PR | ruff, 264 unit tests (incl. 40 SQL-injection inputs, policy rules, dataset checks), the `agent_reader` role tests against Postgres, and **retrieval on 31 dev questions** (e5-small hybrid) against a 4-report fixture in a pgvector service container, checked against thresholds with a per-item diff in the job summary | nothing (no key, no GPU) |
 | Full (`make regression`) | before a release / after a change | final retrieval config, RAG (k = 10), routed agent (60 tasks), security suite with the policy engine (2 × 55 attacks): each against thresholds and diffed per item against committed baselines | full corpus, GPU, API key |
 
 The CI fixture (`tests/fixtures/ci_fixture.jsonl.gz`, 3.7 MB) holds only what retrieval needs (FTS vectors,
@@ -335,6 +343,32 @@ is why thresholds carry a margin and the diff should be read for patterns, not s
 its policy decision, and inside the MCP server process retrieve → translate / FTS / vector / fusion / rerank, and `finagent trace <id>` prints them as a tree, nesting server spans under the tool call that caused them. The
 first trace already found something: a 9.8 s vector search that is bge-m3 loading lazily on the server's first
 query, not slow retrieval.
+
+## Self-hosted vs API models (Phase 9)
+
+Qwen3-4B (4-bit and 8-bit) and Qwen3-8B (4-bit) served by Ollama on a 4 GB laptop GPU, same prompts, code and
+judge as the API model. Only the 4-bit 4B fits in GPU memory; the 8-bit 4B ran RAG and agent on half-size subsets
+and the attacks in single mode without a defence only, and the 8B did not finish (over 11 minutes per answer, about nine hours for 50 RAG questions), so there are no 8B numbers.
+
+| | DeepSeek flash (API) | Qwen3-4B 4-bit | Qwen3-4B 8-bit (subset) |
+|---|---|---|---|
+| RAG numeric correct, dev, k = 5 | 0.69 | 0.57 | not tabulated (50-question subset) |
+| citation precision | 0.76 | 0.65 | |
+| faithful answers (judge, of 71 / 72 judged) | 0.97 | 0.85 | |
+| agent task success (routed), full 60 tasks | 0.92 | 0.42 | not run |
+| agent task success (routed), the same 30 tasks | 0.90 (27/30) | 0.40 (12/30) | 0.50 (15/30) |
+| routing accuracy (60 tasks; 30 for 8-bit) | 0.97 | 0.65 | 0.73 |
+| attacks succeeding, no defence (of 55 per mode) | 2 single, 2 routed | 4 single, 2 routed | 6 single (routed and policy not run) |
+
+**Reading it.** The small model is much weaker at the agent job: it often refuses or answers without searching
+(false abstention on 12 and 25 of 60 tasks) and misroutes a third of the questions. On injection the counts are
+too small to separate the models (2 vs 4 of 55). The data does not show the 4B to be more robust: with the 4-bit
+model about half of the attack runs made no tool call (28 of 55 single, 30 of 55 routed), so the attack never
+reached the tools, and all its successes were direct requests; the policy layer blocked all of them, as it did for
+the API model. The 8-bit model made no call in 18 of 55 runs and had 5 direct successes plus one `in_task_redirect`:
+a planted instruction that was followed once, which the API model never did (0 of 48). The policy layer was not
+tested on the 8-bit model. The retrieval stage ran on the CPU in the local
+runs, so the 13.6 s median RAG latency (API: 1.9 s) is not a pure generation comparison.
 
 ## Live demo app
 
@@ -368,5 +402,5 @@ without one, use `uv sync --extra cpu`.
 
 Done: corpus and parsing, evaluation set, retrieval lab (Phase 3), RAG with citations and abstention, validated LLM
 judge (Phase 4), extracted key figures with a guarded text-to-SQL tool (Phase 5), MCP server and routed agent (Phase 6),
-deterministic permission layer and injection suite (Phase 7), regression tiers, CI and tracing (Phase 8). Next: a self-
-hosted vs API model comparison (including whether small local models are easier to inject).
+deterministic permission layer and injection suite (Phase 7), regression tiers, CI and tracing (Phase 8), self-hosted vs
+API model comparison (Phase 9).
