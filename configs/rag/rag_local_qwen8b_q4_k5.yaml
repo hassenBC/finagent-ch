@@ -1,0 +1,5 @@
+name: rag_local_qwen8b_q4_k5
+retrieval: configs/retrieval/C_bge_m3_hybrid_filters_translate_tsrank.yaml
+k: 5
+generator: local_qwen8b_q4
+dataset: eval/datasets/qa_dev.jsonl

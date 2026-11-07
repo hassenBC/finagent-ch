@@ -9,13 +9,17 @@ llm:
   providers:
     deepseek: {base_url: "https://api.deepseek.com", api_key_env: DEEPSEEK_API_KEY}
     # Phase 9: self-hosted models served by Ollama on this laptop
-    ollama: {base_url: "http://localhost:11434/v1", api_key_env: OLLAMA_API_KEY}
+    ollama: {base_url: "http://localhost:11434/v1", api_key_env: OLLAMA_API_KEY, timeout_s: 1800}
 
   # Prices in USD per million tokens (uncached input / output).
   # DeepSeek: peak-hour rates, i.e. an upper bound. Verify on
   # https://api-docs.deepseek.com/quick_start/pricing; model ids checked with `make llm-models` (2026-11-06).
   models:
     deepseek_flash: {provider: deepseek, model: deepseek-flash, price_in: 0.30, price_out: 1.20}
+    # Phase 9: local models in Ollama (Docker, RTX 3050 Ti 4 GB); electricity not priced
+    local_qwen4b_q4: {provider: ollama, model: "qwen3:4b-instruct-2507-q4_K_M", price_in: 0.0, price_out: 0.0}
+    local_qwen4b_q8: {provider: ollama, model: "qwen3:4b-instruct-2507-q8_0", price_in: 0.0, price_out: 0.0}
+    local_qwen8b_q4: {provider: ollama, model: "qwen3:8b", price_in: 0.0, price_out: 0.0, no_think: true}
     deepseek_pro: {provider: deepseek, model: deepseek-v4-pro, price_in: 1.32, price_out: 3.96}
 
 db:

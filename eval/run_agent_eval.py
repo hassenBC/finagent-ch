@@ -80,14 +80,14 @@ def row(task: dict, run: AgentRun, mode: str, run_idx: int) -> dict:
     }  # fmt: skip
 
 
-async def evaluate(tasks, modes, runs, max_cost, first_run=0) -> list[dict]:
+async def evaluate(tasks, modes, runs, max_cost, first_run=0, model="deepseek_flash") -> list[dict]:
     rows, spent = [], 0.0
     async with mcp_session() as session:  # one server for all tasks
         for run_idx in range(first_run, first_run + runs):
             salt = f"agent-run-{run_idx}" if run_idx else None
             for mode in modes:
                 for t in tasks:
-                    cfg = AgentConfig(cache_salt=salt)
+                    cfg = AgentConfig(cache_salt=salt, model=model)
                     run = await ask(t["task"], mode, cfg, None, session)
                     spent += run.cost_usd
                     rows.append(row(t, run, mode, run_idx))
@@ -119,10 +119,13 @@ def main() -> None:
     ap.add_argument("--every", type=int, default=1, help="subset: every n-th task")
     ap.add_argument("--first-run", type=int, default=0, help="index of the first run (salt)")
     ap.add_argument("--tag", default="", help="suffix for the result files")
+    ap.add_argument(
+        "--model", default="deepseek_flash", help="router + agent model (base.yaml key)"
+    )
     args = ap.parse_args()
     tasks = [json.loads(ln) for ln in TASKS.read_text().splitlines()][:: args.every][: args.limit]
     df = pd.DataFrame(
-        anyio.run(evaluate, tasks, args.modes, args.runs, args.max_cost, args.first_run)
+        anyio.run(evaluate, tasks, args.modes, args.runs, args.max_cost, args.first_run, args.model)
     )
     sfx = f"_{args.tag}" if args.tag else ""
     res = ROOT / "results"
