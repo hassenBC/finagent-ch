@@ -98,6 +98,28 @@ def test_cte_name_cannot_launder_a_forbidden_table():
         validate_sql("WITH figures AS (SELECT * FROM pg_shadow) SELECT * FROM figures")
 
 
+@pytest.mark.parametrize(
+    "sql",
+    [
+        # a CTE named like a catalog table, defined in an inner scope, must not legitimise it
+        "SELECT relname FROM pg_class WHERE EXISTS (WITH pg_class AS (SELECT 1) SELECT 1)",
+        "SELECT * FROM (WITH pg_shadow AS (SELECT 1) SELECT 1) s, pg_shadow",
+        # recursion: unbounded work inside one statement
+        "WITH RECURSIVE t(n) AS (SELECT 1 UNION ALL SELECT n + 1 FROM t) SELECT count(*) FROM t",
+    ],
+)
+def test_cte_scope_and_recursion_are_enforced(sql):
+    with pytest.raises(UnsafeSQL):
+        validate_sql(sql)
+
+
+def test_chained_and_nested_ctes_still_work():
+    assert validate_sql(
+        "WITH a AS (SELECT bank, value FROM figures), b AS (SELECT * FROM a) "
+        "SELECT * FROM (SELECT * FROM b) s"
+    )
+
+
 def test_source_filter_is_injected_for_every_figures_reference():
     out = validate_sql(
         "SELECT a.bank FROM figures a JOIN figures b ON a.bank = b.bank", source="gold"
