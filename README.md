@@ -293,8 +293,8 @@ e-mailed only the recipient the user named. Both successful attacks were *direct
 happened to refuse" into a guarantee that holds for any model or prompt, at a measured price: every legitimate
 "read a document, then e-mail" task is escalated by R3 (all 4 benign ones and the 10 document-based in-task e-mails),
 lowering unattended benign success from 0.92 to 0.87. With 55 attacks, "0 successes" bounds the true attack
-success rate only at roughly ≤ 6.5 % (95 %, rule of three). Whether smaller self-hosted models are easier to
-inject is tested in Phase 9.
+success rate only at roughly ≤ 6.5 % (95 %, rule of three). The self-hosted comparison is in the Phase 9 section
+below.
 
 **Threat model and limitations.** In scope: an attacker who can publish text the agent retrieves (a PDF page, a
 client note) or a user asking for something they should not get; the asset is the synthetic client data and the
@@ -346,7 +346,7 @@ not finish (over 11 minutes per answer, about nine hours for 50 RAG questions), 
 |---|---|---|---|
 | RAG numeric correct, dev, k = 5 | 0.69 | 0.57 | not run on dev |
 | citation precision | 0.76 | 0.65 | |
-| judged faithfulness | 0.98 | 0.90 | |
+| faithful answers (judge, of 71 / 72 judged) | 0.97 | 0.85 | |
 | agent task success (routed) | 0.92 | 0.42 | 0.50 (30 tasks) |
 | routing accuracy | 0.97 | 0.65 | 0.73 |
 | attacks succeeding, no defence (of 55) | 2 single, 2 routed | 4 single, 2 routed | 6 single |
