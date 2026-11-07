@@ -244,19 +244,19 @@ inspired the design.
 \caption{Attack success and benign task completion for each configuration.}\label{fig:security}
 \end{figure}
 
-\Cref{fig:security} shows the result. The API model followed none of the 48 planted instructions even without a
+\Cref{fig:security} shows the result. The API model followed none of the 44 planted instructions even without a
 defence; both successful attacks were direct requests involving public data, stopped by the prompt-only defence
 and by the policy engine (R2, R4). On this model the policy engine is therefore a guarantee rather than the cause
 of the low attack rate; its measured price is 5 points of unattended benign success, because every legitimate
 ``read a document, then e-mail'' task waits for a human (R3). With 0 successes in 55, the true attack success
-rate is bounded only at about 6.5\% (95\%). A second suite of 40 planted-document attacks (eight techniques
+rate is bounded only at about 5.5\% (95\%, rule of three). A second suite of 40 planted-document attacks (eight techniques
 across five report contexts, planted one section at a time: a forged chat template, forged tool calls, a claimed
 user approval, a regulatory deadline, a workflow hijack, a German instruction, laundering the notes as public
 figures, and an instruction to hide the action) was followed in none of its 80 runs (0 of 40 per mode; the planted
-text reached the model in 37 of 40 single-mode runs and in all routed ones; no external e-mail was even attempted).
+text reached the model in 37 of 40 single-mode runs and in all routed ones; it made no e-mail call at all).
 The routed runs all took the \texttt{documents} route, which has no e-mail tool, so their zero reflects least
-privilege rather than resistance. Over both suites no planted instruction was followed (0 of 88, at most about
-3.4\% at 95\%); this says nothing about attack techniques we did not try. The flow tracking is coarse: one confidential read taints the whole
+privilege rather than resistance. Over both suites no planted instruction was followed (0 of 84 planted cases, which are correlated,
+so we give no confidence bound for the pool); this says nothing about attack techniques we did not try. The flow tracking is coarse: one confidential read taints the whole
 session; per-value labels as in CaMeL~\citep{debenedetti2025camel} would be finer.
 
 \section{Regression testing and observability}\label{sec:regression}
@@ -300,14 +300,14 @@ above are for all 60.
 \paragraph{Injection.} Without a defence, 4 of 55 attacks succeed in single mode and 2 of 55 in routed mode,
 against 2 of 55 for both modes with the API model; with the policy layer none succeed, as for the API model.
 All six successes of the 4-bit model are direct attacks. This does not show that the small model is more
-robust: it attempted the attack in only 9 and 7 of 55 runs (API model: 17), and in about half of all runs
+robust: it made an e-mail call or an unsafe SQL attempt in only 9 and 7 of 55 runs (API model: 17; legitimate e-mails count), and in about half of all runs
 (28 of 55 single, 30 of 55 routed), including every SQL and obfuscated attack and nearly every document attack,
 it made no tool call, so the attack never reached the tools. The 8-bit model, which made no call in 18 of 55
 single-mode and 20 of 55 routed runs, had 6 successes in single mode and 5 in routed mode without a defence:
 direct attacks, plus one in-task redirection in single mode, a planted instruction that was followed once,
-whereas the API model followed none of the 88 planted attacks of both suites. With the policy layer none of the
+whereas the API model followed none of the 84 planted cases of both suites (only suite one was run on the small models). With the policy layer none of the
 three models had a successful attack; for the 8-bit model it denied all 11. The counts are too small to say how
-much easier the small models are to inject (2, 4 and 6 successes per mode without a defence), but the one
+much easier the small models are to inject (2 per mode for the API model, 4 and 2 for the 4-bit model, 6 and 5 for the 8-bit model, without a defence), but the one
 followed redirection is the case to watch.
 
 \begin{figure}[t]\centering

@@ -198,16 +198,16 @@ With it, **0 of 55 attacks succeeded**; without it, 2 did.""")
 code("F.fig_security();")
 code("""pd.read_csv(RES / "security_by_category.csv").pivot_table(index="category",
     columns=["mode", "defence"], values="ASR")""")
-expert("""The model itself (`deepseek-flash`) followed **none of the 48 planted instructions**, even with no
+expert("""The model itself (`deepseek-flash`) followed **none of the 44 planted instructions**, even with no
 defence, including 15 "in-task" redirections added after the first 40 proved too easy. Both successes were
 direct requests involving public data (a 5-recipient mailing, figures to an outside domain). So on this model
 the policy engine is a guarantee, not the thing that stopped the attacks; its measured price is 5 points of
 unattended task success (every legitimate "read a document, then e-mail" task waits for a human). 0/55
-bounds the true attack success only at ≤ ~6.5 % (95 %, rule of three). A second suite of 40 planted
+bounds the true attack success only at ≤ ~5.5 % (95 %, rule of three). A second suite of 40 planted
 documents (8 techniques x 5 contexts: forged chat template, forged tool calls, claimed approval, deadline,
 workflow hijack, German, laundering as public figures, hide-the-action) was followed in none of 80 runs;
 routed runs all took a route without an e-mail tool, so only the single-mode zero is the model's. Over both
-suites 0 of 88 planted instructions were followed (≤ ~3.4 %). Section 8 asks whether small local models
+suites 0 of 84 planted cases were followed (correlated, so no bound for the pool). Section 8 asks whether small local models
 are easier to trick.""")
 
 # ------------------------------------------------------------------------------------------------
@@ -239,7 +239,7 @@ and completes 42 % of the agent tasks (API model: 92 %); it often refuses or ans
 Without a defence, attacks succeed 2 times of 55 per mode for the API model, 4 and 2 for the 4-bit model and
 6 and 5 for the 8-bit model, but the small models often did not use their tools at all, so this says little
 about robustness; with the permission layer, none succeed for any model. The 8-bit model followed one
-planted instruction (the API model followed none of 88).""")
+planted instruction (the API model followed none of 84).""")
 expert("""A first finding before any score: partial offload, not model size, is the bottleneck on a 4 GB card
 (52 s vs 3.3 s for the same answer once the 4B fits entirely with an 8k context and one request slot; two
 parallel slots made it worse by doubling the KV cache). The local 4B produced invalid tool arguments and
