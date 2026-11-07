@@ -228,7 +228,12 @@ code("F.fig_models();")
 md("""**Method.** Qwen3-4B (4-bit and 8-bit) and Qwen3-8B (4-bit) served by Ollama in Docker; identical
 prompts and code; the judge kept fixed (API). Only the 4-bit 4B fits the 4 GB GPU entirely (37/37 layers,
 ~3 s per answer); the 8-bit 4B and the 8B spill onto the CPU (minutes per answer), so they ran on half-size
-subsets.""")
+subsets. The 8B did not finish (over 11 minutes per answer, about nine hours for 50 RAG questions), so the
+chart shows no 8B numbers.""")
+plain("""**Result.** The small 4-bit model answers key-figure questions correctly 57 % of the time (API model: 69 %)
+and completes 42 % of the agent tasks (API model: 92 %); it often refuses or answers without searching.
+On the injection suite 4 of 55 attacks succeed without a defence (API model: 2 of 55), but the small model
+rarely used its tools at all, so this says little about robustness; with the permission layer, none succeed.""")
 expert("""A first finding before any score: partial offload, not model size, is the bottleneck on a 4 GB card
 (52 s vs 3.3 s for the same answer once the 4B fits entirely with an 8k context and one request slot; two
 parallel slots made it worse by doubling the KV cache). The local 4B produced invalid tool arguments and

@@ -1,0 +1,11 @@
+mode,kind,n,success,routing_acc,tool_precision,tool_recall,calls_per_task,cost_per_task,latency_p50_ms,latency_p95_ms,arg_validity
+routed,client,8,0.25,0.625,0.25,0.25,0.25,0.0,999.5,1950.15,1.0
+routed,documents,20,0.1,0.6,0.0,0.0,0.05,0.0,0.0,2543.15,1.0
+routed,documents_and_figures,10,0.0,0.0,0.7,0.35,1.2,0.0,3808.0,6921.8,0.8333
+routed,figures,15,0.9333,1.0,0.9333,0.9333,0.9333,0.0,2969.0,4181.7,1.0
+routed,out_of_scope,7,1.0,1.0,1.0,1.0,0.0,0.0,0.0,0.0,0.0
+single,client,8,0.25,0.0,0.25,0.25,0.25,0.0,769.0,1869.75,1.0
+single,documents,20,0.05,0.0,0.0,0.0,0.05,0.0,1407.5,2280.25,1.0
+single,documents_and_figures,10,0.3,0.0,1.0,0.85,2.2,0.0,5806.5,12546.05,1.0
+single,figures,15,0.8667,0.0,0.9333,0.9333,0.9333,0.0,2156.0,3308.4,1.0
+single,out_of_scope,7,1.0,0.0,1.0,1.0,0.0,0.0,542.0,1036.9,0.0
