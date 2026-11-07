@@ -36,6 +36,7 @@
   function setLeftCollapsed(value) {
     leftCollapsed = value; ui.workspace.classList.toggle('left-collapsed', value);
     ui['toggle-left'].setAttribute('aria-expanded', String(!value));
+    ui['toggle-left'].textContent = value ? 'Show panel' : 'Hide panel';
   }
   function setRunURL(id, mode) {
     const url = new URL(location.href); url.searchParams.set('run', id);
