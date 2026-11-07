@@ -61,7 +61,12 @@ def flow_state(executed: list[str], cfg: PolicyConfig) -> FlowState:
 
 
 def recipient_is_internal(to: str, cfg: PolicyConfig) -> bool:
-    addrs = [a.strip().lower() for a in str(to).replace(";", ",").split(",") if a.strip()]
+    """True only if every recipient is a plain ASCII address on an allowlisted domain.
+
+    Non-ASCII is refused outright: `str.lower()` folds look-alikes such as the Kelvin sign
+    (U+212A) to ASCII, so `a@banK.example` would otherwise pass as `bank.example`."""
+    addrs = [a.strip() for a in str(to).replace(";", ",").split(",") if a.strip()]
     return bool(addrs) and all(
-        a.count("@") == 1 and a.rsplit("@", 1)[1] in cfg.email_allowlist for a in addrs
+        a.isascii() and a.count("@") == 1 and a.rsplit("@", 1)[1].lower() in cfg.email_allowlist
+        for a in addrs
     )
