@@ -284,7 +284,7 @@ the CPU. The 8-bit 4B therefore ran RAG and agent evaluations on half-size subse
 The Qwen3-8B did not finish: at more than 11 minutes per answer (informal timing), 50 RAG questions alone would
 take about nine hours on this GPU, so we report no 8B numbers.
 
-\paragraph{Answer quality.} On the 100 dev questions at $k=5$ the 4-bit 4B reaches numeric correctness 0.57
+\paragraph{Answer quality.} \Cref{fig:models} summarises the comparison. On the 100 dev questions at $k=5$ the 4-bit 4B reaches numeric correctness 0.57
 (95\% interval 0.46--0.69) against 0.69 for the API model, citation precision 0.65 (0.76) and recall 0.77
 (0.82), with similar abstention F1 (0.53 vs 0.51) and false-abstention rate (0.20 vs 0.21). Faithful
 answers among those judged are 0.85 against 0.97 (72 and 71 judged answers). The median RAG latency was 13.6\,s against 1.9\,s;
