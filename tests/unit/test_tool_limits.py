@@ -24,3 +24,8 @@ def test_cap_lengths_accepts_normal_and_rejects_oversized():
 def test_tools_reject_oversized_arguments_before_doing_work(fn, kwargs):
     with pytest.raises(ValueError, match="too long"):
         fn(**kwargs)
+
+
+def test_cap_lengths_rejects_non_strings():
+    with pytest.raises(ValueError, match="must be a string"):
+        tools.cap_lengths(body=["x" * 1_000_000])
