@@ -120,7 +120,7 @@ judge verdict (empty output twice) and is excluded.
 
 12 key metrics (`data/gold/metrics.yaml`, with a caveat wherever banks are not comparable — e.g. "AuM" is assets under
 management at Julius Baer, EFG and Vontobel, total client assets at Swissquote and *avoirs administrés* at BCV/BCGE)
-× 6 banks × 2 years = 144 cells. **Gold:** `data/gold/figures_gold.csv`, 132 values + 12 documented blanks. It is
+× 6 banks × 2 years = 144 cells. **Gold:** `data/gold/figures_gold.csv`, 133 values + 11 documented blanks. It is
 **AI-assisted**: values were extracted with an LLM's help and validated by the author, also with AI assistance —
 not an independent hand audit. A first version that relied on key-figure tables only was rechecked after spot checks
 found metrics reported elsewhere in the reports.
@@ -132,13 +132,14 @@ in the cited chunk, whose value is not in the quote, or whose unit does not fit.
 
 | Extraction vs gold (tolerance 0.5 %) | Value |
 |---|---|
-| Accuracy (correct / 132 gold values) | **0.962** (127) |
-| Coverage / precision | 0.970 / 0.992 |
-| Errors | 5 missing (retrieval did not surface the table: BCGE cost/income ×2, Julius Baer FTE ×2, BCV 2024 net new money), 1 "spurious" |
+| Accuracy (correct / 133 gold values) | **0.962** (128) |
+| Coverage / precision | 0.962 / 1.000 |
+| Errors | 5 missing (retrieval did not surface the table: BCGE cost/income ×2, Julius Baer FTE ×2, BCV 2024 net new money) |
 | Prior-year column, unit scale, sign, wrong metric | 0 |
 
-The one "spurious" value (Julius Baer 2024 leverage ratio 4.9 %) is stated in the report text (p. 12) and is a gold
-omission, left as is in the score. Caveat: gold and extractor are both LLM-assisted, so shared errors (e.g. picking
+One gold cell was added after reviewing the errors: the extractor's only "spurious" value (Julius Baer 2024 tier 1
+leverage ratio 4.9 %) is stated in the report text (p. 12) and had been left blank in the gold (before the fix: 127/132,
+precision 0.992). Caveat: gold and extractor are both LLM-assisted, so shared errors (e.g. picking
 the same wrong row) would not show; the code checks make every extracted value traceable to a quote on a page.
 
 **SQL tool** (`src/finagent/figures/sql_tool.py`): one SELECT over `figures`/`documents`, parsed with sqlglot and

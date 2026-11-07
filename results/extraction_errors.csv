@@ -2,6 +2,5 @@ bank,year,metric,gold,extracted,outcome
 bcge,2024,cost_income_ratio,51.6,,missing
 bcge,2025,cost_income_ratio,53.7,,missing
 bcv,2024,net_new_money,3.248,,missing
-juliusbaer,2024,leverage_ratio,,4.9,spurious
 juliusbaer,2024,headcount_fte,7595.0,,missing
 juliusbaer,2025,headcount_fte,7390.0,,missing
