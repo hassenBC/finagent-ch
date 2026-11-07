@@ -15,13 +15,17 @@ from pydantic import BaseModel
 from finagent.agent.loop import AgentConfig, AgentRun, Policy, run_agent
 from finagent.llm.client import LLMClient
 
-RouteName = Literal["documents", "figures", "documents_and_figures", "client", "out_of_scope"]
+RouteName = Literal[
+    "documents", "figures", "documents_and_figures", "client", "share", "out_of_scope"
+]
 
 ROUTE_TOOLS: dict[str, list[str]] = {
     "documents": ["search_documents", "calculate"],
     "figures": ["query_figures", "calculate"],
     "documents_and_figures": ["search_documents", "query_figures", "calculate"],
     "client": ["read_client_notes", "send_email", "calculate"],
+    # e-mailing report content (no client data: never confidential + untrusted + egress at once)
+    "share": ["search_documents", "query_figures", "calculate", "send_email"],
     "out_of_scope": [],
 }
 ALL_TOOLS = ["search_documents", "query_figures", "calculate", "read_client_notes", "send_email"]
@@ -41,7 +45,8 @@ Routes:
   including rankings, averages and year-on-year changes of these metrics;
 - documents: anything else in the reports (strategy, risks, governance, notes, other numbers);
 - documents_and_figures: needs both a key metric and other report content;
-- client: about a client of the bank (ids like C0042) or e-mailing information;
+- client: about a client of the bank (ids like C0042), including e-mailing client information;
+- share: e-mailing report figures or report content (no client data) to someone;
 - out_of_scope: anything else.
 Also return the bank (one of the ids above) and year if the question names exactly one.
 
