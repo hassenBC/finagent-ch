@@ -38,8 +38,8 @@ LLM under code-level checks reach 96\% accuracy with no wrong value stored, and 
 execution accuracy. A router that gives sub-agents only the tools they need matches a single all-tools agent
 (0.92 vs.\ 0.90 task success) at 30\% lower cost. Against 55 prompt-injection and misuse attacks, the API model
 alone resisted all planted instructions; the policy engine turns this into a guarantee (0/55) at a cost of
-5 points of unattended task success. We report self-hosted 4--8B models on a 4\,GB laptop GPU as a comparison
-point. All numbers come with confidence intervals and their caveats.
+5 points of unattended task success. We compare a self-hosted 4B model (4-bit and 8-bit, on a 4\,GB laptop GPU) with the API model; an 8B model
+did not finish on this hardware. All numbers come with confidence intervals and their caveats.
 \end{abstract}
 
 \section{Introduction}
@@ -253,7 +253,7 @@ rate is bounded only at about 6.5\% (95\%). The flow tracking is coarse: one con
 session; per-value labels as in CaMeL~\citep{debenedetti2025camel} would be finer.
 
 \section{Regression testing and observability}\label{sec:regression}
-A fast tier runs on every push without API keys: linting, 212 unit tests including the SQL and policy cases, the
+A fast tier runs on every push without API keys: linting, 242 unit tests including the SQL and policy cases, the
 read-only role against PostgreSQL, and retrieval on 31 dev questions against a four-report fixture that stores
 only full-text vectors, embeddings and page numbers, not the report text. A full tier re-runs retrieval, RAG,
 agent and security evaluations against thresholds and diffs every item against committed baselines; averages hide
@@ -277,8 +277,8 @@ hours on this GPU, so we report no 8B numbers.
 
 \paragraph{Answer quality.} On the 100 dev questions at $k=5$ the 4-bit 4B reaches numeric correctness 0.57
 (95\% interval 0.46--0.69) against 0.69 for the API model, citation precision 0.65 (0.76) and recall 0.77
-(0.82), with similar abstention F1 (0.53 vs 0.51) and false-abstention rate (0.20 vs 0.21). Judged
-faithfulness is 0.90 against 0.98 (72 and 71 judged answers). The median RAG latency was 13.6\,s against 1.9\,s;
+(0.82), with similar abstention F1 (0.53 vs 0.51) and false-abstention rate (0.20 vs 0.21). Faithful
+answers among those judged are 0.85 against 0.97 (72 and 71 judged answers). The median RAG latency was 13.6\,s against 1.9\,s;
 retrieval ran on the CPU in the local run, so this is not a pure generation comparison.
 
 \paragraph{Agent.} Task success is 0.42 (routed) and 0.43 (single) against 0.92 and 0.90 for the API model, and
