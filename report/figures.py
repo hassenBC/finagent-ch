@@ -1,4 +1,4 @@
-"""Figures for the report notebook and the paper — one function per figure, all from results/*.csv.
+"""Figures for the report notebook and the paper, one function per figure, all from results/*.csv.
 
 Style (dataviz guidance): grey for context and baselines, blue for "our system", status colours only for
 pass/fail, one axis per chart, direct labels on few marks, white background so figures print.
@@ -94,7 +94,7 @@ def fig_ladder():
                     label="held-out test" if cfg == LADDER[0][0] else None)  # fmt: skip
     ax.set_yticks(ys, [lbl for _, lbl in LADDER], fontsize=8.5)
     ax.set_xlim(0, 1)
-    ax.set_xlabel("recall@5 — share of questions whose evidence page is in the top 5")
+    ax.set_xlabel("recall@5 (share of questions whose evidence page is in the top 5)")
     ax.legend(loc="upper right")
     ax.set_title("Retrieval: what each change bought (dev bars, 95% CI)")
     return _save(fig, "retrieval_ladder")
