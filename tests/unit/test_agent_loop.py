@@ -105,6 +105,7 @@ def test_router_isolates_a_broken_listener(monkeypatch):
 
     monkeypatch.setattr(router, "classify", lambda q, llm, salt=None: (
         router.Route(route="out_of_scope"), 0.0))  # fmt: skip
+    monkeypatch.setattr(router.LLMClient, "from_config", classmethod(lambda cls, name=None: None))
 
     def boom(kind, data):
         raise RuntimeError("listener bug")
