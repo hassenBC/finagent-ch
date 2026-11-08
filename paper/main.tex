@@ -39,7 +39,7 @@ execution accuracy. A router that gives sub-agents only the tools they need matc
 (0.92 vs.\ 0.90 task success) at 30\% lower cost. Against 55 prompt-injection and misuse attacks, the API model
 alone resisted all planted instructions; the policy engine turns this into a guarantee (0/55) at a cost of
 5 points of unattended task success. We compare a self-hosted 4B model (4-bit and 8-bit, on a 4\,GB laptop GPU) with the API model; an 8B model
-did not finish on this hardware. All numbers come with confidence intervals and their caveats.
+was only run on the answer-quality evaluation, at about half an hour per answer. All numbers come with confidence intervals and their caveats.
 \end{abstract}
 
 \section{Introduction}
@@ -280,15 +280,32 @@ Ollama on a 4\,GB laptop GPU, with identical prompts and code and the judge kept
 entirely in GPU memory with an 8k context and one request slot (about 3\,s per answer instead of 52\,s with
 partial offload, from informal timings of single answers, not a controlled benchmark); the other two spill onto
 the CPU. The 8-bit 4B therefore ran RAG and agent evaluations on half-size subsets, and the full attack grid
-(single and routed, with and without the policy).
-The Qwen3-8B did not finish: at more than 11 minutes per answer (informal timing), 50 RAG questions alone would
-take about nine hours on this GPU, so we report no 8B numbers.
+(single and routed, with and without the policy). The Qwen3-8B ran only the 50-question RAG evaluation: at a
+median of 29 minutes per answer on this GPU (34 answers timed in the final run; 16 came from an earlier
+interrupted run), its agent and attack suites were not run.
 
 \paragraph{Answer quality.} \Cref{fig:models} summarises the comparison. On the 100 dev questions at $k=5$ the 4-bit 4B reaches numeric correctness 0.57
 (95\% interval 0.46--0.69) against 0.69 for the API model, citation precision 0.65 (0.76) and recall 0.77
 (0.82), with similar abstention F1 (0.53 vs 0.51) and false-abstention rate (0.20 vs 0.21). Faithful
 answers among those judged are 0.85 against 0.97 (72 and 71 judged answers). The median RAG latency was 13.6\,s against 1.9\,s;
 retrieval ran on the CPU in the local run, so this is not a pure generation comparison.
+
+\begin{table}[t]\centering\small
+\caption{The same 50 dev questions ($k=5$) for every model. Local models were run without a judge, so there is no
+faithfulness column. Latency is the median over the uncached answers; for the local runs it includes retrieval on
+the CPU.}\label{tab:half}
+\begin{tabular}{lccccc}\toprule
+ & numeric correct & cit.\ prec. & cit.\ rec. & false abst. & median s/answer \\\midrule
+API model & 0.70\ci{0.54}{0.84} & 0.75 & 0.82 & 0.20 & 1.9 \\
+Qwen3-4B 4-bit & 0.60\ci{0.46}{0.76} & 0.66 & 0.84 & 0.18 & 14 \\
+Qwen3-4B 8-bit & 0.65\ci{0.51}{0.78} & 0.78 & 0.76 & 0.18 & 220 \\
+Qwen3-8B 4-bit & 0.62\ci{0.46}{0.78} & 0.51 & 0.80 & 0.16 & 1743 \\\bottomrule
+\end{tabular}
+\end{table}
+On these 50 questions (\Cref{tab:half}) the four models are statistically indistinguishable on numeric correctness: the
+intervals overlap almost completely, and the 8B (0.62) does not beat the 8-bit 4B (0.65). Its citation precision
+(0.51) is the lowest of the four. A larger model is therefore not a clear gain here, while it is about 125 times slower than the
+4-bit 4B on this GPU, where part of its layers run on the CPU.
 
 \paragraph{Agent.} Task success is 0.42 (routed) and 0.43 (single) against 0.92 and 0.90 for the API model, and
 routing accuracy 0.65 against 0.97. The 4B makes 0.5--0.7 tool calls per task against 2.8--3.0: it often
@@ -313,8 +330,8 @@ followed redirection is the case to watch.
 \begin{figure}[t]\centering
 \includegraphics[width=\linewidth]{figures/models.pdf}
 \caption{Self-hosted models against the API model. The 4-bit 4B ran the full dev set and agent suite; the 8-bit 4B
-ran half-size subsets (30 routed agent tasks, no full-suite agent bar) and the full attack grid; the 8B did not
-finish. Attack success is without a defence, pooled over the same 55 attacks in single and routed mode: API 4/110,
+ran half-size subsets (30 routed agent tasks, no full-suite agent bar) and the full attack grid; the 8B ran only
+the answer-quality evaluation (\Cref{tab:half}) and has no bar here. Attack success is without a defence, pooled over the same 55 attacks in single and routed mode: API 4/110,
 4-bit 6/110, 8-bit 11/110. Agent bars are the full 60 tasks for the API and 4-bit models and
 30 tasks for the 8-bit model; on those same 30 tasks the API model scores 0.90.}\label{fig:models}
 \end{figure}
