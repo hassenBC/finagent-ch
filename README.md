@@ -6,6 +6,21 @@ Retrieval-augmented question answering over 12 Swiss bank annual reports (6 bank
 English, table-heavy PDFs), **measured** on a 150-question page-level evaluation set built before any tuning. An MCP
 agent with a deterministic tool-permission layer is measured against a 55-case prompt-injection suite (Phase 7).
 
+## Demo
+
+[![finagent-ch demo: ask a question, see the cited answer, watch every agent step, approve or block risky actions](docs/demo/demo.gif)](docs/demo/demo.mp4)
+
+*77 s, real runs (click for the MP4). Re-record with `make demo`; the scripts are in [`docs/demo/`](docs/demo/).*
+
+**What you can do**
+
+- **Ask in plain language** and get an answer built from a SQL lookup plus a calculator, with the page it came from.
+- **Ask in French or English**; every figure links to the exact page of the report.
+- **See every step** of the agent live: search stages, tool calls, cost, and what text is untrusted.
+- **Stay in control**: after reading untrusted text, a side effect such as an e-mail waits for a human to approve.
+- **Block data leaks**: a deterministic policy engine denies an e-mail to an outside address, and names the rule.
+- **Check the numbers**: the measured results below come from a held-out test set, not from the demo.
+
 **Headline results (held-out test set, run once):**
 
 | | Naive baseline | Final system |
