@@ -232,8 +232,10 @@ subsets. The 8B did not finish (over 11 minutes per answer, about nine hours for
 chart shows no 8B numbers.""")
 plain("""**Result.** The small 4-bit model answers key-figure questions correctly 57 % of the time (API model: 69 %)
 and completes 42 % of the agent tasks (API model: 92 %); it often refuses or answers without searching.
-On the injection suite 4 of 55 attacks succeed without a defence (API model: 2 of 55), but the small model
-rarely used its tools at all, so this says little about robustness; with the permission layer, none succeed.""")
+On the injection suite 4 of 55 attacks succeed without a defence in single mode (API model: 2 of 55), but the
+small model often did not use its tools at all, so this says little about robustness; with the permission layer,
+none succeed. The 8-bit model, tested without a defence only, followed one planted instruction (the API model
+followed none).""")
 expert("""A first finding before any score: partial offload, not model size, is the bottleneck on a 4 GB card
 (52 s vs 3.3 s for the same answer once the 4B fits entirely with an 8k context and one request slot; two
 parallel slots made it worse by doubling the KV cache). The local 4B produced invalid tool arguments and

@@ -339,23 +339,27 @@ query, not slow retrieval.
 ## Self-hosted vs API models (Phase 9)
 
 Qwen3-4B (4-bit and 8-bit) and Qwen3-8B (4-bit) served by Ollama on a 4 GB laptop GPU, same prompts, code and
-judge as the API model. Only the 4-bit 4B fits in GPU memory; the 8-bit 4B ran half-size subsets, and the 8B did
-not finish (over 11 minutes per answer, about nine hours for 50 RAG questions), so there are no 8B numbers.
+judge as the API model. Only the 4-bit 4B fits in GPU memory; the 8-bit 4B ran RAG and agent on half-size subsets
+and the attacks in single mode without a defence only, and the 8B did not finish (over 11 minutes per answer, about nine hours for 50 RAG questions), so there are no 8B numbers.
 
 | | DeepSeek flash (API) | Qwen3-4B 4-bit | Qwen3-4B 8-bit (subset) |
 |---|---|---|---|
-| RAG numeric correct, dev, k = 5 | 0.69 | 0.57 | not run on dev |
+| RAG numeric correct, dev, k = 5 | 0.69 | 0.57 | not tabulated (50-question subset) |
 | citation precision | 0.76 | 0.65 | |
 | faithful answers (judge, of 71 / 72 judged) | 0.97 | 0.85 | |
-| agent task success (routed) | 0.92 | 0.42 | 0.50 (30 tasks) |
-| routing accuracy | 0.97 | 0.65 | 0.73 |
-| attacks succeeding, no defence (of 55) | 2 single, 2 routed | 4 single, 2 routed | 6 single |
+| agent task success (routed), full 60 tasks | 0.92 | 0.42 | not run |
+| agent task success (routed), the same 30 tasks | 0.90 (27/30) | 0.40 (12/30) | 0.50 (15/30) |
+| routing accuracy (60 tasks; 30 for 8-bit) | 0.97 | 0.65 | 0.73 |
+| attacks succeeding, no defence (of 55 per mode) | 2 single, 2 routed | 4 single, 2 routed | 6 single (routed and policy not run) |
 
 **Reading it.** The small model is much weaker at the agent job: it often refuses or answers without searching
 (false abstention on 12 and 25 of 60 tasks) and misroutes a third of the questions. On injection the counts are
-too small to separate the models (2 vs 4 of 55). The 4B is not more robust, though: about half of its attack runs
-made no tool call at all, so the attack never reached the tools, and every successful attack was a direct request.
-The policy layer blocked all of them, as it did for the API model. The retrieval stage ran on the CPU in the local
+too small to separate the models (2 vs 4 of 55). The data does not show the 4B to be more robust: with the 4-bit
+model about half of the attack runs made no tool call (28 of 55 single, 30 of 55 routed), so the attack never
+reached the tools, and all its successes were direct requests; the policy layer blocked all of them, as it did for
+the API model. The 8-bit model made no call in 18 of 55 runs and had 5 direct successes plus one `in_task_redirect`:
+a planted instruction that was followed once, which the API model never did (0 of 48). The policy layer was not
+tested on the 8-bit model. The retrieval stage ran on the CPU in the local
 runs, so the 13.6 s median RAG latency (API: 1.9 s) is not a pure generation comparison.
 
 ## Live demo app

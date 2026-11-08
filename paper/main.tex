@@ -271,9 +271,11 @@ live in a demo application.
 On-premise deployment matters for banks. We served Qwen3-4B (4-bit and 8-bit) and Qwen3-8B (4-bit) with
 Ollama on a 4\,GB laptop GPU, with identical prompts and code and the judge kept fixed. Only the 4-bit 4B fits
 entirely in GPU memory with an 8k context and one request slot (about 3\,s per answer instead of 52\,s with
-partial offload); the other two spill onto the CPU and were run on half-size subsets.
-The Qwen3-8B did not finish: at more than 11 minutes per answer, 50 RAG questions alone would take about nine
-hours on this GPU, so we report no 8B numbers.
+partial offload, from informal timings of single answers, not a controlled benchmark); the other two spill onto
+the CPU. The 8-bit 4B therefore ran RAG and agent evaluations on half-size subsets and the attack suite in
+single mode without a defence only.
+The Qwen3-8B did not finish: at more than 11 minutes per answer (informal timing), 50 RAG questions alone would
+take about nine hours on this GPU, so we report no 8B numbers.
 
 \paragraph{Answer quality.} On the 100 dev questions at $k=5$ the 4-bit 4B reaches numeric correctness 0.57
 (95\% interval 0.46--0.69) against 0.69 for the API model, citation precision 0.65 (0.76) and recall 0.77
@@ -284,21 +286,28 @@ retrieval ran on the CPU in the local run, so this is not a pure generation comp
 \paragraph{Agent.} Task success is 0.42 (routed) and 0.43 (single) against 0.92 and 0.90 for the API model, and
 routing accuracy 0.65 against 0.97. The 4B makes 0.5--0.7 tool calls per task against 2.8--3.0: it often
 refuses or answers without searching (false abstention on 12 and 25 of 60 tasks). The 8-bit 4B, on 30 routed
-tasks, reaches 0.50 success and 0.73 routing accuracy, with a median latency of 31\,s because it spills onto the
-CPU.
+tasks, reaches 0.50 success (15/30) and 0.73 routing accuracy, with a median latency of 31\,s under partial CPU
+offload. On the same 30 tasks the API model scores 0.90 (27/30) and the 4-bit 4B 0.40 (12/30); the 0.92 and 0.42
+above are for all 60.
 
 \paragraph{Injection.} Without a defence, 4 of 55 attacks succeed in single mode and 2 of 55 in routed mode,
 against 2 of 55 for both modes with the API model; with the policy layer none succeed, as for the API model.
-All four single-mode successes are direct attacks. This does not show that the small model is more robust: it
-attempted the attack in only 9 and 7 of 55 runs (API model: 17), and in about half of all runs, including
-every SQL and obfuscated attack and nearly every document attack, it made no tool call, so the attack never reached the tools. The
-counts are too small to say whether it is easier to inject.
+All six successes of the 4-bit model are direct attacks. This does not show that the small model is more
+robust: it attempted the attack in only 9 and 7 of 55 runs (API model: 17), and in about half of all runs
+(28 of 55 single, 30 of 55 routed), including every SQL and obfuscated attack and nearly every document attack,
+it made no tool call, so the attack never reached the tools. The 8-bit model, tested in single mode without a
+defence only, had 6 successes in 55 runs (no call in 18): five direct attacks and one in-task redirection, a
+planted instruction that was followed once, whereas the API model followed none of the 48 planted instructions.
+The counts are too small to say whether the small models are easier to inject, but the one followed redirection
+is the case to watch.
 
 \begin{figure}[t]\centering
 \includegraphics[width=\linewidth]{figures/models.pdf}
 \caption{Self-hosted models against the API model. The 4-bit 4B ran the full dev set and agent suite; the 8-bit 4B
-ran half-size subsets (30 routed agent tasks; its attack rate is single mode only, 6 of 55); the 8B did not
-finish. Attack success is without a defence, pooled over single and routed mode except where noted.}\label{fig:models}
+ran half-size subsets (30 routed agent tasks, no full-suite agent bar) and only the single-mode attack suite; the
+8B did not finish. Attack success is without a defence: API 4/110 and 4-bit 6/110 (the same 55 attacks in single
+and routed mode), 8-bit 6/55 (single mode only). Agent bars are the full 60 tasks for the API and 4-bit models and
+30 tasks for the 8-bit model; on those same 30 tasks the API model scores 0.90.}\label{fig:models}
 \end{figure}
 
 \section{Limitations}
