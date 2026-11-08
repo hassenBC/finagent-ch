@@ -399,7 +399,8 @@
   }
   function renderPolicy(parent, policy) {
     if (!policy) { parent.append(el('p', 'muted', 'No policy event for this call.')); return; }
-    fields(parent, [['Decision', policy.data.decision || '—'], ['Rule id', policy.data.rule_id], ['Reason', policy.data.reason], ['State before → after', `${stateText(policy.before)}\n→ ${stateText(policy.after || policy.before)}`]]);
+    const effective = policy.approvalResult ? (policy.approvalResult.allow ? 'allow' : 'deny') : policy.data.decision; // as in updateRow()
+    fields(parent, [['Decision', effective || '—'], ['Rule id', policy.data.rule_id], ['Reason', policy.data.reason], ['State before → after', `${stateText(policy.before)}\n→ ${stateText(policy.after || policy.before)}`]]);
     if (policy.approvalResult) fields(parent, [['Approval', policy.approvalResult.allow ? 'allow' : 'deny'], ['Timed out', Boolean(policy.approvalResult.timed_out)], ['Approval id', policy.approvalResult.approval_id]]);
     if (approval?.row === policy) {
       const record = approval;
@@ -641,7 +642,7 @@
       (event.kind === 'llm_response' && selected.kind === 'llm' && selected.data.turn === d.turn) ||
       (event.kind === 'tool_end' && ((selected.kind === 'tool' && selected.name === d.tool) || (selected.kind === 'policy' && selected.toolRow?.name === d.tool))) ||
       (event.kind === 'policy_decision' && (selected.kind === 'policy' ? selected.name : selected.policy?.name) === d.tool) ||
-      (event.kind === 'approval_result' && (selected.kind === 'policy' ? selected.data : selected.policy?.data)?.approval_id === d.approval_id))) renderDrawer();
+      ((event.kind === 'approval_needed' || event.kind === 'approval_result') && (selected.kind === 'policy' ? selected.data : selected.policy?.data)?.approval_id === d.approval_id))) renderDrawer();
   }
   function sourceLabel(source) {
     const match = /^([a-z0-9_-]+)-(\d{4})-p(\d+)$/i.exec(source);
