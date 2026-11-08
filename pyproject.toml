@@ -3,7 +3,8 @@ name = "finagent"
 version = "0.1.0"
 description = "A measured, permission-aware LLM agent over Swiss financial documents"
 readme = "README.md"
-license = "MIT"
+license = "LicenseRef-Permission-Required"
+license-files = ["LICENSE", "NOTICE.md"]
 requires-python = ">=3.11"
 dependencies = [
     "psycopg[binary]>=3.2",
