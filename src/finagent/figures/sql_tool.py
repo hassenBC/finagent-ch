@@ -128,6 +128,40 @@ def _check_text(sql: str) -> None:
         raise UnsafeSQL("non-normalised unicode")
 
 
+def _norm(ident: exp.Expression | None) -> str:
+    """PostgreSQL name folding: unquoted identifiers are lower-cased, quoted ones are exact."""
+    if isinstance(ident, exp.Identifier):
+        return ident.name if ident.args.get("quoted") else ident.name.lower()
+    return (ident.name if ident is not None else "").lower()
+
+
+def _cte_name(cte: exp.CTE) -> str:
+    alias = cte.args.get("alias")
+    return _norm(alias.this if alias is not None else None)
+
+
+def _visible_ctes(table: exp.Table) -> set[str]:
+    """CTE names a table reference may use, following PostgreSQL's scoping for a plain WITH.
+
+    A CTE is visible to the CTEs defined after it and to the query the WITH is attached to, never
+    to its own body or to earlier CTEs, and not outside that query (a same-named CTE in a
+    sibling or inner subquery changes nothing). In every other case the name means the real
+    relation, e.g. a catalog table."""
+    names: set[str] = set()
+    child: exp.Expression = table
+    node = table.parent
+    while node is not None:
+        with_ = node.args.get("with_") or node.args.get("with")
+        if with_ is not None and child is not with_:  # reached from the main body, not from a CTE
+            names |= {_cte_name(c) for c in with_.expressions}
+        if isinstance(node, exp.With):
+            position = next((i for i, c in enumerate(node.expressions) if c is child), None)
+            if position is not None:
+                names |= {_cte_name(c) for c in node.expressions[:position]}
+        child, node = node, node.parent
+    return names
+
+
 def validate_sql(sql: str, source: str | None = None) -> str:
     """Return the safe SQL to execute, or raise UnsafeSQL.
 
@@ -151,14 +185,20 @@ def validate_sql(sql: str, source: str | None = None) -> str:
             name = node.name if isinstance(node, exp.Anonymous) else node.sql_name()
             raise UnsafeSQL(f"function not allowed: {name}")
 
-    ctes = {c.alias_or_name.lower() for c in tree.find_all(exp.CTE)}
+    ctes = {_cte_name(c) for c in tree.find_all(exp.CTE)}
     if ctes & ALLOWED_TABLES:
         raise UnsafeSQL("a CTE may not shadow a table name")
+    if any(w.args.get("recursive") for w in tree.find_all(exp.With)):
+        raise UnsafeSQL("recursive CTEs are not allowed")  # unbounded work inside one statement
     for t in tree.find_all(exp.Table):
-        name = t.name.lower()
+        name = _norm(t.this)
         if t.args.get("catalog") or (t.db and t.db.lower() != "public"):
             raise UnsafeSQL(f"schema-qualified table not allowed: {t.sql()}")
-        if name not in ALLOWED_TABLES and name not in ctes:
+        if name in ALLOWED_TABLES:
+            continue
+        if t.db:  # public.x always means the real relation, never a CTE
+            raise UnsafeSQL(f"table not allowed: {t.sql()}")
+        if name not in _visible_ctes(t):
             raise UnsafeSQL(f"table not allowed: {name}")
 
     if source is not None:

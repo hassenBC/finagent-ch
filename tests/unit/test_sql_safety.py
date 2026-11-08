@@ -98,6 +98,43 @@ def test_cte_name_cannot_launder_a_forbidden_table():
         validate_sql("WITH figures AS (SELECT * FROM pg_shadow) SELECT * FROM figures")
 
 
+@pytest.mark.parametrize(
+    "sql",
+    [
+        # a CTE named like a catalog table, defined in an inner scope, must not legitimise it
+        "SELECT relname FROM pg_class WHERE EXISTS (WITH pg_class AS (SELECT 1) SELECT 1)",
+        "SELECT * FROM (WITH pg_shadow AS (SELECT 1) SELECT 1) s, pg_shadow",
+        # a CTE does not see itself or later CTEs: the name still means the real relation there
+        "WITH pg_class AS (SELECT * FROM pg_class) SELECT * FROM pg_class",
+        "WITH a AS (SELECT * FROM pg_class), pg_class AS (SELECT 1) SELECT * FROM a",
+        # a schema-qualified name is never a CTE
+        "WITH client_notes AS (SELECT 1) SELECT * FROM public.client_notes",
+        # quoted identifiers are case-sensitive in PostgreSQL: "PG_CLASS" is not pg_class
+        'WITH "PG_CLASS" AS (SELECT 1) SELECT * FROM pg_class',
+        # recursion: unbounded work inside one statement
+        "WITH RECURSIVE t(n) AS (SELECT 1 UNION ALL SELECT n + 1 FROM t) SELECT count(*) FROM t",
+    ],
+)
+def test_cte_scope_and_recursion_are_enforced(sql):
+    with pytest.raises(UnsafeSQL):
+        validate_sql(sql)
+
+
+@pytest.mark.parametrize(
+    "sql",
+    [
+        "WITH a AS (SELECT bank, value FROM figures), b AS (SELECT * FROM a) "
+        "SELECT * FROM (SELECT * FROM b) s",
+        "SELECT * FROM (WITH a AS (SELECT bank FROM figures) SELECT * FROM a) s",
+        "WITH a AS (SELECT bank FROM figures) SELECT * FROM a UNION ALL SELECT * FROM a",
+        'WITH "Mixed" AS (SELECT bank FROM figures) SELECT * FROM "Mixed"',
+        "SELECT bank FROM public.figures LIMIT 5",
+    ],
+)
+def test_chained_nested_and_quoted_ctes_still_work(sql):
+    assert validate_sql(sql)
+
+
 def test_source_filter_is_injected_for_every_figures_reference():
     out = validate_sql(
         "SELECT a.bank FROM figures a JOIN figures b ON a.bank = b.bank", source="gold"

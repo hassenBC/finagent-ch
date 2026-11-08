@@ -27,6 +27,18 @@ def labelled(payload: Any, sensitivity: str, trust: str) -> dict:
     return {"payload": payload, "_labels": {"sensitivity": sensitivity, "trust": trust}}
 
 
+MAX_CHARS = {"query": 1000, "sql": 4000, "client_id": 64, "to": 320, "subject": 300, "body": 20000}
+
+
+def cap_lengths(**fields: str) -> None:
+    """Reject oversized text arguments before any parsing, translation or database access."""
+    for name, value in fields.items():
+        if not isinstance(value, str):
+            raise ValueError(f"{name} must be a string")
+        if len(value) > MAX_CHARS[name]:
+            raise ValueError(f"{name} is too long ({len(value)} > {MAX_CHARS[name]} characters)")
+
+
 # --- calculate -------------------------------------------------------------------------------
 class CalcError(ValueError):
     pass
@@ -86,6 +98,7 @@ def search_documents(query: str, bank: str | None = None, year: int | None = Non
     from finagent.retrieval.pipeline import retrieve
     from finagent.retrieval.types import Filters
 
+    cap_lengths(query=query)
     if bank is not None and bank not in BANK_NAMES:
         raise ValueError(f"unknown bank {bank!r}; use one of {sorted(BANK_NAMES)}")
     filters = Filters(banks=[bank] if bank else None, years=[year] if year else None)
@@ -104,6 +117,7 @@ def search_documents(query: str, bank: str | None = None, year: int | None = Non
 
 # --- query_figures ---------------------------------------------------------------------------
 def query_figures(sql: str) -> dict:
+    cap_lengths(sql=sql)
     r = run_figures_query(sql, source=FIGURES_SOURCE)
     if not r.ok:
         raise ValueError(r.error)
@@ -112,6 +126,7 @@ def query_figures(sql: str) -> dict:
 
 # --- client notes and e-mail -----------------------------------------------------------------
 def read_client_notes(client_id: str) -> dict:
+    cap_lengths(client_id=client_id)
     cid = client_id.strip().upper().replace("CLIENT ", "C")
     with pool().connection() as conn:
         row = conn.execute(
@@ -128,6 +143,7 @@ def read_client_notes(client_id: str) -> dict:
 
 
 def send_email(to: str, subject: str, body: str) -> dict:
+    cap_lengths(to=to, subject=subject, body=body)
     trace = os.environ.get("FINAGENT_TRACE_ID")
     with pool().connection() as conn:
         (eid,) = conn.execute(

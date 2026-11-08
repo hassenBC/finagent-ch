@@ -24,7 +24,7 @@
     <label>Mode <select id="mode" disabled></select></label>
     <label>Defence <select id="defence" disabled></select></label>
     <label class="scenario-control">Scenario <select id="scenario" disabled><option value="">Custom question</option></select></label>
-    <label class="injection-control"><input id="injection" type="checkbox" disabled>Plant injection page</label>
+    <label class="injection-control"><input id="injection" type="checkbox" disabled>Injection page</label>
     <button id="run" disabled>Run</button>
   </header>
   <main id="workspace" class="workspace">
@@ -55,8 +55,9 @@
         <div class="trace-meta mono"><span id="trace-id">—</span><time id="trace-start">—</time><span id="trace-duration">0 ms</span><span id="trace-count">0 spans</span></div>
         <details id="trace-overview" class="trace-overview" open><summary>Trace summary</summary><div id="minimap" class="minimap" aria-label="Run overview"></div></details>
         <div class="session mono" aria-label="Session state">
-          <span>sensitivity: <b id="sensitivity">public</b></span><span>input: <b id="taint">trusted</b></span><span>side effects: <b id="side-effects">0</b></span>
-          <span class="kind-legend" aria-label="Span colours"><span><i style="background:var(--k-llm)"></i>LLM</span><span><i style="background:var(--k-tool)"></i>tool</span><span><i style="background:var(--k-server)"></i>MCP server</span><span><i style="background:var(--danger)"></i>denied</span><span><i style="background:var(--attention)"></i>needs approval</span><span><i style="border:1px dashed var(--sensitive)"></i>untrusted / confidential</span></span>
+          <span class="session-chip">sensitivity: <b id="sensitivity">public</b></span><span class="session-chip">input: <b id="taint">trusted</b></span><span class="session-chip">side effects: <b id="side-effects">0</b></span>
+        </div>
+        <div class="kind-legend" aria-label="Span colours"><span><i style="background:var(--k-llm)"></i>LLM</span><span><i style="background:var(--k-tool)"></i>tool</span><span><i style="background:var(--k-server)"></i>MCP server</span><span><i style="background:var(--danger)"></i>denied</span><span><i style="background:var(--attention)"></i>pending</span><span><i style="border:1px dashed var(--sensitive)"></i>untrusted / confidential</span><span><i style="background:var(--ink)"></i>longest span</span>
         </div>
       </header>
       <div id="trace-notice" class="trace-notice" role="status" hidden></div>

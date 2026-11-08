@@ -4,13 +4,13 @@
 @font-face { font-family:'JetBrains Mono'; src:url('./fonts/jetbrains-mono-latin-400-normal.woff2') format('woff2'); font-style:normal; font-weight:400; font-display:swap }
 @font-face { font-family:'JetBrains Mono'; src:url('./fonts/jetbrains-mono-latin-500-normal.woff2') format('woff2'); font-style:normal; font-weight:500; font-display:swap }
 :root {
-  color-scheme:light dark; --bg:#fff; --soft:#f7f7f8; --text:#27272a; --muted:#71717a;
+  color-scheme:light dark; --bg:#fff; --soft:#f7f7f8; --text:#27272a; --muted:#62626b;
   --line:#dedee2; --grid:#ededf0; --accent:#356a9d; --selected:#eaf1f8; --hover:#f1f1f3;
   /* Colour system: grey is the default; colour only marks exceptions (Few; Atlassian/Carbon roles).
      Four meanings, never decorative: danger (denied, error), attention (needs a human),
      sensitive (untrusted input, confidential data), accent (interaction: selection, links). */
   --llm:#a9b0b8; --tool:#8f969e; --server:#c9ced3; --marker:#8a8a93; --ink:#27272a;
-  --danger:#c4262e; --attention:#b07400; --attention-bg:#ffc233; --sensitive:#7b3fb3;
+  --danger:#c4262e; --attention:#805200; --attention-bg:#ffc233; --sensitive:#7b3fb3;
   --red:var(--danger); --amber:var(--attention); --amber-bg:#fdf3dc; --green:var(--marker);
   --orange:var(--sensitive); --purple:var(--sensitive);
   --mono:'JetBrains Mono'; font:13px/1.45 'IBM Plex Sans'; font-synthesis:none; font-variant-numeric:tabular-nums;
@@ -29,7 +29,7 @@ button,input,textarea,select { font:inherit; color:inherit; accent-color:var(--a
 button,select,summary { cursor:pointer }
 button,select { background:var(--bg); border:1px solid var(--line); border-radius:3px; height:28px; padding:2px 8px }
 button:hover:not(:disabled) { background:var(--hover) }
-button:disabled,select:disabled,input:disabled { opacity:.5; cursor:default }
+button:disabled,select:disabled,input:disabled { opacity:1; color:var(--muted); background:var(--soft); cursor:default }
 button:focus-visible,select:focus-visible,textarea:focus-visible,input:focus-visible,summary:focus-visible,[tabindex]:focus-visible { outline:2px solid var(--accent); outline-offset:-2px }
 h1,h2,p { margin:0 } h1,h2 { font-size:13px; font-weight:500 } b,strong { font-weight:500 }
 .mono,pre,code,.span-name,.span-duration,select,.citation,.outbox-table { font:400 12px/1.5 var(--mono); font-variant-numeric:tabular-nums }
@@ -70,7 +70,7 @@ textarea { display:block; width:100%; min-height:120px; resize:vertical; padding
 .metrics { display:flex; flex-wrap:wrap; gap:4px 18px; color:var(--muted) }
 .metrics b { color:var(--text) }
 .session { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; color:var(--muted); font-size:12px }
-.session>span { border:1px solid var(--line); border-radius:3px; padding:1px 5px }
+.session-chip { border:1px solid var(--line); border-radius:3px; padding:1px 5px }
 .session b { color:var(--text) }
 .trace-notice { grid-row:2; padding:6px 12px; border-bottom:1px solid var(--line); color:var(--muted) }
 .trace-notice button { margin-left:10px }
@@ -84,15 +84,15 @@ textarea { display:block; width:100%; min-height:120px; resize:vertical; padding
 .tick { position:absolute; top:0; bottom:0; border-left:1px solid var(--line) }
 .tick-label { position:absolute; left:4px; top:5px; white-space:nowrap }
 .tick:last-child .tick-label { left:auto; right:4px }
-.span-row { cursor:pointer; outline-offset:-2px }
-.span-row:hover { background:var(--hover) } .span-row[aria-selected="true"] { background:var(--selected) }
+.span-row { --row-bg:var(--bg); background:var(--row-bg); cursor:pointer; outline-offset:-2px }
+.span-row:hover { --row-bg:var(--hover) }
 .span-row.deny,.span-row.error { color:var(--red) }
 .span-row.escalate,.span-row.pending,.span-row.warning { color:var(--amber) }
 .span-row:is(.deny,.error,.escalate,.pending,.warning) :is(.row-status,.span-duration,.service-label) { color:inherit }
-.span-row[aria-selected="true"] { background:var(--selected); box-shadow:inset 3px 0 var(--accent) }
-@keyframes row-arrival { from { background-color:#fff2b3 } to { background-color:transparent } }
-@media (prefers-color-scheme:dark) { @keyframes row-arrival { from { background-color:#514727 } to { background-color:transparent } } }
-.span-row.changed:not([aria-selected="true"]) { animation:row-arrival 2s ease-out }
+.span-row[aria-selected="true"] { --row-bg:var(--selected); box-shadow:inset 3px 0 var(--accent) }
+@keyframes row-arrival { from { background-color:#fff2b3 } to { background-color:var(--row-bg) } }
+@media (prefers-color-scheme:dark) { @keyframes row-arrival { from { background-color:#302b20 } to { background-color:var(--row-bg) } } }
+.span-row.changed:not(.pending) { animation:row-arrival 2s ease-out }
 .span-name { display:flex; align-items:center; gap:5px; min-width:0; padding-left:calc(6px + var(--depth,0)*12px); padding-right:6px; height:100% }
 .service-label { font:400 10px/1 'IBM Plex Sans'; color:var(--muted); flex-shrink:0 }
 .child-toggle { height:17px; min-width:23px; padding:0 3px; font:10px/1 var(--mono); color:var(--muted); border-radius:2px; flex-shrink:0 }
@@ -164,45 +164,48 @@ dialog::backdrop { background:#0008 } .modal-header { display:flex; justify-cont
 .kind-policy.allow .marker { background:var(--marker) }
 .kind-policy.allow .row-status { color:var(--muted) }
 /* a pending approval is the one loud element: a solid block the presenter cannot miss */
-.span-row.pending { background:var(--attention-bg); color:#1a1a1a; font-weight:600 }
-.span-row.pending .row-status,.span-row.pending .span-duration,.span-row.pending small { color:#1a1a1a }
+.span-row.pending { --row-bg:var(--attention-bg); background:var(--attention-bg); color:#1a1a1a; font-weight:600 }
+.span-row.pending .row-status,.span-row.pending .span-duration,.span-row.pending .service-label { color:#1a1a1a }
 /* denied: red text plus a 3px rule, so it survives greyscale */
 .span-row.deny { box-shadow:inset 3px 0 0 var(--danger); font-weight:600 }
 /* sensitive data flow: violet label, dashed outline on the bar (shape as well as colour) */
 .kind-tool.untrusted .span-bar { border:1px dashed var(--sensitive); background:transparent }
-/* the run's longest span is drawn in ink, like a critical path */
-.span-row.critical .span-bar { background:var(--ink) }
 /* session chips stay grey at their safe defaults and take colour only when they change */
 .session-chip.changed { border-color:var(--sensitive); color:var(--sensitive) }
+.session-chip.changed b { color:inherit }
 .session-chip.changed.effects { border-color:var(--attention); color:var(--attention) }
 /* links look like links (brutalist rule: only links and buttons respond to clicks) */
 .citation { text-decoration:underline; text-underline-offset:2px; background:none }
 
 /* --- span-type colours (categorical, muted) + clear actions --- */
 /* Hues chosen away from the four semantic roles (red, amber, violet, blue) so warnings still win. */
-:root { --k-llm:#2f8a83; --k-tool:#6d8a35; --k-server:#a08455; --k-llm-bar:#7fbab5; --k-tool-bar:#a7bd7c; --k-server-bar:#d6c3a0 }
+:root { --k-llm:#246e68; --k-tool:#50671f; --k-server:#79613a; --k-llm-bar:#7fbab5; --k-tool-bar:#a7bd7c; --k-server-bar:#d6c3a0 }
 @media (prefers-color-scheme:dark) { :root { --k-llm:#5cc2b9; --k-tool:#a6c46a; --k-server:#d2b483; --k-llm-bar:#2f6f6a; --k-tool-bar:#5a7034; --k-server-bar:#6e5c3e } }
 .kind-llm .span-bar { background:var(--k-llm-bar) } .kind-tool .span-bar { background:var(--k-tool-bar) }
 .kind-server .span-bar { background:var(--k-server-bar) }
 .mini-span.kind-llm { background:var(--k-llm-bar) } .mini-span.kind-server { background:var(--k-server-bar) }
-.mini-span:not(.kind-llm):not(.kind-server) { background:var(--k-tool-bar) }
+.mini-span.kind-tool { background:var(--k-tool-bar) }
+.mini-span.marker { background:var(--marker) }
+.mini-span.deny,.mini-span.error { background:var(--danger) }
+.mini-span.escalate,.mini-span.pending,.mini-span.warning { background:var(--attention) }
+.mini-span[aria-pressed="true"] { outline:2px solid var(--accent); outline-offset:1px }
 .kind-llm .service-label { color:var(--k-llm) } .kind-tool .service-label { color:var(--k-tool) }
 .kind-server .service-label { color:var(--k-server) }
-/* the longest span: same hue, full height and an ink outline (emphasis by weight, not a new colour) */
-.span-row.critical .span-bar { top:4px; height:15px; outline:1px solid var(--ink); background:revert-layer }
-.span-row.critical.kind-llm .span-bar { background:var(--k-llm) } .span-row.critical.kind-tool .span-bar { background:var(--k-tool) }
-.span-row.critical.kind-server .span-bar { background:var(--k-server) }
+/* The longest completed span uses ink; service labels retain the category. */
+.span-row.critical .span-bar { top:4px; height:15px; background:var(--ink) }
 /* the untrusted tool bar keeps its dashed violet outline even when it is the longest span */
 .kind-tool.untrusted .span-bar,.span-row.critical.kind-tool.untrusted .span-bar { outline:2px dashed var(--sensitive); outline-offset:1px; border:0 }
 /* brutalist blocks: an inverted brand, a solid primary action, a clearly bordered secondary button */
 .brand { background:var(--ink); color:var(--bg); padding:3px 8px; letter-spacing:.02em }
 #run { background:var(--accent); color:#fff; border:1px solid var(--accent); font-weight:600; padding:0 16px }
-#run:hover:not(:disabled) { filter:brightness(1.1) } #run:disabled { background:var(--line); border-color:var(--line); color:var(--muted) }
+#run:hover:not(:disabled) { filter:brightness(1.1) } #run:disabled { background:var(--soft); border-color:var(--line); color:var(--muted) }
 @media (prefers-color-scheme:dark) { #run { color:#0f1720 } }
-.panel-toggle { border:1px solid var(--line); background:var(--bg); padding:0 10px; cursor:pointer }
+.panel-toggle { border:1px solid var(--muted); background:var(--bg); padding:0 10px; cursor:pointer }
 .panel-toggle:hover { border-color:var(--text) }
 /* section headings: a short ink rule, so the page has structure without decoration */
 .left-pane h2,.trace-heading h2,.section-line h2 { border-left:3px solid var(--ink); padding-left:6px; line-height:1.1 }
 /* legend under the waterfall header */
-.kind-legend { display:flex; gap:12px; font-size:11px; color:var(--muted) }
+.kind-legend { display:flex; flex-wrap:wrap; gap:4px 12px; margin-top:6px; font-size:11px; color:var(--muted) }
 .kind-legend i { display:inline-block; width:10px; height:8px; margin-right:4px; vertical-align:baseline }
+
+.kind-legend>span { white-space:nowrap }
