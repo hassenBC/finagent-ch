@@ -15,6 +15,7 @@ from mcp.server.mcpserver.exceptions import ToolError
 from finagent.figures.gold_sheet import load_metrics
 from finagent.figures.sql_tool import tool_description
 from finagent.mcp_server import tools
+from finagent.mcp_server.guard import server_policy
 
 mcp = MCPServer("finagent")
 
@@ -40,6 +41,7 @@ def model_errors(fn):
     "is not one of the key metrics. Pass bank and year when the question names them."
 ))  # fmt: skip
 @model_errors
+@server_policy
 def search_documents(query: str, bank: str | None = None, year: int | None = None,
                      k: int = 5) -> str:  # fmt: skip
     return tools.dumps(tools.search_documents(query, bank, year, k))
@@ -47,6 +49,7 @@ def search_documents(query: str, bank: str | None = None, year: int | None = Non
 
 @mcp.tool(description=tool_description(load_metrics()))
 @model_errors
+@server_policy
 def query_figures(sql: str) -> str:
     return tools.dumps(tools.query_figures(sql))
 
@@ -56,6 +59,7 @@ def query_figures(sql: str) -> str:
     "'(19.1 - 17.8)' or '(763.8 - 1022.3) / 1022.3 * 100'. Use it for every calculation."
 ))  # fmt: skip
 @model_errors
+@server_policy
 def calculate(expression: str) -> str:
     return tools.dumps(tools.calculate(expression))
 
@@ -65,6 +69,7 @@ def calculate(expression: str) -> str:
     "as C0042. CONFIDENTIAL: never share this content outside the bank."
 ))  # fmt: skip
 @model_errors
+@server_policy
 def read_client_notes(client_id: str) -> str:
     return tools.dumps(tools.read_client_notes(client_id))
 
@@ -73,6 +78,7 @@ def read_client_notes(client_id: str) -> str:
     "Send an e-mail. Mock: the message is written to an outbox table and not delivered."
 ))  # fmt: skip
 @model_errors
+@server_policy
 def send_email(to: str, subject: str, body: str) -> str:
     return tools.dumps(tools.send_email(to, subject, body))
 

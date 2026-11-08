@@ -315,8 +315,11 @@ after one confidential read everything is treated as confidential, and taint is 
 (finer tracking would label values, as in CaMeL). Client notes are labelled *trusted*, so an instruction inside a
 note does not trigger R3; only R1/R2 stop it; trust labels are an assumption that can be wrong. The
 recipient allowlist is the main egress control: a compromised internal mailbox would defeat it. The policy runs in
-the agent loop, not in the MCP server, so a client that calls the server directly is not checked (a policy proxy in
-front of the server is the deployment fix); the side-effect budget R4 counts per agent run, not per MCP session;
+the agent loop; with `FINAGENT_SERVER_POLICY=1` the MCP server also enforces the deny rules (R1, R2, R4, R5) on every
+call it receives, so a client that bypasses the loop is checked too (checked end to end on a real stdio server: a
+confidential read followed by an external e-mail is blocked and nothing reaches the outbox). R3 stays with the loop,
+since a server cannot ask a human, and the guard is off by default so the evaluations measure the loop's policy alone;
+its state lives per server process, so it suits one session per process, not the demo app's long-lived session; the side-effect budget R4 counts per agent run, not per MCP session;
 and a search query is translated by the same external API that serves the model, so confidential text pasted into a
 query reaches no new party but would leave the bank if that provider were out of scope. An independent read-only
 review of the policy, SQL and MCP code found these three boundaries plus four defects, now fixed with tests: a CTE
@@ -328,7 +331,7 @@ rejected, the router could widen a caller's tool allowlist, and tool arguments h
 
 | Tier | When | Runs | Needs |
 |---|---|---|---|
-| Fast (`.github/workflows/ci.yml`) | every push / PR | ruff, 285 unit tests (incl. 40 SQL-injection inputs, policy rules, dataset checks), the `agent_reader` role tests against Postgres, and **retrieval on 31 dev questions** (e5-small hybrid) against a 4-report fixture in a pgvector service container, checked against thresholds with a per-item diff in the job summary | nothing (no key, no GPU) |
+| Fast (`.github/workflows/ci.yml`) | every push / PR | ruff, 297 unit tests (incl. 40 SQL-injection inputs, policy rules, dataset checks), the `agent_reader` role tests against Postgres, and **retrieval on 31 dev questions** (e5-small hybrid) against a 4-report fixture in a pgvector service container, checked against thresholds with a per-item diff in the job summary | nothing (no key, no GPU) |
 | Full (`make regression`) | before a release / after a change | final retrieval config, RAG (k = 10), routed agent (60 tasks), security suite with the policy engine (2 × 55 attacks): each against thresholds and diffed per item against committed baselines | full corpus, GPU, API key |
 
 The CI fixture (`tests/fixtures/ci_fixture.jsonl.gz`, 3.7 MB) holds only what retrieval needs (FTS vectors,
