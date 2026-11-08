@@ -253,7 +253,7 @@ rate is bounded only at about 6.5\% (95\%). The flow tracking is coarse: one con
 session; per-value labels as in CaMeL~\citep{debenedetti2025camel} would be finer.
 
 \section{Regression testing and observability}\label{sec:regression}
-A fast tier runs on every push without API keys: linting, 255 unit tests including the SQL and policy cases, the
+A fast tier runs on every push without API keys: linting, 264 unit tests including the SQL and policy cases, the
 read-only role against PostgreSQL, and retrieval on 31 dev questions against a four-report fixture that stores
 only full-text vectors, embeddings and page numbers, not the report text. A full tier re-runs retrieval, RAG,
 agent and security evaluations against thresholds and diffs every item against committed baselines; averages hide
