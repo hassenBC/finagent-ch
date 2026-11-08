@@ -78,6 +78,7 @@ select = ["E", "F", "I", "B", "UP", "SIM"]
 
 [tool.ruff.lint.per-file-ignores]
 "eval/build_injection.py" = ["E501"]  # attack and task texts are prose data
+"docs/demo/*.py" = ["E501"]  # captions and injected JS are long string literals
 "src/finagent/ui/app.py" = ["E501"]  # scenario texts and SQL are prose data
 "report/*.py" = ["E501"]  # report prose and figure labels
 
