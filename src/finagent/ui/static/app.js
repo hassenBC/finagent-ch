@@ -576,11 +576,17 @@
       }
       case 'policy_check': makeSpan('policy', d.tool, event, { marker: true, before: d.state, args: d.args }); updateSession(d.state); break;
       case 'policy_decision': {
-        const row = latestPolicy(d.tool, r => !r.data.decision) || makeSpan('policy', d.tool, event, { marker: true, before: d.state });
-        row.data = { ...row.data, ...d }; row.start = row.end = num(event.t_ms); row.after = d.state; updateRow(row); updateSession(d.state); break;
+        // A call that needed approval reports its final decision AFTER the human answered (the server's check waits for the
+        // answer first); the offline mock reports "escalate" before asking. Either way it belongs on the one row of that call.
+        const row = latestPolicy(d.tool, r => !r.data.decision || (r.approvalResult && !r.decided)) || makeSpan('policy', d.tool, event, { marker: true, before: d.state });
+        const answered = Boolean(row.approvalResult);
+        row.data = { ...row.data, ...d }; row.decided = true;
+        if (!answered) row.start = row.end = num(event.t_ms);
+        row.after = d.state; updateRow(row); updateSession(d.state); break;
       }
       case 'approval_needed': {
-        const row = latestPolicy(d.tool, r => r.data.decision === 'escalate' && !r.approvalResult) || makeSpan('policy', d.tool, event, { marker: true, before: { ...session } });
+        // Adopt the row of this call: it has no decision yet (real server) or an "escalate" one (mock); never open a second row.
+        const row = latestPolicy(d.tool, r => !r.approvalResult && (!r.data.decision || r.data.decision === 'escalate')) || makeSpan('policy', d.tool, event, { marker: true, before: { ...session } });
         row.data = { ...d, ...row.data, approval_id: d.approval_id, decision: 'escalate' }; row.args = d.args;
         approval = { row, id: d.approval_id, runId, reason: d.reason, submitted: false };
         updateRow(row); setStatus(replaying ? 'replaying' : 'waiting for approval');
