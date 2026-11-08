@@ -23,3 +23,4 @@ results/security_parts/
 results/*_regression.csv
 paper/*.zip
 !docs/demo/
+JOURNAL.md
