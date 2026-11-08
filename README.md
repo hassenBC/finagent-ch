@@ -4,7 +4,7 @@
 
 [![ci](https://github.com/hassenBC/finagent-ch/actions/workflows/ci.yml/badge.svg)](https://github.com/hassenBC/finagent-ch/actions/workflows/ci.yml)
 ![python](https://img.shields.io/badge/python-3.11%2B-blue)
-![license](https://img.shields.io/badge/license-permission%20required-lightgrey)
+![license](https://img.shields.io/badge/license-source--available-lightgrey)
 
 Question answering over 12 annual reports (6 banks, FY2024–FY2025, French and English, table-heavy PDFs), **measured** on a
 150-question page-level evaluation set built before any tuning. An MCP agent with a deterministic tool-permission layer is
@@ -72,7 +72,7 @@ traced (`finagent trace <id>`) and streamed to the demo app's developer view.
 
 ## Quickstart
 
-Needs Docker, [uv](https://docs.astral.sh/uv/), a DeepSeek API key in `.env`, and ideally a CUDA GPU (4 GB is enough). `make setup` installs the GPU extra; on a CPU-only machine use `uv sync --extra cpu` instead. Running the project requires permission under the [license](#license).
+Needs Docker, [uv](https://docs.astral.sh/uv/), a DeepSeek API key in `.env`, and ideally a CUDA GPU (4 GB is enough). `make setup` installs the GPU extra; on a CPU-only machine use `uv sync --extra cpu` instead.
 
 ```bash
 cp .env.example .env   # add DEEPSEEK_API_KEY
@@ -524,9 +524,11 @@ model.
 
 ## License
 
-Source-available, **not open source**: you may read the code and fork it on GitHub, but you need the author's permission
-before you run, copy, modify, redistribute or build on it. Ask by opening an issue. See [`LICENSE`](LICENSE). The bank
-annual reports are not included and belong to their publishers; fonts and other third-party parts are listed in
+Source-available, **not open source**. Under [`LICENSE`](LICENSE) §1(b) you may privately run and modify the project to
+evaluate the author or the Work (employer and paid-recruiter reviews included) without asking. That grant limits sharing,
+requires cleanup when the assessment ends, and leaves third-party rights untouched. Any other use needs the author's written
+permission: open an issue. The
+bank annual reports are not included and belong to their publishers; fonts and other third-party parts are listed in
 [`NOTICE.md`](NOTICE.md).
 
 History was reconstructed in November 2026 from earlier development work. Commit dates approximate the development timeline.
