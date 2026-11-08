@@ -112,3 +112,40 @@ def test_router_isolates_a_broken_listener(monkeypatch):
 
     r = anyio.run(lambda: router.ask("weather?", "routed", AgentConfig(), on_event=boom))
     assert r.route == "out_of_scope" and r.stopped_reason == "abstained"
+
+
+def _capture_tools(monkeypatch, route=None):
+    """Run router.ask with a stubbed classifier and run_agent; return the tools it would get."""
+    from finagent.agent import router
+
+    seen = {}
+
+    async def fake_run_agent(question, cfg, *a, **kw):
+        seen["tools"] = cfg.tools
+        return router.AgentRun(trace_id="", answer="ok", citations=[], steps=[], route="x",
+                               cost_usd=0.0, stopped_reason="answered")  # fmt: skip
+
+    monkeypatch.setattr(router, "run_agent", fake_run_agent)
+    monkeypatch.setattr(router.LLMClient, "from_config", classmethod(lambda cls, name=None: None))
+    if route:
+        monkeypatch.setattr(router, "classify", lambda q, llm, salt=None: (
+            router.Route(route=route), 0.0))  # fmt: skip
+    return router, seen
+
+
+def test_routing_cannot_widen_a_callers_tool_allowlist(monkeypatch):
+    router, seen = _capture_tools(monkeypatch, route="client")
+    anyio.run(lambda: router.ask("q", "routed", AgentConfig(tools=["calculate"])))
+    assert seen["tools"] == ["calculate"]
+
+
+def test_single_mode_cannot_widen_a_callers_tool_allowlist(monkeypatch):
+    router, seen = _capture_tools(monkeypatch)
+    anyio.run(lambda: router.ask("q", "single", AgentConfig(tools=["calculate", "query_figures"])))
+    assert seen["tools"] == ["query_figures", "calculate"]
+
+
+def test_unrestricted_caller_gets_the_routes_tools(monkeypatch):
+    router, seen = _capture_tools(monkeypatch, route="figures")
+    anyio.run(lambda: router.ask("q", "routed", AgentConfig()))
+    assert seen["tools"] == router.ROUTE_TOOLS["figures"]

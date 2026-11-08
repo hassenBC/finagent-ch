@@ -253,7 +253,7 @@ rate is bounded only at about 6.5\% (95\%). The flow tracking is coarse: one con
 session; per-value labels as in CaMeL~\citep{debenedetti2025camel} would be finer.
 
 \section{Regression testing and observability}\label{sec:regression}
-A fast tier runs on every push without API keys: linting, 242 unit tests including the SQL and policy cases, the
+A fast tier runs on every push without API keys: linting, 255 unit tests including the SQL and policy cases, the
 read-only role against PostgreSQL, and retrieval on 31 dev questions against a four-report fixture that stores
 only full-text vectors, embeddings and page numbers, not the report text. A full tier re-runs retrieval, RAG,
 agent and security evaluations against thresholds and diffs every item against committed baselines; averages hide
@@ -313,7 +313,7 @@ and routed mode), 8-bit 6/55 (single mode only). Agent bars are the full 60 task
 \section{Limitations}
 About 100 dev and 50 test questions give wide intervals; questions were model-proposed and machine-checked;
 the gold key figures and the judge validation are AI-assisted; the injection suite targets one API model and
-55 attacks; the permission model is coarse; the cost of the API runs is estimated at list prices. The demo
+55 attacks; the permission model is coarse and enforced in the agent loop, not in the MCP server; the cost of the API runs is estimated at list prices. The demo
 application, the regression fixture and the synthetic clients are engineering artefacts, not evaluated
 components.
 

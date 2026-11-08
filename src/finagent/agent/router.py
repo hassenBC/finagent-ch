@@ -64,15 +64,20 @@ def classify(question: str, llm: LLMClient, salt: str | None = None) -> tuple[Ro
     return r.parsed, r.cost_usd
 
 
+def _within(cfg: AgentConfig, tools: list[str]) -> list[str]:
+    """A route or mode may only narrow the caller's tool allowlist, never widen it."""
+    return tools if cfg.tools is None else [t for t in tools if t in cfg.tools]
+
+
 async def ask(question: str, mode: Literal["routed", "single"] = "routed",
               cfg: AgentConfig | None = None, policy: Policy | None = None,
               session: Client | None = None, trace_id: str | None = None,
               on_event=None) -> AgentRun:  # fmt: skip
     cfg = cfg or AgentConfig()
     if mode == "single":
-        return await run_agent(question, cfg.model_copy(update={"tools": ALL_TOOLS}), policy,
-                               session, route="single", trace_id=trace_id,
-                               on_event=on_event)  # fmt: skip
+        single = cfg.model_copy(update={"tools": _within(cfg, ALL_TOOLS)})
+        return await run_agent(question, single, policy, session, route="single",
+                               trace_id=trace_id, on_event=on_event)  # fmt: skip
     llm = LLMClient.from_config(cfg.model)
     with tracing.span("route") as sp:
         route, cost = await anyio.to_thread.run_sync(
@@ -88,7 +93,7 @@ async def ask(question: str, mode: Literal["routed", "single"] = "routed",
                         answer="I cannot answer this: it is outside the reports and "
                         "clients I can access.", citations=[], steps=[], route="out_of_scope",
                         cost_usd=cost, stopped_reason="abstained")  # fmt: skip
-    sub = cfg.model_copy(update={"tools": ROUTE_TOOLS[route.route]})
+    sub = cfg.model_copy(update={"tools": _within(cfg, ROUTE_TOOLS[route.route])})
     run = await run_agent(
         question, sub, policy, session, route=route.route, trace_id=trace_id, on_event=on_event
     )

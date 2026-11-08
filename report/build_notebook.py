@@ -212,7 +212,7 @@ plain("""Every change is checked automatically. A fast tier runs on each push wi
 tier re-runs all evaluations against thresholds and lists **which questions** got worse. A deliberate one-line
 mistake (switching off the bank/year filters) is caught immediately.""")
 code("F.fig_regression_demo();")
-expert("""Fast tier: lint, 242 unit tests (incl. SQL injection inputs and policy rules), the read-only role
+expert("""Fast tier: lint, 255 unit tests (incl. SQL injection inputs and policy rules), the read-only role
 against Postgres, and retrieval on 31 dev questions against a 4-report fixture that stores only FTS vectors,
 embeddings and page numbers, not the report text. Averages hide regressions: moving to the final retrieval
 configuration looked like +4 questions but was 7 fixes and 3 regressions. Re-runs are not bit-identical (2 of
