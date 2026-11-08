@@ -2,7 +2,7 @@
 
 Style (dataviz guidance): grey for context and baselines, blue for "our system", status colours only for
 pass/fail, one axis per chart, direct labels on few marks, white background so figures print.
-Each function returns the matplotlib figure and saves paper/figures/<name>.pdf.
+Each function returns the matplotlib figure and saves paper/figures/<name>.pdf and assets/figures/<name>.png.
 """
 
 from __future__ import annotations
@@ -17,6 +17,7 @@ import pandas as pd
 ROOT = Path(__file__).resolve().parents[1]
 RES = ROOT / "results"
 OUT = ROOT / "paper/figures"
+PNG = ROOT / "assets/figures"  # PNG copies for the README
 
 BLUE, BLUE_LIGHT = "#2a78d6", "#9ec5f4"
 ORANGE, AQUA, VIOLET = "#eb6834", "#1baf7a", "#6250d6"
@@ -35,6 +36,8 @@ plt.rcParams.update({
 def _save(fig, name: str):
     OUT.mkdir(parents=True, exist_ok=True)
     fig.savefig(OUT / f"{name}.pdf", bbox_inches="tight")
+    PNG.mkdir(parents=True, exist_ok=True)
+    fig.savefig(PNG / f"{name}.png", bbox_inches="tight", dpi=150)
     return fig
 
 
@@ -180,7 +183,7 @@ def fig_k_sweep():
     cost = [1000 * d.loc[f"rag_best_k{k}", "cost_per_query_usd"] for k in ks]
     fig, axes = plt.subplots(1, 3, figsize=(7.2, 2.3))
     for ax, vals, title, fmt, color in [
-        (axes[0], em, "numeric answer correct", "{:.2f}", BLUE),
+        (axes[0], em, "numeric match (any number)", "{:.2f}", BLUE),
         (axes[1], fa, "refused although answerable", "{:.2f}", WARN),
         (axes[2], cost, "cost per question (US$ / 1000)", "{:.1f}", GREY),
     ]:  # fmt: skip
@@ -200,7 +203,7 @@ def fig_k_sweep():
 
 def fig_rag_test():
     d = pd.read_csv(RES / "rag_test.csv").set_index("config")
-    metrics = [("numeric_em", "numeric answer\ncorrect"), ("citation_precision", "citation\nprecision"),
+    metrics = [("numeric_em", "numeric match\n(32 numeric Qs)"), ("citation_precision", "citation\nprecision"),
                ("citation_recall", "citation\nrecall"), ("abstain_f1", "abstention F1")]  # fmt: skip
     fig, ax = plt.subplots(figsize=(6.2, 2.6))
     x = np.arange(len(metrics))
@@ -332,7 +335,7 @@ def fig_security():
     axes[1].set_xlim(0, 105)
     axes[0].set_title("attacks that succeeded (55)", fontsize=9.5)
     axes[1].set_title("legitimate tasks completed (75)", fontsize=9.5)
-    fig.suptitle("Security: the policy engine guarantees 0 at a 5-point utility cost", x=0.02,
+    fig.suptitle("Observed attack success and benign-task completion", x=0.02,
                  ha="left", fontweight="bold", fontsize=10.5)  # fmt: skip
     fig.tight_layout()
     return _save(fig, "security")
