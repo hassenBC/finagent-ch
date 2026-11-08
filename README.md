@@ -448,9 +448,9 @@ citations open the cited PDF page; the outbox shows what the agent "sent" (nothi
 plants a synthetic poisoned page for a live prompt-injection demo; it is excluded from every other retrieval, so
 it cannot leak into evaluations.
 
-Built as two peers: the backend (Starlette, SSE event log with replay, one long-lived MCP session) by Claude
-Code, the frontend (plain HTML/CSS/JS, `?mock=1` offline walkthrough) by Codex, each reviewing the other's code
-against a shared contract (`src/finagent/ui/API.md`): 11 backend and 4 frontend findings, all fixed.
+Built as two parts: the backend (Starlette, SSE event log with replay, one long-lived MCP session) and the
+frontend (plain HTML/CSS/JS, `?mock=1` offline walkthrough), each reviewed against a shared contract
+(`src/finagent/ui/API.md`): 11 backend and 4 frontend findings, all fixed.
 
 ## Development
 
