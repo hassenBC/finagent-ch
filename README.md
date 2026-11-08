@@ -40,9 +40,12 @@ Held-out test set, each configuration run once. Internal benchmark on a small co
 
 ![Retrieval: recall@5 for each cumulative change, dev bars with 95 % CI and held-out test markers](results/retrieval_ladder.png)
 
-The biggest single gain came from a one-line `Bank | Year | Section` header on each chunk, not from table isolation;
-metadata filters were the cheapest win; a cross-encoder reranker and LLM query expansion added latency but no measurable
-accuracy.
+**What actually moved the needle (dev ablation).** Adding a one-line `Bank | Year | Section` header to structure chunks
+raised recall@5 from 0.49 to 0.68, matching table-aware chunks with headers (0.67); table isolation without the header
+scored 0.48. Metadata filters were the cheapest win; a cross-encoder reranker and LLM query expansion added latency but no
+measurable accuracy.
+
+![Table-aware chunking only helps with the context header](assets/figures/header_ablation.png)
 
 ## Architecture
 
@@ -75,17 +78,21 @@ traced (`finagent trace <id>`) and streamed to the demo app's developer view.
 Needs Docker, [uv](https://docs.astral.sh/uv/), a DeepSeek API key in `.env`, and ideally a CUDA GPU (4 GB is enough). `make setup` installs the GPU extra; on a CPU-only machine use `uv sync --extra cpu` instead.
 
 ```bash
-cp .env.example .env   # add DEEPSEEK_API_KEY
-make setup             # uv sync --extra gpu, Postgres + pgvector in Docker, migrations
+cp .env.example .env                    # add DEEPSEEK_API_KEY
+make setup                              # uv sync --extra gpu, Postgres + pgvector in Docker, migrations
+make download ingest                    # fetch the 12 PDFs, parse (docling), chunk, load
+make embed-small && uv run python -m finagent.ingest.embed bge_m3          # embeddings (e5-small, bge-m3)
+uv run python -m finagent.figures.extract                                  # key figures for the SQL tool (~$0.18)
+uv run python -m finagent.clients                                          # seed 50 fictional clients
 make test
-make download ingest   # fetch the 12 PDFs, parse (docling), chunk, load
+uv run finagent ask --policy "What was Vontobel's net profit in 2025?"     # answer + citations + trace
+uv run finagent ui                                                         # demo app on http://localhost:8000 (Ctrl-C to stop)
 ```
 
 <details>
 <summary>Run the development retrieval and RAG evaluations</summary>
 
 ```bash
-make embed-small && uv run python -m finagent.ingest.embed bge_m3   # embeddings (e5-small, bge-m3)
 make eval-retrieval-grid report && make eval-rag report-rag         # all retrieval + RAG runs on dev (~$0.5)
 make judge NAMES="rag_best_k10"                                     # faithfulness judge
 ```
@@ -123,8 +130,6 @@ is `results/retrieval.png`.
 
 Both final configurations beat the baseline (recall@5 +0.36, CI [+0.18, +0.51]) and cannot be told apart on test
 (+0.00 [-0.09, +0.09]). On dev the hybrid scored 0.87, so part of its dev advantage was selection on dev.
-
-![Table-aware chunking only helps with the context header](assets/figures/header_ablation.png)
 
 <details>
 <summary>Five findings (dev unless stated)</summary>
@@ -293,12 +298,13 @@ e-mails.
 | Routed sub-agents, prompt-only defence | 0 | 0.933 | n/a | n/a | n/a |
 | Routed sub-agents, policy engine | **0** | 0.867 | 0.053 (R3) | 0.108 | 0.29 ms / call |
 
-**What this shows, and what it does not.** `deepseek-flash` followed none of the 44 planted instructions, even with no
-defence. Both successful attacks were direct requests involving public data; the prompt-only defence and the policy engine
-(R2, R4) stopped both. So on this model the policy engine is not what keeps attacks out: it turns "the model happened to
-refuse" into a rule-based guarantee on mediated tool calls that holds whichever model chose them (it does not cover leaks through the answer text), at a measured price: every legitimate "read a document, then
-e-mail" task is escalated by R3, lowering unattended benign success from 0.92 to 0.87. With 55 attacks, "0 successes" bounds
-the true rate only at roughly ≤ 5.5 % (rule of three, treating attacks as independent).
+**What this shows, and what it does not.** Prompt-only defence and the policy engine each recorded 0 of 55 successful
+attacks in both agent configurations. The undefended API model followed none of the 44 planted instructions; its two
+successful attacks were direct requests involving public data. These results therefore show no measured advantage against
+indirect injection on this model. When enabled, the policy engine enforces R1–R5 on mediated tool calls whichever model chose
+them; it does not prevent leaks through answer text. R3 escalates every legitimate "read a document, then e-mail" task,
+lowering unattended benign success from 0.92 to 0.87. Under an independence assumption, 0 of 55 gives an approximate 95 %
+upper bound of 5.5 % (rule of three); this curated suite does not establish a deployment attack rate.
 
 <details>
 <summary>Second suite (40 attacks, 8 Nov)</summary>
@@ -347,8 +353,6 @@ router could widen a caller's tool allowlist, and tool arguments had no length c
 Qwen3-4B (4-bit and 8-bit) and Qwen3-8B (4-bit) served by Ollama on a 4 GB laptop GPU, with the same prompts and code as the
 API model. Only the 4-bit 4B fits in GPU memory; the 8-bit 4B ran RAG and agent on half-size subsets and the full attack grid;
 the 8B ran only the 50-question RAG evaluation (median 29 min per answer).
-
-![Self-hosted models vs the API model](assets/figures/models.png)
 
 | | DeepSeek flash (API) | Qwen3-4B 4-bit | Qwen3-4B 8-bit (subset) |
 |---|---|---|---|
@@ -497,17 +501,9 @@ Figures in `assets/figures/` (PNG) and `paper/figures/` (PDF) are generated by `
 
 ## Roadmap
 
-| Phase | Status |
-|---|---|
-| Corpus, parsing, evaluation set, retrieval lab | Done |
-| RAG with citations and abstention, LLM judge calibrated on dev labels | Done |
-| Extracted key figures, guarded text-to-SQL | Done |
-| MCP server, routed agent | Done |
-| Permission layer, injection suite | Done |
-| Regression tiers, CI, tracing | Done |
-| Self-hosted vs API models | Done |
-| Second injection suite, opt-in server-side policy guard | Done |
-| Small-hardware distillation | Next |
+Done: corpus and evaluation set, retrieval lab, RAG with citations and an LLM judge calibrated on dev labels, key figures and guarded text-to-SQL, MCP agent, router and opt-in server-side policy guard, permission layer and two injection suites, regression tiers, CI and tracing, self-hosted model comparison.
+
+**Next: small-hardware distillation.**
 
 <details>
 <summary>What the next phase involves</summary>
@@ -527,8 +523,9 @@ model.
 Source-available, **not open source**. Under [`LICENSE`](LICENSE) §1(b) you may privately run and modify the project to
 evaluate the author or the Work (employer and paid-recruiter reviews included) without asking. That grant limits sharing,
 requires cleanup when the assessment ends, and leaves third-party rights untouched. Any other use needs the author's written
-permission: open an issue. The
-bank annual reports are not included and belong to their publishers; fonts and other third-party parts are listed in
+permission: open an issue.
+
+The bank annual reports are not included and belong to their publishers; fonts and other third-party parts are listed in
 [`NOTICE.md`](NOTICE.md).
 
 History was reconstructed in November 2026 from earlier development work. Commit dates approximate the development timeline.
