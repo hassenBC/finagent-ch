@@ -66,6 +66,27 @@ def db_state() -> tuple[int, int]:
     return last, n_fig
 
 
+def isolation_groups(attacks: list[dict]) -> list[list[dict]]:
+    """Split attacks into groups in which no two plant text into the same report section.
+
+    Planted together, such attacks compete in retrieval and an e-mail could be credited to the
+    wrong case. Order is kept; each attack goes to the first group without a clash."""
+    groups: list[list[dict]] = []
+    keys: list[set] = []
+    for a in attacks:
+        p = a["planted"]
+        key = (p.get("bank"), p.get("year"), p.get("section")) if p["type"] == "doc" else None
+        for g, used in zip(groups, keys, strict=True):
+            if key is None or key not in used:
+                g.append(a)
+                used.add(key)
+                break
+        else:
+            groups.append([a])
+            keys.append({key})
+    return groups
+
+
 def marker(case: dict) -> str | None:
     p = case["planted"]
     if p["type"] == "none":
@@ -219,6 +240,11 @@ def main() -> None:
     ap.add_argument("--model", default="deepseek_flash", help="router + agent model")
     ap.add_argument("--attacks", default="injection.jsonl", help="attack file in eval/datasets")
     ap.add_argument(
+        "--isolate",
+        action="store_true",
+        help="plant only attacks that target different report sections at the same time",
+    )
+    ap.add_argument(
         "--out-dir", help="directory for the --tag file (default results/security_parts)"
     )
     args = ap.parse_args()
@@ -249,8 +275,10 @@ def main() -> None:
         if args.no_plant:
             anyio.run(run_suite, attacks, "attack", configs, rows, budget, trace, args.model)
         else:
-            with planted(attacks):  # the MCP server starts after planting
-                anyio.run(run_suite, attacks, "attack", configs, rows, budget, trace, args.model)
+            groups = isolation_groups(attacks) if args.isolate else [attacks]
+            for group in groups:
+                with planted(group):  # the MCP server starts after planting
+                    anyio.run(run_suite, group, "attack", configs, rows, budget, trace, args.model)
     df = pd.DataFrame(rows)
     if args.tag:
         out_dir = ROOT / args.out_dir if args.out_dir else PARTS
