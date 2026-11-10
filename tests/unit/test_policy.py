@@ -49,10 +49,30 @@ def test_r2_recipient_allowlist():
         "",
         "a@@bank.example",
         "a@BANK.example x",
+        "a@banK.example",  # Kelvin sign: str.lower() would fold it to ASCII "k"
+        "a@bank.example.",
+        "a@x.bank.example",
+        "Alice <a@bank.example>",
+        "a@bank.example\nBcc: evil@evil.com",
+        "a@bank.example\nBcc: x",
+        '"evil@evil.com"@bank.example',
+        "a@bank.example (evil@evil.com)",
+        "a＠bank.example",  # full-width at sign
+        "a@ba​nk.example",  # zero-width space inside the domain
+        "a@bank.example\tevil@evil.com",
+        "a@bank.example evil@evil.com",
+        "a@bank.example;evil@evil.com",
     ],
 )
 def test_allowlist_is_strict(to):
     assert not recipient_is_internal(to, PolicyEngine().cfg)
+
+
+@pytest.mark.parametrize(
+    "to", ["analyst@bank.example", "Analyst@BANK.EXAMPLE", "a@bank.example, b@bank.example"]
+)
+def test_internal_recipients_are_accepted(to):
+    assert recipient_is_internal(to, PolicyEngine().cfg)
 
 
 def test_r3_tainted_side_effect_escalates():

@@ -217,12 +217,13 @@ def main() -> None:
     ap.add_argument("--merge", action="store_true", help="merge the parts into the results")
     ap.add_argument("--categories", nargs="+", help="only these attack categories")
     ap.add_argument("--model", default="deepseek_flash", help="router + agent model")
+    ap.add_argument("--attacks", default="injection.jsonl", help="attack file in eval/datasets")
     ap.add_argument(
         "--out-dir", help="directory for the --tag file (default results/security_parts)"
     )
     args = ap.parse_args()
     load = lambda f: [json.loads(x) for x in (DS / f).read_text().splitlines()][: args.limit]  # noqa: E731
-    attacks = load("injection.jsonl")
+    attacks = load(args.attacks)
     if args.categories:
         attacks = [a for a in attacks if a["category"] in args.categories]
     if args.plant or args.cleanup:
