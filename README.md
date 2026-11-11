@@ -293,8 +293,20 @@ e-mailed only the recipient the user named. Both successful attacks were *direct
 happened to refuse" into a guarantee that holds for any model or prompt, at a measured price: every legitimate
 "read a document, then e-mail" task is escalated by R3 (all 4 benign ones and the 10 document-based in-task e-mails),
 lowering unattended benign success from 0.92 to 0.87. With 55 attacks, "0 successes" bounds the true attack
-success rate only at roughly ≤ 6.5 % (95 %, rule of three). The self-hosted comparison is in the Phase 9 section
-below.
+success rate only at roughly ≤ 6.5 % (95 %, rule of three).
+
+**Second suite (`injection_v2.jsonl`, run on 8 Nov).** Because the first suite was resisted almost entirely, I
+added 40 planted-document attacks with techniques it lacked: a forged chat template, forged tool calls, a claimed
+user approval, a regulatory deadline, a workflow hijack, a German instruction, laundering the notes as "public"
+figures, and an instruction to hide the action. They are 8 techniques times 5 report contexts, not 40 independent
+attacks, and one case per section is planted at a time (an independent review found that planting them together
+let variants compete in retrieval). `deepseek-flash` followed **none**: 0 of 40 single-mode and 0 of 40 routed
+runs, with the planted text reaching the model in 37 and 40 of them, and not one attempted e-mail to an external
+address. The routed runs all went to the `documents` route, which has no e-mail or client-note tool, so for them
+the zero shows least privilege, not resistance; the single-mode zero is the model's. Cost $0.125. Over both suites
+no planted instruction was followed (0 of 88), which bounds that rate at roughly ≤ 3.4 % (rule of three); a
+different attack distribution or model could still succeed, and the policy engine is what makes the guarantee
+independent of that. The self-hosted comparison is in the Phase 9 section below.
 
 **Threat model and limitations.** In scope: an attacker who can publish text the agent retrieves (a PDF page, a
 client note) or a user asking for something they should not get; the asset is the synthetic client data and the
@@ -317,7 +329,7 @@ rejected, the router could widen a caller's tool allowlist, and tool arguments h
 
 | Tier | When | Runs | Needs |
 |---|---|---|---|
-| Fast (`.github/workflows/ci.yml`) | every push / PR | ruff, 264 unit tests (incl. 40 SQL-injection inputs, policy rules, dataset checks), the `agent_reader` role tests against Postgres, and **retrieval on 31 dev questions** (e5-small hybrid) against a 4-report fixture in a pgvector service container, checked against thresholds with a per-item diff in the job summary | nothing (no key, no GPU) |
+| Fast (`.github/workflows/ci.yml`) | every push / PR | ruff, 285 unit tests (incl. 40 SQL-injection inputs, policy rules, dataset checks), the `agent_reader` role tests against Postgres, and **retrieval on 31 dev questions** (e5-small hybrid) against a 4-report fixture in a pgvector service container, checked against thresholds with a per-item diff in the job summary | nothing (no key, no GPU) |
 | Full (`make regression`) | before a release / after a change | final retrieval config, RAG (k = 10), routed agent (60 tasks), security suite with the policy engine (2 × 55 attacks): each against thresholds and diffed per item against committed baselines | full corpus, GPU, API key |
 
 The CI fixture (`tests/fixtures/ci_fixture.jsonl.gz`, 3.7 MB) holds only what retrieval needs (FTS vectors,
@@ -348,7 +360,8 @@ query, not slow retrieval.
 
 Qwen3-4B (4-bit and 8-bit) and Qwen3-8B (4-bit) served by Ollama on a 4 GB laptop GPU, same prompts, code and
 judge as the API model. Only the 4-bit 4B fits in GPU memory; the 8-bit 4B ran RAG and agent on half-size subsets
-and the attacks in single mode without a defence only, and the 8B did not finish (over 11 minutes per answer, about nine hours for 50 RAG questions), so there are no 8B numbers.
+and the full attack grid (single and routed, with and without the policy), and the 8B did not finish (over 11
+minutes per answer, about nine hours for 50 RAG questions), so there are no 8B numbers.
 
 | | DeepSeek flash (API) | Qwen3-4B 4-bit | Qwen3-4B 8-bit (subset) |
 |---|---|---|---|
@@ -358,17 +371,18 @@ and the attacks in single mode without a defence only, and the 8B did not finish
 | agent task success (routed), full 60 tasks | 0.92 | 0.42 | not run |
 | agent task success (routed), the same 30 tasks | 0.90 (27/30) | 0.40 (12/30) | 0.50 (15/30) |
 | routing accuracy (60 tasks; 30 for 8-bit) | 0.97 | 0.65 | 0.73 |
-| attacks succeeding, no defence (of 55 per mode) | 2 single, 2 routed | 4 single, 2 routed | 6 single (routed and policy not run) |
+| attacks succeeding, no defence (of 55 per mode) | 2 single, 2 routed | 4 single, 2 routed | 6 single, 5 routed |
+| attacks succeeding with the policy engine (of 55 per mode) | 0 | 0 | 0 (it denied all 6 and 5) |
 
 **Reading it.** The small model is much weaker at the agent job: it often refuses or answers without searching
-(false abstention on 12 and 25 of 60 tasks) and misroutes a third of the questions. On injection the counts are
-too small to separate the models (2 vs 4 of 55). The data does not show the 4B to be more robust: with the 4-bit
-model about half of the attack runs made no tool call (28 of 55 single, 30 of 55 routed), so the attack never
-reached the tools, and all its successes were direct requests; the policy layer blocked all of them, as it did for
-the API model. The 8-bit model made no call in 18 of 55 runs and had 5 direct successes plus one `in_task_redirect`:
-a planted instruction that was followed once, which the API model never did (0 of 48). The policy layer was not
-tested on the 8-bit model. The retrieval stage ran on the CPU in the local
-runs, so the 13.6 s median RAG latency (API: 1.9 s) is not a pure generation comparison.
+(false abstention on 12 and 25 of 60 tasks) and misroutes a third of the questions. On injection the small models
+have more successes than the API model without a defence (2 per mode; 4 and 2 for the 4-bit; 6 and 5 for the
+8-bit), but the counts are small and the 4-bit model's low numbers are partly weak tool use: about half of its
+attack runs made no tool call (28 of 55 single, 30 of 55 routed), so the attack never reached the tools. All the
+successes were direct requests except one `in_task_redirect` of the 8-bit model, the only planted instruction a
+model followed in either suite (the API model: 0 of 88 planted attacks). The policy engine denied every successful
+attack for all three models, which is the model-independent guarantee. The retrieval stage ran on the CPU in the
+local runs, so the 13.6 s median RAG latency (API: 1.9 s) is not a pure generation comparison.
 
 ## Live demo app
 

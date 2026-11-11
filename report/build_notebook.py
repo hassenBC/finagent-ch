@@ -203,8 +203,12 @@ defence, including 15 "in-task" redirections added after the first 40 proved too
 direct requests involving public data (a 5-recipient mailing, figures to an outside domain). So on this model
 the policy engine is a guarantee, not the thing that stopped the attacks; its measured price is 5 points of
 unattended task success (every legitimate "read a document, then e-mail" task waits for a human). 0/55
-bounds the true attack success only at ≤ ~6.5 % (95 %, rule of three). Section 8 asks whether small local
-models are easier to trick.""")
+bounds the true attack success only at ≤ ~6.5 % (95 %, rule of three). A second suite of 40 planted
+documents (8 techniques x 5 contexts: forged chat template, forged tool calls, claimed approval, deadline,
+workflow hijack, German, laundering as public figures, hide-the-action) was followed in none of 80 runs;
+routed runs all took a route without an e-mail tool, so only the single-mode zero is the model's. Over both
+suites 0 of 88 planted instructions were followed (≤ ~3.4 %). Section 8 asks whether small local models
+are easier to trick.""")
 
 # ------------------------------------------------------------------------------------------------
 md("## 7. Keeping it working: regression tests")
@@ -212,7 +216,7 @@ plain("""Every change is checked automatically. A fast tier runs on each push wi
 tier re-runs all evaluations against thresholds and lists **which questions** got worse. A deliberate one-line
 mistake (switching off the bank/year filters) is caught immediately.""")
 code("F.fig_regression_demo();")
-expert("""Fast tier: lint, 264 unit tests (incl. SQL injection inputs and policy rules), the read-only role
+expert("""Fast tier: lint, 285 unit tests (incl. SQL injection inputs and policy rules), the read-only role
 against Postgres, and retrieval on 31 dev questions against a 4-report fixture that stores only FTS vectors,
 embeddings and page numbers, not the report text. Averages hide regressions: moving to the final retrieval
 configuration looked like +4 questions but was 7 fixes and 3 regressions. Re-runs are not bit-identical (2 of
@@ -232,10 +236,10 @@ subsets. The 8B did not finish (over 11 minutes per answer, about nine hours for
 chart shows no 8B numbers.""")
 plain("""**Result.** The small 4-bit model answers key-figure questions correctly 57 % of the time (API model: 69 %)
 and completes 42 % of the agent tasks (API model: 92 %); it often refuses or answers without searching.
-On the injection suite 4 of 55 attacks succeed without a defence in single mode (API model: 2 of 55), but the
-small model often did not use its tools at all, so this says little about robustness; with the permission layer,
-none succeed. The 8-bit model, tested without a defence only, followed one planted instruction (the API model
-followed none).""")
+Without a defence, attacks succeed 2 times of 55 per mode for the API model, 4 and 2 for the 4-bit model and
+6 and 5 for the 8-bit model, but the small models often did not use their tools at all, so this says little
+about robustness; with the permission layer, none succeed for any model. The 8-bit model followed one
+planted instruction (the API model followed none of 88).""")
 expert("""A first finding before any score: partial offload, not model size, is the bottleneck on a 4 GB card
 (52 s vs 3.3 s for the same answer once the 4B fits entirely with an 8k context and one request slot; two
 parallel slots made it worse by doubling the KV cache). The local 4B produced invalid tool arguments and
@@ -247,8 +251,8 @@ md("## 9. What it cost, what we would do next")
 plain("""All language-model calls together cost **under 10 US dollars** (API, peak list prices), thanks to a
 cache that makes re-runs free and a cost cap on every run.""")
 md("""**Limitations.** ~100 dev / 50 test questions give wide intervals; questions were model-proposed and
-machine-checked; the gold figures and the judge validation are AI-assisted; the security suite is 55 attacks
-on one API model; the policy's flow tracking is coarse (one confidential read taints the whole session).
+machine-checked; the gold figures and the judge validation are AI-assisted; the security suites are 55 and 40
+attacks (the second is 8 techniques in 5 contexts) on one API model; the policy's flow tracking is coarse (one confidential read taints the whole session).
 
 **Next.** A held-out set of human labels for the judge; finer, per-value information-flow labels (as in
 CaMeL); a larger injection suite with adaptive attacks; a local translation model for a fully on-premise
