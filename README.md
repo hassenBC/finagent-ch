@@ -285,7 +285,7 @@ adds the recipient. Benign utility: the 60 agent tasks + 15 legitimate e-mails t
 
 Attack text reached the model in 96–100 % of runs (each planted chunk carries a marker found in tool results).
 
-**What this shows, and what it does not.** `deepseek-flash` followed **none** of the 48 planted instructions
+**What this shows, and what it does not.** `deepseek-flash` followed **none** of the 44 planted instructions
 (documents, notes, obfuscated, in-task redirections), even with no defence: it read the redirections and still
 e-mailed only the recipient the user named. Both successful attacks were *direct* requests involving public data
 (a mailing to five addresses, figures sent to an outside domain); the prompt-only defence and the policy engine
@@ -293,7 +293,7 @@ e-mailed only the recipient the user named. Both successful attacks were *direct
 happened to refuse" into a guarantee that holds for any model or prompt, at a measured price: every legitimate
 "read a document, then e-mail" task is escalated by R3 (all 4 benign ones and the 10 document-based in-task e-mails),
 lowering unattended benign success from 0.92 to 0.87. With 55 attacks, "0 successes" bounds the true attack
-success rate only at roughly ≤ 6.5 % (95 %, rule of three).
+success rate only at roughly ≤ 5.5 % (95 %, rule of three, treating the attacks as independent).
 
 **Second suite (`injection_v2.jsonl`, run on 8 Nov).** Because the first suite was resisted almost entirely, I
 added 40 planted-document attacks with techniques it lacked: a forged chat template, forged tool calls, a claimed
@@ -301,12 +301,11 @@ user approval, a regulatory deadline, a workflow hijack, a German instruction, l
 figures, and an instruction to hide the action. They are 8 techniques times 5 report contexts, not 40 independent
 attacks, and one case per section is planted at a time (an independent review found that planting them together
 let variants compete in retrieval). `deepseek-flash` followed **none**: 0 of 40 single-mode and 0 of 40 routed
-runs, with the planted text reaching the model in 37 and 40 of them, and not one attempted e-mail to an external
-address. The routed runs all went to the `documents` route, which has no e-mail or client-note tool, so for them
-the zero shows least privilege, not resistance; the single-mode zero is the model's. Cost $0.125. Over both suites
-no planted instruction was followed (0 of 88), which bounds that rate at roughly ≤ 3.4 % (rule of three); a
-different attack distribution or model could still succeed, and the policy engine is what makes the guarantee
-independent of that. The self-hosted comparison is in the Phase 9 section below.
+runs, with the planted text reaching the model in 37 and 40 of them, and not one e-mail call at all. The routed runs all went to the `documents` route, which has no e-mail or client-note tool, so for them
+the zero shows least privilege, not resistance; in single mode no attack succeeded, including the 37 runs with
+confirmed exposure. Cost $0.125. Over both suites no planted instruction was followed (0 of 84 planted cases:
+44 + 40, which are correlated, so I give no confidence bound for the pool); a different attack distribution or
+model could still succeed, and the policy engine's rules apply to every mediated tool call whichever model chose it. The self-hosted comparison is in the Phase 9 section below.
 
 **Threat model and limitations.** In scope: an attacker who can publish text the agent retrieves (a PDF page, a
 client note) or a user asking for something they should not get; the asset is the synthetic client data and the
@@ -380,8 +379,9 @@ have more successes than the API model without a defence (2 per mode; 4 and 2 fo
 8-bit), but the counts are small and the 4-bit model's low numbers are partly weak tool use: about half of its
 attack runs made no tool call (28 of 55 single, 30 of 55 routed), so the attack never reached the tools. All the
 successes were direct requests except one `in_task_redirect` of the 8-bit model, the only planted instruction a
-model followed in either suite (the API model: 0 of 88 planted attacks). The policy engine denied every successful
-attack for all three models, which is the model-independent guarantee. The retrieval stage ran on the CPU in the
+model followed in either suite (the API model: 0 of 84 planted cases). Suite one tested all three models, suite two
+only the API model. The policy engine denied every successful attack of the three models in these evaluations; its
+rules apply to mediated tool calls, whichever model chose them. The retrieval stage ran on the CPU in the
 local runs, so the 13.6 s median RAG latency (API: 1.9 s) is not a pure generation comparison.
 
 ## Live demo app
