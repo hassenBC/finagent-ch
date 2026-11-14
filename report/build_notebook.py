@@ -240,6 +240,14 @@ Without a defence, attacks succeed 2 times of 55 per mode for the API model, 4 a
 6 and 5 for the 8-bit model, but the small models often did not use their tools at all, so this says little
 about robustness; with the permission layer, none succeed for any model. The 8-bit model followed one
 planted instruction (the API model followed none of 84).""")
+md("""**The same 50 dev questions for every model** (k = 5). The 8-bit 4B and the 8B only ran this half-size set;
+latency is the median over uncached answers and, for the local runs, includes retrieval on the CPU.""")
+code("""pd.read_csv(RES / "rag_half_subset.csv")""")
+md("""**Paired differences in numeric correctness** (first model minus second, on the 37 questions with a numeric answer,
+95 % bootstrap interval). Overlapping intervals of the single models hide the paired result: the API model is ahead of the
+4-bit 4B by 0.11 ([0.03, 0.22]); no other pair is clearly separated. The 8B is 0.03 below the 8-bit 4B and 0.08 below the
+API model, its citation precision (0.51) is the lowest, and it is about 130 times slower than the 4-bit 4B.""")
+code("""pd.read_csv(RES / "rag_half_paired.csv")""")
 expert("""A first finding before any score: partial offload, not model size, is the bottleneck on a 4 GB card
 (52 s vs 3.3 s for the same answer once the 4B fits entirely with an 8k context and one request slot; two
 parallel slots made it worse by doubling the KV cache). The local 4B produced invalid tool arguments and

@@ -1,0 +1,7 @@
+model_a,model_b,n_items,diff_numeric_correct,ci_lo,ci_hi
+Qwen3-8B 4-bit,DeepSeek flash (API),37,-0.081,-0.162,0.0
+Qwen3-8B 4-bit,Qwen3-4B 8-bit,37,-0.027,-0.135,0.081
+Qwen3-8B 4-bit,Qwen3-4B 4-bit,37,0.027,-0.081,0.135
+Qwen3-4B 8-bit,Qwen3-4B 4-bit,37,0.054,0.0,0.135
+DeepSeek flash (API),Qwen3-4B 4-bit,37,0.108,0.027,0.216
+DeepSeek flash (API),Qwen3-4B 8-bit,37,0.054,0.0,0.135
