@@ -232,8 +232,8 @@ code("F.fig_models();")
 md("""**Method.** Qwen3-4B (4-bit and 8-bit) and Qwen3-8B (4-bit) served by Ollama in Docker; identical
 prompts and code; the judge kept fixed (API). Only the 4-bit 4B fits the 4 GB GPU entirely (37/37 layers,
 ~3 s per answer); the 8-bit 4B and the 8B spill onto the CPU (minutes per answer), so they ran on half-size
-subsets. The 8B did not finish (over 11 minutes per answer, about nine hours for 50 RAG questions), so the
-chart shows no 8B numbers.""")
+subsets. The 8B ran only the 50-question RAG evaluation (median 29 minutes per answer), so the chart has no 8B
+bars; its answer-quality numbers are in the README and paper table.""")
 plain("""**Result.** The small 4-bit model answers key-figure questions correctly 57 % of the time (API model: 69 %)
 and completes 42 % of the agent tasks (API model: 92 %); it often refuses or answers without searching.
 Without a defence, attacks succeed 2 times of 55 per mode for the API model, 4 and 2 for the 4-bit model and

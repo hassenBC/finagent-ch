@@ -359,12 +359,13 @@ query, not slow retrieval.
 
 Qwen3-4B (4-bit and 8-bit) and Qwen3-8B (4-bit) served by Ollama on a 4 GB laptop GPU, same prompts, code and
 judge as the API model. Only the 4-bit 4B fits in GPU memory; the 8-bit 4B ran RAG and agent on half-size subsets
-and the full attack grid (single and routed, with and without the policy), and the 8B did not finish (over 11
-minutes per answer, about nine hours for 50 RAG questions), so there are no 8B numbers.
+and the full attack grid (single and routed, with and without the policy). The 8B ran only the 50-question RAG
+evaluation (median 29 min per answer on this GPU, 34 answers timed in the final run, 16 from an interrupted
+earlier run), so it has no agent or attack numbers.
 
 | | DeepSeek flash (API) | Qwen3-4B 4-bit | Qwen3-4B 8-bit (subset) |
 |---|---|---|---|
-| RAG numeric correct, dev, k = 5 | 0.69 | 0.57 | not tabulated (50-question subset) |
+| RAG numeric correct, dev, k = 5 | 0.69 | 0.57 | 0.65 (50-question subset, table below) |
 | citation precision | 0.76 | 0.65 | |
 | faithful answers (judge, of 71 / 72 judged) | 0.97 | 0.85 | |
 | agent task success (routed), full 60 tasks | 0.92 | 0.42 | not run |
@@ -372,6 +373,21 @@ minutes per answer, about nine hours for 50 RAG questions), so there are no 8B n
 | routing accuracy (60 tasks; 30 for 8-bit) | 0.97 | 0.65 | 0.73 |
 | attacks succeeding, no defence (of 55 per mode) | 2 single, 2 routed | 4 single, 2 routed | 6 single, 5 routed |
 | attacks succeeding with the policy engine (of 55 per mode) | 0 | 0 | 0 (it denied all 6 and 5) |
+
+The same 50 dev questions for every model (k = 5; local models have no judged faithfulness; latency is the median over
+uncached answers and includes retrieval on the CPU):
+
+| | numeric correct [95 % CI] | citation precision | citation recall | false abstention | median s / answer |
+|---|---|---|---|---|---|
+| DeepSeek flash (API) | 0.70 [0.54, 0.84] | 0.75 | 0.82 | 0.20 | 1.9 |
+| Qwen3-4B 4-bit | 0.60 [0.46, 0.76] | 0.66 | 0.84 | 0.18 | 14 |
+| Qwen3-4B 8-bit | 0.65 [0.51, 0.78] | 0.78 | 0.76 | 0.18 | 220 |
+| Qwen3-8B 4-bit | 0.62 [0.46, 0.78] | 0.51 | 0.80 | 0.16 | 1743 |
+
+On these 50 questions the models are statistically indistinguishable on numeric correctness (the intervals overlap
+almost completely) and the 8B does not beat the 8-bit 4B; its citation precision is the lowest. A larger model is not a
+clear gain here, while it is about 125 times slower than the 4-bit 4B on this GPU, where part of its
+layers run on the CPU.
 
 **Reading it.** The small model is much weaker at the agent job: it often refuses or answers without searching
 (false abstention on 12 and 25 of 60 tasks) and misroutes a third of the questions. On injection the small models
