@@ -256,7 +256,9 @@ attacks (the second is 8 techniques in 5 contexts) on one API model; the policy'
 
 **Next.** A held-out set of human labels for the judge; finer, per-value information-flow labels (as in
 CaMeL); a larger injection suite with adaptive attacks; a local translation model for a fully on-premise
-setup; streaming answers.""")
+setup; streaming answers. For on-premise use, the narrow steps (routing, key-figure extraction, SQL
+generation) could be distilled from a large model into small quantized specialists that fit a small GPU,
+as on-device models do; open-ended cited answers would still need a larger model. We have not tested this.""")
 
 nb = nbf.v4.new_notebook(cells=cells, metadata={"kernelspec": {"name": "python3",
                                                               "display_name": "Python 3"}})  # fmt: skip

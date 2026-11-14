@@ -331,7 +331,9 @@ Measured one component at a time, the largest gains came from simple, explainabl
 metadata filters, a correct ranking function, and fixing the top error class. Two of our early conclusions were
 wrong and only ablations revealed it, and an unvalidated LLM judge would have misreported faithfulness. For
 security, a deterministic policy layer adds a guarantee that does not depend on the model choosing to refuse,
-at a small, measured cost in utility.
+at a small, measured cost in utility. For on-premise use, a natural next step, which we did not test, is to
+distill the narrow steps (routing, key-figure extraction, SQL generation) from a large model into small
+quantized specialists that fit a small GPU, and keep a larger model only for open-ended cited answers.
 
 \bibliographystyle{plainnat}
 \bibliography{references}
