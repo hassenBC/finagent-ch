@@ -360,8 +360,8 @@ query, not slow retrieval.
 
 ## Self-hosted vs API models (Phase 9)
 
-Qwen3-4B (4-bit and 8-bit) and Qwen3-8B (4-bit) served by Ollama on a 4 GB laptop GPU, same prompts, code and
-judge as the API model. Only the 4-bit 4B fits in GPU memory; the 8-bit 4B ran RAG and agent on half-size subsets
+Qwen3-4B (4-bit and 8-bit) and Qwen3-8B (4-bit) served by Ollama on a 4 GB laptop GPU, same prompts and code as the API model (the same judge
+where judging was done: only the 4-bit 4B's 100-question dev run was judged; the 8-bit 4B and the 8B were not). Only the 4-bit 4B fits in GPU memory; the 8-bit 4B ran RAG and agent on half-size subsets
 and the full attack grid (single and routed, with and without the policy). The 8B ran only the 50-question RAG
 evaluation (median 29 min per answer on this GPU, 34 answers timed in the final run, 16 from an interrupted
 earlier run), so it has no agent or attack numbers.
@@ -377,7 +377,7 @@ earlier run), so it has no agent or attack numbers.
 | attacks succeeding, no defence (of 55 per mode) | 2 single, 2 routed | 4 single, 2 routed | 6 single, 5 routed |
 | attacks succeeding with the policy engine (of 55 per mode) | 0 | 0 | 0 (it denied all 6 and 5) |
 
-The same 50 dev questions for every model (k = 5; local models have no judged faithfulness; latency is the median over
+The same 50 dev questions for every model (k = 5; faithfulness is not shown, only the 4-bit 4B's 100-question dev run was judged; latency is the median over
 uncached answers and includes retrieval on the CPU):
 
 | | numeric correct [95 % CI] | citation precision | citation recall | false abstention | median s / answer |
@@ -387,10 +387,12 @@ uncached answers and includes retrieval on the CPU):
 | Qwen3-4B 8-bit | 0.65 [0.51, 0.78] | 0.78 | 0.76 | 0.18 | 220 |
 | Qwen3-8B 4-bit | 0.62 [0.46, 0.78] | 0.51 | 0.80 | 0.16 | 1743 |
 
-On these 50 questions the models are statistically indistinguishable on numeric correctness (the intervals overlap
-almost completely) and the 8B does not beat the 8-bit 4B; its citation precision is the lowest. A larger model is not a
-clear gain here, while it is about 125 times slower than the 4-bit 4B on this GPU, where part of its
-layers run on the CPU.
+Compared on the same questions (37 with a numeric answer), the API model is ahead of the 4-bit 4B by 0.11 in numeric
+correctness (paired 95 % bootstrap interval [0.03, 0.22]) and of the 8-bit 4B by 0.05 ([0.00, 0.14]); the 8B is 0.03
+below the 8-bit 4B ([-0.14, +0.08]) and 0.08 below the API model ([-0.16, 0.00]), so these data cannot separate it from
+either 4B. Its citation precision (0.51) is the lowest of the four. On this subset and hardware a larger model is not a
+clear gain, and it is about 130 times slower than the 4-bit 4B (1743 s against 13.6 s), where part of its layers run on
+the CPU.
 
 **Reading it.** The small model is much weaker at the agent job: it often refuses or answers without searching
 (false abstention on 12 and 25 of 60 tasks) and misroutes a third of the questions. On injection the small models
@@ -407,7 +409,7 @@ To reproduce (Ollama needs the GPU, so run one model at a time; every local call
 
 ```bash
 docker compose --profile local-llm up -d ollama                  # Qwen3 served by Ollama
-bash eval/phase9_night.sh                                        # RAG, agent and attacks: 4-bit 4B, then 8-bit 4B and 8B subsets
+bash eval/phase9_night.sh                                        # 4B: RAG, agent and attacks (8-bit on subsets); 8B: RAG only
 uv run python -m eval.run_security --model local_qwen4b_q8 --suite attack --modes single routed \
   --defences none policy --tag local_qwen4b_q8 --out-dir results/phase9      # the full 8-bit attack grid
 uv run python -m eval.build_injection_v2                         # the 40-attack second suite -> injection_v2.jsonl

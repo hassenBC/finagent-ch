@@ -276,7 +276,8 @@ live in a demo application.
 
 \section{Self-hosted models}\label{sec:local}
 On-premise deployment matters for banks. We served Qwen3-4B (4-bit and 8-bit) and Qwen3-8B (4-bit) with
-Ollama on a 4\,GB laptop GPU, with identical prompts and code and the judge kept fixed. Only the 4-bit 4B fits
+Ollama on a 4\,GB laptop GPU, with identical prompts and code (the judge is the same where judging was done: only the 4-bit 4B's dev run was
+judged). Only the 4-bit 4B fits
 entirely in GPU memory with an 8k context and one request slot (about 3\,s per answer instead of 52\,s with
 partial offload, from informal timings of single answers, not a controlled benchmark); the other two spill onto
 the CPU. The 8-bit 4B therefore ran RAG and agent evaluations on half-size subsets, and the full attack grid
@@ -291,8 +292,7 @@ answers among those judged are 0.85 against 0.97 (72 and 71 judged answers). The
 retrieval ran on the CPU in the local run, so this is not a pure generation comparison.
 
 \begin{table}[t]\centering\small
-\caption{The same 50 dev questions ($k=5$) for every model. Local models were run without a judge, so there is no
-faithfulness column. Latency is the median over the uncached answers; for the local runs it includes retrieval on
+\caption{The same 50 dev questions ($k=5$) for every model. Faithfulness is not shown: only the 4-bit 4B's 100-question dev run was judged. Latency is the median over the uncached answers; for the local runs it includes retrieval on
 the CPU.}\label{tab:half}
 \begin{tabular}{lccccc}\toprule
  & numeric correct & cit.\ prec. & cit.\ rec. & false abst. & median s/answer \\\midrule
@@ -302,10 +302,12 @@ Qwen3-4B 8-bit & 0.65\ci{0.51}{0.78} & 0.78 & 0.76 & 0.18 & 220 \\
 Qwen3-8B 4-bit & 0.62\ci{0.46}{0.78} & 0.51 & 0.80 & 0.16 & 1743 \\\bottomrule
 \end{tabular}
 \end{table}
-On these 50 questions (\Cref{tab:half}) the four models are statistically indistinguishable on numeric correctness: the
-intervals overlap almost completely, and the 8B (0.62) does not beat the 8-bit 4B (0.65). Its citation precision
-(0.51) is the lowest of the four. A larger model is therefore not a clear gain here, while it is about 125 times slower than the
-4-bit 4B on this GPU, where part of its layers run on the CPU.
+Compared on the same questions (\Cref{tab:half}; 37 have a numeric answer), the API model is ahead of the 4-bit 4B by
+0.11 in numeric correctness (paired 95\% bootstrap interval $[0.03, 0.22]$) and of the 8-bit 4B by 0.05 ($[0.00, 0.14]$);
+the 8B is 0.03 below the 8-bit 4B ($[-0.14, +0.08]$) and 0.08 below the API model ($[-0.16, 0.00]$), so these data
+cannot separate it from either 4B. Its citation precision (0.51) is the lowest of the four. On this subset and hardware a
+larger model is not a clear gain, and it is about 130 times slower than the 4-bit 4B (1743\,s against 13.6\,s), where
+part of its layers run on the CPU.
 
 \paragraph{Agent.} Task success is 0.42 (routed) and 0.43 (single) against 0.92 and 0.90 for the API model, and
 routing accuracy 0.65 against 0.97. The 4B makes 0.5--0.7 tool calls per task against 2.8--3.0: it often

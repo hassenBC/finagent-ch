@@ -230,7 +230,7 @@ code("""t = F.phase9_table()
 t if t is not None else "Phase 9 results not available yet: re-run this notebook after the overnight run." """)
 code("F.fig_models();")
 md("""**Method.** Qwen3-4B (4-bit and 8-bit) and Qwen3-8B (4-bit) served by Ollama in Docker; identical
-prompts and code; the judge kept fixed (API). Only the 4-bit 4B fits the 4 GB GPU entirely (37/37 layers,
+prompts and code; the judge (API) is the same where judging was done, which was only the 4-bit 4B's dev run. Only the 4-bit 4B fits the 4 GB GPU entirely (37/37 layers,
 ~3 s per answer); the 8-bit 4B and the 8B spill onto the CPU (minutes per answer), so they ran on half-size
 subsets. The 8B ran only the 50-question RAG evaluation (median 29 minutes per answer), so the chart has no 8B
 bars; its answer-quality numbers are in the README and paper table.""")
