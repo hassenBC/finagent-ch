@@ -285,7 +285,7 @@ adds the recipient. Benign utility: the 60 agent tasks + 15 legitimate e-mails t
 
 Attack text reached the model in 96–100 % of runs (each planted chunk carries a marker found in tool results).
 
-**What this shows, and what it does not.** `deepseek-flash` followed **none** of the 48 planted instructions
+**What this shows, and what it does not.** `deepseek-flash` followed **none** of the 44 planted instructions
 (documents, notes, obfuscated, in-task redirections), even with no defence: it read the redirections and still
 e-mailed only the recipient the user named. Both successful attacks were *direct* requests involving public data
 (a mailing to five addresses, figures sent to an outside domain); the prompt-only defence and the policy engine
@@ -293,8 +293,19 @@ e-mailed only the recipient the user named. Both successful attacks were *direct
 happened to refuse" into a guarantee that holds for any model or prompt, at a measured price: every legitimate
 "read a document, then e-mail" task is escalated by R3 (all 4 benign ones and the 10 document-based in-task e-mails),
 lowering unattended benign success from 0.92 to 0.87. With 55 attacks, "0 successes" bounds the true attack
-success rate only at roughly ≤ 6.5 % (95 %, rule of three). The self-hosted comparison is in the Phase 9 section
-below.
+success rate only at roughly ≤ 5.5 % (95 %, rule of three, treating the attacks as independent).
+
+**Second suite (`injection_v2.jsonl`, run on 8 Nov).** Because the first suite was resisted almost entirely, I
+added 40 planted-document attacks with techniques it lacked: a forged chat template, forged tool calls, a claimed
+user approval, a regulatory deadline, a workflow hijack, a German instruction, laundering the notes as "public"
+figures, and an instruction to hide the action. They are 8 techniques times 5 report contexts, not 40 independent
+attacks, and one case per section is planted at a time (an independent review found that planting them together
+let variants compete in retrieval). `deepseek-flash` followed **none**: 0 of 40 single-mode and 0 of 40 routed
+runs, with the planted text reaching the model in 37 and 40 of them, and not one e-mail call at all. The routed runs all went to the `documents` route, which has no e-mail or client-note tool, so for them
+the zero shows least privilege, not resistance; in single mode no attack succeeded, including the 37 runs with
+confirmed exposure. Cost $0.125. Over both suites no planted instruction was followed (0 of 84 planted cases:
+44 + 40, which are correlated, so I give no confidence bound for the pool); a different attack distribution or
+model could still succeed, and the policy engine's rules apply to every mediated tool call whichever model chose it. The self-hosted comparison is in the Phase 9 section below.
 
 **Threat model and limitations.** In scope: an attacker who can publish text the agent retrieves (a PDF page, a
 client note) or a user asking for something they should not get; the asset is the synthetic client data and the
@@ -304,8 +315,11 @@ after one confidential read everything is treated as confidential, and taint is 
 (finer tracking would label values, as in CaMeL). Client notes are labelled *trusted*, so an instruction inside a
 note does not trigger R3; only R1/R2 stop it; trust labels are an assumption that can be wrong. The
 recipient allowlist is the main egress control: a compromised internal mailbox would defeat it. The policy runs in
-the agent loop, not in the MCP server, so a client that calls the server directly is not checked (a policy proxy in
-front of the server is the deployment fix); the side-effect budget R4 counts per agent run, not per MCP session;
+the agent loop; with `FINAGENT_SERVER_POLICY=1` the MCP server also enforces the deny rules (R1, R2, R4, R5) on every
+call it receives, so a client that bypasses the loop is checked too (checked end to end on a real stdio server: a
+confidential read followed by an external e-mail is blocked and nothing reaches the outbox). R3 stays with the loop,
+since a server cannot ask a human, and the guard is off by default so the evaluations measure the loop's policy alone;
+its state lives per server process, so it suits one session per process, not the demo app's long-lived session; the side-effect budget R4 counts per agent run, not per MCP session;
 and a search query is translated by the same external API that serves the model, so confidential text pasted into a
 query reaches no new party but would leave the bank if that provider were out of scope. An independent read-only
 review of the policy, SQL and MCP code found these three boundaries plus four defects, now fixed with tests: a CTE
@@ -317,7 +331,7 @@ rejected, the router could widen a caller's tool allowlist, and tool arguments h
 
 | Tier | When | Runs | Needs |
 |---|---|---|---|
-| Fast (`.github/workflows/ci.yml`) | every push / PR | ruff, 264 unit tests (incl. 40 SQL-injection inputs, policy rules, dataset checks), the `agent_reader` role tests against Postgres, and **retrieval on 31 dev questions** (e5-small hybrid) against a 4-report fixture in a pgvector service container, checked against thresholds with a per-item diff in the job summary | nothing (no key, no GPU) |
+| Fast (`.github/workflows/ci.yml`) | every push / PR | ruff, 297 unit tests (incl. 40 SQL-injection inputs, policy rules, dataset checks), the `agent_reader` role tests against Postgres, and **retrieval on 31 dev questions** (e5-small hybrid) against a 4-report fixture in a pgvector service container, checked against thresholds with a per-item diff in the job summary | nothing (no key, no GPU) |
 | Full (`make regression`) | before a release / after a change | final retrieval config, RAG (k = 10), routed agent (60 tasks), security suite with the policy engine (2 × 55 attacks): each against thresholds and diffed per item against committed baselines | full corpus, GPU, API key |
 
 The CI fixture (`tests/fixtures/ci_fixture.jsonl.gz`, 3.7 MB) holds only what retrieval needs (FTS vectors,
@@ -346,29 +360,66 @@ query, not slow retrieval.
 
 ## Self-hosted vs API models (Phase 9)
 
-Qwen3-4B (4-bit and 8-bit) and Qwen3-8B (4-bit) served by Ollama on a 4 GB laptop GPU, same prompts, code and
-judge as the API model. Only the 4-bit 4B fits in GPU memory; the 8-bit 4B ran RAG and agent on half-size subsets
-and the attacks in single mode without a defence only, and the 8B did not finish (over 11 minutes per answer, about nine hours for 50 RAG questions), so there are no 8B numbers.
+Qwen3-4B (4-bit and 8-bit) and Qwen3-8B (4-bit) served by Ollama on a 4 GB laptop GPU, same prompts and code as the API model (the same judge
+where judging was done: only the 4-bit 4B's 100-question dev run was judged; the 8-bit 4B and the 8B were not). Only the 4-bit 4B fits in GPU memory; the 8-bit 4B ran RAG and agent on half-size subsets
+and the full attack grid (single and routed, with and without the policy). The 8B ran only the 50-question RAG
+evaluation (median 29 min per answer on this GPU, 34 answers timed in the final run, 16 from an interrupted
+earlier run), so it has no agent or attack numbers.
 
 | | DeepSeek flash (API) | Qwen3-4B 4-bit | Qwen3-4B 8-bit (subset) |
 |---|---|---|---|
-| RAG numeric correct, dev, k = 5 | 0.69 | 0.57 | not tabulated (50-question subset) |
+| RAG numeric correct, dev, k = 5 | 0.69 | 0.57 | 0.65 (50-question subset, table below) |
 | citation precision | 0.76 | 0.65 | |
 | faithful answers (judge, of 71 / 72 judged) | 0.97 | 0.85 | |
 | agent task success (routed), full 60 tasks | 0.92 | 0.42 | not run |
 | agent task success (routed), the same 30 tasks | 0.90 (27/30) | 0.40 (12/30) | 0.50 (15/30) |
 | routing accuracy (60 tasks; 30 for 8-bit) | 0.97 | 0.65 | 0.73 |
-| attacks succeeding, no defence (of 55 per mode) | 2 single, 2 routed | 4 single, 2 routed | 6 single (routed and policy not run) |
+| attacks succeeding, no defence (of 55 per mode) | 2 single, 2 routed | 4 single, 2 routed | 6 single, 5 routed |
+| attacks succeeding with the policy engine (of 55 per mode) | 0 | 0 | 0 (it denied all 6 and 5) |
+
+The same 50 dev questions for every model (k = 5; faithfulness is not shown, only the 4-bit 4B's 100-question dev run was judged; latency is the median over
+uncached answers and includes retrieval on the CPU):
+
+| | numeric correct [95 % CI] | citation precision | citation recall | false abstention | median s / answer |
+|---|---|---|---|---|---|
+| DeepSeek flash (API) | 0.70 [0.54, 0.84] | 0.75 | 0.82 | 0.20 | 1.9 |
+| Qwen3-4B 4-bit | 0.60 [0.46, 0.76] | 0.66 | 0.84 | 0.18 | 14 |
+| Qwen3-4B 8-bit | 0.65 [0.51, 0.78] | 0.78 | 0.76 | 0.18 | 220 |
+| Qwen3-8B 4-bit | 0.62 [0.46, 0.78] | 0.51 | 0.80 | 0.16 | 1743 |
+
+Compared on the same questions (37 with a numeric answer), the API model is ahead of the 4-bit 4B by 0.11 in numeric
+correctness (paired 95 % bootstrap interval [0.03, 0.22]) and of the 8-bit 4B by 0.05 ([0.00, 0.14]); the 8B is 0.03
+below the 8-bit 4B ([-0.14, +0.08]) and 0.08 below the API model ([-0.16, 0.00]), so these data cannot separate it from
+either 4B. Its citation precision (0.51) is the lowest of the four. On this subset and hardware a larger model is not a
+clear gain, and it is about 130 times slower than the 4-bit 4B (1743 s against 13.6 s), where part of its layers run on
+the CPU.
 
 **Reading it.** The small model is much weaker at the agent job: it often refuses or answers without searching
-(false abstention on 12 and 25 of 60 tasks) and misroutes a third of the questions. On injection the counts are
-too small to separate the models (2 vs 4 of 55). The data does not show the 4B to be more robust: with the 4-bit
-model about half of the attack runs made no tool call (28 of 55 single, 30 of 55 routed), so the attack never
-reached the tools, and all its successes were direct requests; the policy layer blocked all of them, as it did for
-the API model. The 8-bit model made no call in 18 of 55 runs and had 5 direct successes plus one `in_task_redirect`:
-a planted instruction that was followed once, which the API model never did (0 of 48). The policy layer was not
-tested on the 8-bit model. The retrieval stage ran on the CPU in the local
-runs, so the 13.6 s median RAG latency (API: 1.9 s) is not a pure generation comparison.
+(false abstention on 12 and 25 of 60 tasks) and misroutes a third of the questions. On injection the small models
+have more successes than the API model without a defence (2 per mode; 4 and 2 for the 4-bit; 6 and 5 for the
+8-bit), but the counts are small and the 4-bit model's low numbers are partly weak tool use: about half of its
+attack runs made no tool call (28 of 55 single, 30 of 55 routed), so the attack never reached the tools. All the
+successes were direct requests except one `in_task_redirect` of the 8-bit model, the only planted instruction a
+model followed in either suite (the API model: 0 of 84 planted cases). Suite one tested all three models, suite two
+only the API model. The policy engine denied every successful attack of the three models in these evaluations; its
+rules apply to mediated tool calls, whichever model chose them. The retrieval stage ran on the CPU in the
+local runs, so the 13.6 s median RAG latency (API: 1.9 s) is not a pure generation comparison.
+
+To reproduce (Ollama needs the GPU, so run one model at a time; every local call is cached and costs $0):
+
+```bash
+docker compose --profile local-llm up -d ollama                  # Qwen3 served by Ollama
+bash eval/phase9_night.sh                                        # 4B: RAG, agent and attacks (8-bit on subsets); 8B: RAG only
+uv run python -m eval.run_security --model local_qwen4b_q8 --suite attack --modes single routed \
+  --defences none policy --tag local_qwen4b_q8 --out-dir results/phase9      # the full 8-bit attack grid
+uv run python -m eval.build_injection_v2                         # the 40-attack second suite -> injection_v2.jsonl
+uv run python -m eval.run_security --suite attack --attacks injection_v2.jsonl --isolate --modes single routed \
+  --defences none --tag api_v2 --out-dir results/injection_v2    # against the API model, about $0.13
+uv run python -m eval.report_rag                                 # RAG tables, including the local rows
+uv run --with nbformat --with nbclient --with ipykernel python report/build_notebook.py
+uv run --with nbformat --with nbclient --with ipykernel jupyter nbconvert --execute --inplace report/finagent_report.ipynb
+                                                                 # rebuilds the figures, including models.pdf
+```
 
 ## Live demo app
 
