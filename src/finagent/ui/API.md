@@ -36,7 +36,7 @@ Each message: `data: {"seq": int, "t_ms": int, "kind": str, "data": {...}}` (`t_
 | `llm_request` | `{turn, n_messages, context_chars}` | an LLM call starts |
 | `llm_response` | `{turn, text, tool_calls: [{name, args}], tokens_in, tokens_out, cost_usd, cached, latency_ms}` | |
 | `policy_check` | `{tool, args, state: {max_sensitivity, tainted, side_effects}}` | state before the call |
-| `policy_decision` | `{tool, decision: allow|deny|escalate, rule_id, reason, state}` | |
+| `policy_decision` | `{tool, decision: allow|deny|escalate, rule_id, reason, state}` | for a call that needs approval the real server emits it AFTER `approval_result` (the check waits for the human); the offline mock emits `escalate` before `approval_needed`. Clients must put all of them on one row per call. |
 | `approval_needed` | `{approval_id, tool, args, rule_id, reason}` | the run is paused until `POST .../approval` with this `approval_id` (auto-deny after 5 min) |
 | `approval_result` | `{approval_id, allow, timed_out}` | |
 | `tool_start` | `{tool, args}` | |

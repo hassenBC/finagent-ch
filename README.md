@@ -454,4 +454,12 @@ without one, use `uv sync --extra cpu`.
 Done: corpus and parsing, evaluation set, retrieval lab (Phase 3), RAG with citations and abstention, validated LLM
 judge (Phase 4), extracted key figures with a guarded text-to-SQL tool (Phase 5), MCP server and routed agent (Phase 6),
 deterministic permission layer and injection suite (Phase 7), regression tiers, CI and tracing (Phase 8), self-hosted vs
-API model comparison (Phase 9).
+API model comparison (Phase 9), a second injection suite and an opt-in server-side policy guard (Phase 10).
+
+Next (Phase 11, not started): make the system run on small hardware. First log every prompt and tool trajectory so each
+teacher call becomes training data (the LLM cache stores outputs only). Then distil the router (routing accuracy is 0.65
+for the 4-bit 4B against 0.97 for the API model) into a small quantized student, trained with LoRA on a rented 24 GB GPU
+for roughly $50 all in, and judge it on new frozen test sets with paired intervals and the security suites re-run. If
+data residency is the goal, the real step is fine-tuning one small model on teacher trajectories for the whole agent
+loop. Other open items: a judged faithfulness run for the local models, the policy proxy in front of the MCP server for
+the demo app's long-lived session, and an adaptive attack suite against a second API model.
