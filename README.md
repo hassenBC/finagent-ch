@@ -384,6 +384,22 @@ only the API model. The policy engine denied every successful attack of the thre
 rules apply to mediated tool calls, whichever model chose them. The retrieval stage ran on the CPU in the
 local runs, so the 13.6 s median RAG latency (API: 1.9 s) is not a pure generation comparison.
 
+To reproduce (Ollama needs the GPU, so run one model at a time; every local call is cached and costs $0):
+
+```bash
+docker compose --profile local-llm up -d ollama                  # Qwen3 served by Ollama
+bash eval/phase9_night.sh                                        # RAG, agent and attacks: 4-bit 4B, then 8-bit 4B and 8B subsets
+uv run python -m eval.run_security --model local_qwen4b_q8 --suite attack --modes single routed \
+  --defences none policy --tag local_qwen4b_q8 --out-dir results/phase9      # the full 8-bit attack grid
+uv run python -m eval.build_injection_v2                         # the 40-attack second suite -> injection_v2.jsonl
+uv run python -m eval.run_security --suite attack --attacks injection_v2.jsonl --isolate --modes single routed \
+  --defences none --tag api_v2 --out-dir results/injection_v2    # against the API model, about $0.13
+uv run python -m eval.report_rag                                 # RAG tables, including the local rows
+uv run --with nbformat --with nbclient --with ipykernel python report/build_notebook.py
+uv run --with nbformat --with nbclient --with ipykernel jupyter nbconvert --execute --inplace report/finagent_report.ipynb
+                                                                 # rebuilds the figures, including models.pdf
+```
+
 ## Live demo app
 
 `finagent ui` → http://localhost:8000. Ask a question (or pick one of ten scenarios), choose the model (DeepSeek
