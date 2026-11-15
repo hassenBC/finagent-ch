@@ -1,21 +1,60 @@
-MIT License
+finagent-ch Permission-Required License
 
-Copyright (c) 2026 Hassen Ben Chaabane
+Copyright (c) 2026 Hassen Ben Chaabane. All rights reserved.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+This repository (the "Work") includes the source code, configuration, SQL, evaluation
+datasets written by the author, results, report, paper, figures and demo material, except
+for the third-party material listed in NOTICE.md.
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+1. What you may do without asking
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+   You may view and read the Work, and you may fork it on GitHub as the GitHub Terms of
+   Service allow. Nothing else is granted without permission.
+
+2. What requires prior written permission
+
+   You must ask for, and receive, permission from the copyright holder before you:
+
+   - run, install or execute the Work or any part of it;
+   - copy, modify, adapt or translate the Work or any part of it;
+   - distribute, publish, host, sublicense, sell or otherwise make the Work or any part of it
+     available to others, whether modified or not;
+   - use the Work or any part of it in a product, service, research project, publication,
+     course, benchmark or training dataset, including the training or fine-tuning of
+     machine-learning models;
+   - use the Work for any commercial purpose.
+
+   To ask, open an issue on the repository or contact the author through the GitHub profile
+   hassenBC. Permission may be granted or refused at the author's sole discretion, may carry
+   conditions, and is valid only in the form given in writing (an issue reply counts).
+
+3. Quotation
+
+   Short quotations with attribution, as copyright law allows (for example in a review or a
+   citation of the paper), do not need permission.
+
+4. Third-party material
+
+   Third-party components keep their own licenses, which this license does not change. See
+   NOTICE.md. The annual reports of the banks studied are not part of the Work and are not
+   licensed by the author; they remain the property of their publishers.
+
+5. No transfer of rights
+
+   Granting permission once does not grant it again, and does not transfer ownership or any
+   other right. All rights not expressly granted are reserved.
+
+6. No warranty and limitation of liability
+
+   THE WORK IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+   BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+   NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+   CONNECTION WITH THE WORK OR THE USE OR OTHER DEALINGS IN THE WORK. The Work is a research
+   project and nothing in it is financial advice.
+
+7. Previous versions
+
+   Earlier commits of this repository carried the MIT license. Anyone who received a copy
+   under those terms keeps the rights that license gave for that copy; this license applies to
+   the current version and to every later one.

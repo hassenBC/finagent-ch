@@ -479,4 +479,11 @@ data residency is the goal, the real step is fine-tuning one small model on teac
 loop. Other open items: a judged faithfulness run for the local models, the policy proxy in front of the MCP server for
 the demo app's long-lived session, and an adaptive attack suite against a second API model.
 
+## License
+
+Source-available, **not open source**: you may read the code and fork it on GitHub, but you need the author's
+permission before you run, copy, modify, redistribute or build on it. Ask by opening an issue. See [`LICENSE`](LICENSE).
+The bank annual reports are not included and belong to their publishers; fonts and other third-party parts are listed in
+[`NOTICE.md`](NOTICE.md).
+
 History was reconstructed in November 2026 from earlier development work. Commit dates approximate the development timeline.

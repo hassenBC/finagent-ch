@@ -24,3 +24,6 @@ results/*_regression.csv
 paper/*.zip
 !docs/demo/
 JOURNAL.md
+
+# local agent state
+.claude/
