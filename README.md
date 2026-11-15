@@ -463,3 +463,5 @@ for roughly $50 all in, and judge it on new frozen test sets with paired interva
 data residency is the goal, the real step is fine-tuning one small model on teacher trajectories for the whole agent
 loop. Other open items: a judged faithfulness run for the local models, the policy proxy in front of the MCP server for
 the demo app's long-lived session, and an adaptive attack suite against a second API model.
+
+History was reconstructed in November 2026 from earlier development work. Commit dates approximate the development timeline.
