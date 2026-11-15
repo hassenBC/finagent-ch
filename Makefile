@@ -76,3 +76,6 @@ regression:       ## full tier: retrieval, RAG, agent, security vs thresholds + 
 
 regression-ci:    ## fast tier locally: load the CI fixture into a scratch DB and run it like CI does
 	$(RUN) python -m eval.regression --ci
+
+demo:             ## re-record the README demo video (docs/demo/)
+	./docs/demo/build.sh
