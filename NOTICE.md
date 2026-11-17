@@ -17,10 +17,10 @@ Swissquote, BCV and BCGE (`data/sources.csv` lists URLs and SHA-256 hashes). The
 copyright of their publishers and are **not** redistributed here: `data/raw/` and `data/parsed/`
 are git-ignored and `finagent download` fetches them from the publishers.
 
-The repository does contain material derived from the reports: short excerpts and page numbers
-in the evaluation datasets (`eval/datasets/`), and the CI retrieval fixture
-(`tests/fixtures/ci_fixture.jsonl.gz`). These are included for reproducibility and review only,
-and remain subject to the publishers' rights.
+The repository does contain material derived from the reports: short evidence excerpts (table rows, sentences) and page
+numbers in the evaluation datasets (`eval/datasets/`), and extracted key figures (`data/gold/`). The CI retrieval fixture
+(`tests/fixtures/ci_fixture.jsonl.gz`) holds only stemmed search terms and embeddings, not readable report text. All of this is
+included for reproducibility and review only, and remains subject to the publishers' rights.
 
 ## Dependencies
 
