@@ -26,8 +26,7 @@ included for reproducibility and review only, and remains subject to the publish
 
 Dependencies are installed from PyPI and are not part of this repository. Note that
 `pymupdf` is licensed under AGPL-3.0 (or a commercial license from Artifex) and `docling`,
-`torch`, `sentence-transformers` and the others carry their own licenses; check them before any
-use that requires the author's permission under `LICENSE`.
+`torch`, `sentence-transformers` and the others carry their own licenses; check and comply with their terms for every use, including evaluation under section 1(b) of `LICENSE`.
 
 ## Models
 

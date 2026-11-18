@@ -8,21 +8,46 @@ for the third-party material listed in NOTICE.md.
 
 1. What you may do without asking
 
-   You may view and read the Work, and you may fork it on GitHub as the GitHub Terms of
-   Service allow. Nothing else is granted without permission.
+   a. View and read the Work, and fork it on GitHub as the GitHub Terms of Service allow.
+
+   b. Evaluation use. You may download, install, execute, reproduce and modify the Work
+      solely as reasonably necessary to assess the author for hiring or engagement, review
+      the Work itself, or verify its published results. This includes running its tests and
+      evaluations, but excludes using the Work for unrelated research or to develop, validate
+      or operate another product or service.
+
+      - You may make the private copies needed and let employees and contracted reviewers who
+        take part in the same assessment use them, provided they comply with this section.
+      - You may use your own API accounts, models, data and private hosting for this. Providers
+        may process Work content only as needed to provide those services, with no independent
+        reuse of it and no training on it.
+      - Employers and paid recruiters may use the Work this way to assess the author. Any other
+        evaluation use must be non-commercial.
+      - Use is allowed only while a genuine assessment is under way. When it ends or is
+        abandoned, delete the copies and modifications made under this section.
+      - This does not permit sharing the Work or modified copies, except as section 3 allows.
+        You may keep and share your own assessment, notes and measurements, provided they do
+        not reproduce the Work beyond section 3. No permission is granted to incorporate the
+        Work into a product, service or training dataset.
+      - This grant covers only the author's rights, not rights in report excerpts, extracted
+        figures, dependencies, models or other third-party material (see NOTICE.md).
+
+   Nothing else is granted without permission.
 
 2. What requires prior written permission
 
-   You must ask for, and receive, permission from the copyright holder before you:
+   Beyond sections 1 and 3, you must ask for, and receive, permission from the copyright
+   holder before you:
 
-   - run, install or execute the Work or any part of it;
-   - copy, modify, adapt or translate the Work or any part of it;
+   - copy, modify, adapt or translate the Work or any part of it, other than the private
+     copy allowed in 1(b);
    - distribute, publish, host, sublicense, sell or otherwise make the Work or any part of it
      available to others, whether modified or not;
    - use the Work or any part of it in a product, service, research project, publication,
      course, benchmark or training dataset, including the training or fine-tuning of
      machine-learning models;
-   - use the Work for any commercial purpose.
+   - use the Work for any commercial purpose;
+   - run it for any purpose other than evaluation as described in 1(b).
 
    To ask, open an issue on the repository or contact the author through the GitHub profile
    hassenBC. Permission may be granted or refused at the author's sole discretion, may carry
