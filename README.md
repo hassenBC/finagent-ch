@@ -528,4 +528,21 @@ permission: open an issue.
 The bank annual reports are not included and belong to their publishers; fonts and other third-party parts are listed in
 [`NOTICE.md`](NOTICE.md).
 
-History was reconstructed in November 2026 from earlier development work. Commit dates approximate the development timeline.
+## Development timeline
+
+The Git history was reconstructed in November 2026. The dates below follow the approximate commit chronology.
+Experiment logs and the original release record use their recorded dates.
+
+| Reconstructed dates (2026) | Milestones |
+| --- | --- |
+| Sep 12–15 | Project scaffold, PostgreSQL, CI, and local GPU setup |
+| Sep 19–21 | Corpus ingestion, chunking, and embeddings |
+| Sep 23–27 | Evaluation dataset and spot check |
+| Oct 2–10 | Retrieval experiments and test-set results |
+| Oct 10–13 | RAG, citations, and judge validation |
+| Oct 14–20 | Figure extraction, text-to-SQL, and the agent |
+| Oct 24–26 | Policy engine, injection evaluation, regression tiers, and tracing |
+| Oct 28–Nov 1 | Local-model setup and interactive demo |
+| Nov 1–7 | Report notebook, paper draft, and standalone HTML report |
+| Nov 7–15 | Local-model results, hardening, and demo approval fixes |
+| Nov 15–19 | Paper PDF, demo video, licensing, and README revisions |

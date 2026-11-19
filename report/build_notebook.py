@@ -35,6 +35,8 @@ A question-answering assistant over the **annual reports of six Swiss banks** (J
 EFG International, Swissquote, BCV, BCGE; fiscal years 2024 and 2025; English and French; table-heavy PDFs),
 grown step by step into a **tool-using agent with a security layer**, and **measured at every step**.
 
+In the reconstructed Git history, the report notebook first appears on November 1, 2026. The standalone HTML report follows on November 7.
+
 **How to read this report.** Every section has the same four parts:
 
 * **In plain words**: two or three sentences, no jargon. If you only read these, you get the story.
